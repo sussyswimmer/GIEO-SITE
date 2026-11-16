@@ -1,0 +1,179 @@
+{
+  "meta": {
+    "siteName": "GIEO",
+    "title": "GIEO | Sáng kiến giáo dục và cơ hội cho các em gái",
+    "description": "Gieo những hạt mầm hy vọng cho các em gái vùng cao."
+  },
+  "nav": {
+    "home": "Trang chủ",
+    "collections": "Bộ sưu tập",
+    "about": "Giới thiệu",
+    "getInvolved": "Tham gia",
+    "contact": "Liên hệ",
+    "language": "Ngôn ngữ",
+    "switchTo": "English",
+    "skipToContent": "Chuyển đến nội dung",
+    "openMenu": "Mở menu",
+    "closeMenu": "Đóng menu"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Girls' Initiative for Education and Opportunities",
+      "headline": "GIEO",
+      "sub": "Gieo những hạt mầm hy vọng cho các em gái vùng cao."
+    },
+    "meaning": {
+      "word": "gieo",
+      "pos": "v.",
+      "pron": "/zɛw/",
+      "gloss": "gieo hạt",
+      "body": "Trong tiếng Việt, từ \"gieo\" mang ý nghĩa gieo mầm, tượng trưng cho việc gieo những hạt giống của hy vọng, cơ hội và sự thay đổi bền vững dành cho các em gái lớn lên tại các vùng nông thôn và miền núi trên khắp Việt Nam.",
+      "intro": "Girls' Initiative for Education and Opportunities (GIEO) là một sáng kiến xã hội do học sinh trung học phổ thông tại Hà Nội sáng lập và vận hành.",
+      "ibNote": "Được lựa chọn bởi IB Global Youth Action Fund."
+    },
+    "craft": {
+      "beat1": "Sáng kiến của GIEO kết hợp giữa bảo tồn văn hóa và phát triển cộng đồng thông qua việc tạo ra những sản phẩm mang phong cách hiện đại, phù hợp với thế hệ trẻ nhưng vẫn tôn vinh nghề dệt thổ cẩm truyền thống của người H'Mông.",
+      "quote": "Từng sợi chỉ đan, từng mũi khâu dệt, từng mảnh vải thêu đều là một câu chuyện bền bỉ về người phụ nữ Việt Nam.",
+      "beat3": "Thay vì chỉ đơn thuần bán các sản phẩm thủ công, GIEO phát triển những sản phẩm đương đại nhưng vẫn sử dụng họa tiết và kỹ thuật dệt thổ cẩm truyền thống của người H'Mông, giúp các giá trị thủ công truyền thống trở nên gần gũi và phù hợp hơn với người tiêu dùng trẻ ngày nay. Mỗi sản phẩm được bán ra không chỉ góp phần duy trì nghề dệt truyền thống mà còn trực tiếp hỗ trợ những nữ nghệ nhân đang gìn giữ di sản văn hóa này.",
+      "cta": "Xem bộ sưu tập",
+      "products": {
+        "tote": "Túi tote",
+        "mug": "Cốc sứ",
+        "coaster": "Lót ly"
+      }
+    },
+    "partner": {
+      "name": "Chie Dù Pù Dù Pà",
+      "body": "Các sản phẩm của GIEO được phát triển và sản xuất thông qua sự hợp tác với Chie Dù Pù Dù Pà, một doanh nghiệp được thành lập vào năm 2011 với sứ mệnh đồng hành cùng cộng đồng các dân tộc thiểu số trong việc gìn giữ và phát triển các nghề thủ công truyền thống, tạo sinh kế bền vững và lan tỏa vẻ đẹp của văn hóa bản địa."
+    },
+    "nextGen": {
+      "body": "Quan trọng hơn, mọi hoạt động của GIEO đều hướng tới trao quyền cho thế hệ nữ sinh H'Mông tiếp theo. GIEO tin rằng mỗi em gái đều xứng đáng có cơ hội được tiếp tục học tập, theo đuổi ước mơ nghề nghiệp và tự lựa chọn tương lai của mình, dù đó là trở thành một nghệ nhân dệt thổ cẩm, tiếp tục học lên cao, khởi nghiệp hay theo đuổi bất kỳ con đường nào mà các em mong muốn. Bên cạnh hỗ trợ giáo dục, GIEO còn cung cấp các sản phẩm vệ sinh kinh nguyệt, tổ chức các buổi nâng cao nhận thức về sức khỏe và giáo dục kỹ năng tự bảo vệ bản thân nhằm trang bị cho các em kiến thức, sự tự tin và khả năng phát triển toàn diện."
+    },
+    "pillars": {
+      "heading": "Ba trụ cột",
+      "economic": {
+        "title": "Trao quyền kinh tế",
+        "body": "GIEO tạo ra các cơ hội sinh kế bền vững cho các nữ nghệ nhân H'Mông thông qua việc thiết kế và thương mại hóa các sản phẩm hiện đại kết hợp với nghề dệt thổ cẩm truyền thống. Bằng cách kết nối sản phẩm thủ công với thị trường đương đại, GIEO góp phần bảo tồn nghề dệt truyền thống, đồng thời tăng cường sự độc lập về tài chính cho các gia đình nghệ nhân."
+      },
+      "education": {
+        "title": "Giáo dục",
+        "body": "GIEO đầu tư vào giáo dục và sự phát triển toàn diện của con em các nghệ nhân, đặc biệt là các em gái. Thông qua học bổng, hỗ trợ học tập, cung cấp sản phẩm vệ sinh cá nhân, các chương trình nâng cao nhận thức và giáo dục kỹ năng sống, GIEO hướng tới việc xóa bỏ những rào cản khiến các em không thể tiếp tục con đường học tập và theo đuổi ước mơ của mình."
+      },
+      "mentorship": {
+        "title": "Mạng lưới cố vấn",
+        "body": "GIEO xây dựng một hệ sinh thái cố vấn lâu dài, nơi các anh chị học sinh, sinh viên và những người đi trước quay trở về để truyền cảm hứng và đồng hành cùng thế hệ kế tiếp. Thông qua việc kết nối các em gái với những người cố vấn đến từ nhiều lĩnh vực khác nhau, GIEO mong muốn mở rộng góc nhìn, định hướng nghề nghiệp và hình thành một vòng tuần hoàn phát triển cộng đồng, trong đó mỗi thế hệ đều góp phần nâng đỡ và trao cơ hội cho thế hệ tiếp theo."
+      }
+    },
+    "visionMission": {
+      "visionTitle": "Tầm nhìn",
+      "vision": "GIEO hướng tới xây dựng những cộng đồng dân tộc thiểu số phát triển bền vững, nơi các giá trị văn hóa truyền thống và những cơ hội của xã hội hiện đại cùng song hành và phát triển. Thông qua phát triển kinh tế bền vững, trao quyền cho phụ nữ, đầu tư vào giáo dục và xây dựng các mạng lưới cộng đồng vững mạnh, GIEO mong muốn tạo nên một môi trường mà ở đó mọi phụ nữ và trẻ em gái H'Mông đều có đủ nguồn lực, sự tự tin và quyền tự quyết để kiến tạo tương lai của chính mình, đồng thời gìn giữ và phát huy bản sắc văn hóa của cộng đồng cho các thế hệ mai sau.",
+      "missionTitle": "Sứ mệnh",
+      "mission": "Sứ mệnh của GIEO là gìn giữ nghề dệt thổ cẩm truyền thống của người H'Mông bằng cách chuyển hóa những giá trị văn hóa ấy thành các sản phẩm phù hợp với người tiêu dùng hiện đại, qua đó tạo ra sinh kế bền vững cho các nữ nghệ nhân và đầu tư cho thế hệ trẻ. Thông qua ba trụ cột trao quyền kinh tế, giáo dục và mạng lưới cố vấn, GIEO hướng tới xây dựng một mô hình phát triển cộng đồng bền vững, trong đó phụ nữ có được sự độc lập về kinh tế, trẻ em gái được trao cơ hội để theo đuổi ước mơ của mình, và các thế hệ tương lai tiếp tục quay trở về đóng góp, gìn giữ và phát triển chính cộng đồng của mình."
+    },
+    "journal": {
+      "heading": "Nhìn lại một mùa GIEO vừa qua.",
+      "body": "Từ những ý tưởng đầu tiên đến những con người chúng mình gặp trên hành trình, mùa này là một khoảng thời gian của học hỏi, sáng tạo và cùng nhau trưởng thành.",
+      "closing": ""
+    },
+    "involve": {
+      "heading": "Tham gia cùng GIEO",
+      "shop": {
+        "label": "Mua sản phẩm"
+      },
+      "mentor": {
+        "label": "Trở thành người cố vấn"
+      },
+      "partner": {
+        "label": "Hợp tác cùng GIEO"
+      }
+    }
+  },
+  "collections": {
+    "title": "Bộ sưu tập",
+    "intro": "Mỗi bộ sưu tập sử dụng họa tiết của một dân tộc; lợi nhuận từ đó quay trở lại với dân tộc ấy.",
+    "hmong": {
+      "name": "Thổ cẩm H'Mông",
+      "body": "Túi tote, cốc sứ và lót ly lấy cảm hứng từ thổ cẩm truyền thống của người H'Mông.",
+      "credit": "Sản phẩm được thực hiện cùng Chie Dù Pù Dù Pà"
+    }
+  },
+  "about": {
+    "title": "Về GIEO",
+    "intro": "Girls' Initiative for Education and Opportunities (GIEO) là một sáng kiến xã hội do học sinh trung học phổ thông tại Hà Nội sáng lập và vận hành.",
+    "departmentsHeading": "Các phòng ban",
+    "departments": {
+      "communityDev": "Phát triển cộng đồng",
+      "productDev": "Phát triển sản phẩm",
+      "businessDev": "Phát triển kinh doanh",
+      "marketing": "Marketing",
+      "marketingTeams": "Facebook & Instagram · TikTok · LinkedIn",
+      "media": "Truyền thông",
+      "mediaTeams": "Nhiếp ảnh · Thiết kế",
+      "hr": "Nhân sự"
+    },
+    "partnerHeading": "Đối tác",
+    "teamHeading": ""
+  },
+  "getInvolved": {
+    "title": "Tham gia cùng GIEO",
+    "intro": "Có nhiều cách để cùng đồng hành với GIEO.",
+    "shop": {
+      "title": "Mua sắm",
+      "body": "Mỗi sản phẩm đều hỗ trợ các nữ nghệ nhân đứng sau từng món đồ."
+    },
+    "mentor": {
+      "title": "Cố vấn",
+      "body": "Các anh chị học sinh, sinh viên và những người đi trước có thể quay trở về truyền cảm hứng cho thế hệ kế tiếp."
+    },
+    "partner": {
+      "title": "Đối tác",
+      "body": "Sản phẩm được phát triển và sản xuất cùng Chie Dù Pù Dù Pà."
+    },
+    "volunteer": {
+      "title": "Tình nguyện",
+      "body": ""
+    },
+    "donate": {
+      "title": "Quyên góp",
+      "body": ""
+    },
+    "programsHeading": "Những điều GIEO đang xây dựng",
+    "programsNote": "Đây là những điều GIEO đang xây dựng, chưa phải là kết quả đã hoàn thành.",
+    "programs": {
+      "trips": "Chuyến đi trải nghiệm để thăm các nghệ nhân và con em của họ",
+      "scholarships": "Chương trình học bổng",
+      "hygiene": "Giáo dục vệ sinh cá nhân",
+      "donations": "Quyên góp quần áo và đồ dùng chăm sóc cá nhân cho các em gái và phụ nữ",
+      "career": "Chương trình định hướng nghề nghiệp cho học sinh trung học, sinh viên đại học và đào tạo nghề",
+      "financialLiteracy": "Kiến thức tài chính",
+      "english": "Các buổi workshop tiếng Anh",
+      "buddy": "Hệ thống bạn đồng hành giúp các em chuẩn bị cho kỳ thi tốt nghiệp"
+    }
+  },
+  "contact": {
+    "title": "Liên hệ",
+    "intro": "Chúng mình rất mong nhận được tin từ bạn.",
+    "emailLabel": "Email",
+    "instagramLabel": "Instagram",
+    "facebookLabel": "Facebook",
+    "form": {
+      "name": "Họ và tên",
+      "email": "Email",
+      "message": "Lời nhắn",
+      "submit": "Gửi",
+      "note": "Tin nhắn sẽ mở trong ứng dụng email của bạn."
+    }
+  },
+  "footer": {
+    "supportedBy": "Được hỗ trợ bởi IB Global Youth Action Fund",
+    "madeWith": "Sản phẩm được thực hiện cùng Chie Dù Pù Dù Pà",
+    "rights": "© GIEO 2026",
+    "emailLabel": "Email",
+    "instagramLabel": "Instagram",
+    "facebookLabel": "Facebook"
+  },
+  "common": {
+    "seeCollection": "Xem bộ sưu tập",
+    "signoff": "Đây là GIEO, tính đến hiện tại."
+  }
+}

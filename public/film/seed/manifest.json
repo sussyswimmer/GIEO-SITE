@@ -1,0 +1,88 @@
+{
+  "scene": "seed",
+  "frames": 150,
+  "fps": 30,
+  "alpha": false,
+  "sets": [
+    {
+      "id": "l",
+      "aspect": "landscape",
+      "w": 1920,
+      "h": 1080,
+      "focus": [
+        0.63,
+        0.55
+      ],
+      "threadExit": [
+        0.882,
+        1
+      ],
+      "textSafe": [
+        0,
+        0,
+        0.45,
+        0.64
+      ]
+    },
+    {
+      "id": "ls",
+      "aspect": "landscape",
+      "w": 1280,
+      "h": 720,
+      "focus": [
+        0.63,
+        0.55
+      ],
+      "threadExit": [
+        0.882,
+        1
+      ],
+      "textSafe": [
+        0,
+        0,
+        0.45,
+        0.64
+      ]
+    },
+    {
+      "id": "p",
+      "aspect": "portrait",
+      "w": 900,
+      "h": 1200,
+      "focus": [
+        0.5,
+        0.66
+      ],
+      "threadExit": [
+        0.195,
+        1
+      ],
+      "textSafe": [
+        0,
+        0,
+        1,
+        0.42
+      ]
+    }
+  ],
+  "keys": [
+    0,
+    40,
+    95,
+    149
+  ],
+  "beats": {
+    "fall": [
+      0,
+      40
+    ],
+    "sprout": [
+      40,
+      95
+    ],
+    "thread": [
+      95,
+      149
+    ]
+  }
+}

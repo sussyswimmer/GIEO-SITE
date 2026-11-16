@@ -1,0 +1,179 @@
+{
+  "meta": {
+    "siteName": "GIEO",
+    "title": "GIEO | Girls' Initiative for Education and Opportunities",
+    "description": "Sowing seeds of hope for girls in Vietnam's mountain communities."
+  },
+  "nav": {
+    "home": "Home",
+    "collections": "Collections",
+    "about": "About",
+    "getInvolved": "Get involved",
+    "contact": "Contact",
+    "language": "Language",
+    "switchTo": "Tiếng Việt",
+    "skipToContent": "Skip to content",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Girls' Initiative for Education and Opportunities",
+      "headline": "GIEO",
+      "sub": "Sowing seeds of hope for girls in Vietnam's mountain communities."
+    },
+    "meaning": {
+      "word": "gieo",
+      "pos": "v.",
+      "pron": "/zɛw/",
+      "gloss": "to sow",
+      "body": "In Vietnamese, the word \"gieo\" means to sow, symbolizing the planting of seeds of hope, opportunity, and lasting change for girls growing up in rural and mountainous communities across Vietnam.",
+      "intro": "Girls' Initiative for Education and Opportunities (GIEO) is a student-led social initiative founded and operated by a group of high school students in Hanoi.",
+      "ibNote": "Selected for the IB Global Youth Action Fund."
+    },
+    "craft": {
+      "beat1": "Our initiative combines cultural preservation with community development by creating modern lifestyle products that appeal to younger generations while celebrating the traditional brocade weaving of the H'mong people.",
+      "quote": "Every single thread, every careful stitch, and every piece of woven fabric tells the quiet, enduring story of a Vietnamese woman.",
+      "beat3": "Rather than simply selling handicrafts, GIEO develops contemporary products inspired by traditional H'mong brocade, making ethnic craftsmanship more accessible and relevant to today's young consumers. Every purchase helps sustain traditional weaving while directly supporting the women artisans who preserve this cultural heritage.",
+      "cta": "See the collection",
+      "products": {
+        "tote": "Tote bag",
+        "mug": "Ceramic mug",
+        "coaster": "Coaster"
+      }
+    },
+    "partner": {
+      "name": "Chie Dù Pù Dù Pà",
+      "body": "Our products are developed and produced in partnership with Chie Dù Pù Dù Pà, an enterprise established in 2011 with the mission of accompanying ethnic minority communities in preserving and developing traditional handicrafts, creating sustainable livelihoods, and spreading the beauty of local cultures."
+    },
+    "nextGen": {
+      "body": "More importantly, our work is dedicated to empowering the next generation of H'mong girls. We believe every girl should have the opportunity to continue her education, pursue her own career aspirations, and choose her own future, whether that means becoming a skilled brocade artisan, pursuing higher education, starting a business, or following any path she chooses. Alongside educational support, we also provide menstrual hygiene products, health awareness workshops, and self-protection education to equip girls with the knowledge and confidence they need to thrive."
+    },
+    "pillars": {
+      "heading": "Three pillars",
+      "economic": {
+        "title": "Economic Empowerment",
+        "body": "We create sustainable income opportunities for H'mong women artisans by designing and marketing modern products that incorporate traditional brocade craftsmanship. By connecting their work with contemporary markets, we help preserve traditional weaving while strengthening financial independence for artisan families."
+      },
+      "education": {
+        "title": "Education",
+        "body": "We invest in the education and personal development of artisans' children, particularly girls. Through scholarships, educational support, hygiene products, awareness programs, and life-skills education, we aim to remove barriers that prevent girls from pursuing their education and future ambitions."
+      },
+      "mentorship": {
+        "title": "Mentorship Network",
+        "body": "We are building a long-term mentorship ecosystem where older students, university graduates, and professionals return to inspire and support the next generation. By connecting girls with mentors from diverse backgrounds, we hope to broaden their perspectives, provide career guidance, and foster a cycle of community leadership in which each generation uplifts the next."
+      }
+    },
+    "visionMission": {
+      "visionTitle": "Vision",
+      "vision": "We envision thriving ethnic minority communities where traditional cultural heritage and modern opportunities grow together. Through sustainable economic development, women's empowerment, quality education, and strong community networks, we aspire to create an environment where every H'mong woman and girl has the resources, confidence, and freedom to shape her own future while preserving the cultural identity of her community for generations to come.",
+      "missionTitle": "Mission",
+      "mission": "Our mission is to preserve the traditional brocade weaving heritage of the H'mong people by transforming it into products that resonate with modern consumers, creating sustainable livelihoods for women artisans and investing in the next generation. Through economic empowerment, educational opportunities, and mentorship, we seek to build a self-sustaining cycle of community development in which women gain financial independence, girls are empowered to pursue their aspirations, and future generations continue to strengthen and uplift their own communities."
+    },
+    "journal": {
+      "heading": "This is GIEO, so far.",
+      "body": "From the first ideas we put together to the people we met along the way, this season has been full of learning, creating, and growing together.",
+      "closing": "Here's to everything we've shared, everything we've learned, and everything still waiting to grow."
+    },
+    "involve": {
+      "heading": "Get involved",
+      "shop": {
+        "label": "Shop the collection"
+      },
+      "mentor": {
+        "label": "Become a mentor"
+      },
+      "partner": {
+        "label": "Partner with us"
+      }
+    }
+  },
+  "collections": {
+    "title": "Collections",
+    "intro": "Each collection uses one ethnic group's pattern; profits from it go back to that group.",
+    "hmong": {
+      "name": "H'mong brocade",
+      "body": "Tote bags, ceramic mugs and coasters inspired by traditional H'mong brocade.",
+      "credit": "Products made with Chie Dù Pù Dù Pà"
+    }
+  },
+  "about": {
+    "title": "About GIEO",
+    "intro": "Girls' Initiative for Education and Opportunities (GIEO) is a student-led social initiative founded and operated by a group of high school students in Hanoi.",
+    "departmentsHeading": "Departments",
+    "departments": {
+      "communityDev": "Community Development",
+      "productDev": "Product Development",
+      "businessDev": "Business Development",
+      "marketing": "Marketing",
+      "marketingTeams": "Facebook & Instagram · TikTok · LinkedIn",
+      "media": "Media",
+      "mediaTeams": "Photography · Design",
+      "hr": "HR"
+    },
+    "partnerHeading": "Our partner",
+    "teamHeading": ""
+  },
+  "getInvolved": {
+    "title": "Get involved",
+    "intro": "There are many ways to walk alongside GIEO.",
+    "shop": {
+      "title": "Shop",
+      "body": "Every purchase supports the women artisans behind each piece."
+    },
+    "mentor": {
+      "title": "Mentor",
+      "body": "Older students, university graduates and professionals can return to inspire the next generation."
+    },
+    "partner": {
+      "title": "Partner",
+      "body": "Products are developed and produced with Chie Dù Pù Dù Pà."
+    },
+    "volunteer": {
+      "title": "Volunteer",
+      "body": ""
+    },
+    "donate": {
+      "title": "Donate",
+      "body": ""
+    },
+    "programsHeading": "What we're building",
+    "programsNote": "These are things GIEO is building, not results it has already completed.",
+    "programs": {
+      "trips": "Experiential trips to visit artisans and their children",
+      "scholarships": "Scholarship programs",
+      "hygiene": "Hygiene education",
+      "donations": "Donations of clothes and personal care products for girls and women",
+      "career": "Career programs for high school, university and vocational training",
+      "financialLiteracy": "Financial literacy",
+      "english": "English workshops",
+      "buddy": "A buddy system to help children prepare for graduation exams"
+    }
+  },
+  "contact": {
+    "title": "Contact",
+    "intro": "We would love to hear from you.",
+    "emailLabel": "Email",
+    "instagramLabel": "Instagram",
+    "facebookLabel": "Facebook",
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "message": "Message",
+      "submit": "Send",
+      "note": "Your message opens in your email app."
+    }
+  },
+  "footer": {
+    "supportedBy": "Supported by the IB Global Youth Action Fund",
+    "madeWith": "Products made with Chie Dù Pù Dù Pà",
+    "rights": "© GIEO 2026",
+    "emailLabel": "Email",
+    "instagramLabel": "Instagram",
+    "facebookLabel": "Facebook"
+  },
+  "common": {
+    "seeCollection": "See the collection",
+    "signoff": "This is GIEO, so far."
+  }
+}

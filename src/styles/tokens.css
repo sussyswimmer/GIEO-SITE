@@ -1,0 +1,232 @@
+/*
+ * GIEO design tokens.
+ * This is the ONLY file in the project allowed to contain hex values.
+ * Rules for using these tokens live in DESIGN.md; section layouts in PLAN.md.
+ *
+ * Colour hexes are eyedropped estimates from docs/01-brand.md §3.
+ * TODO(brand): verify against GIEO's Canva deck / brand kit and correct them HERE only.
+ *
+ * Naming avoids Tailwind v4 theme namespaces (--color-*, --text-*, --font-*, --radius-*,
+ * --ease-*, --shadow-*, --spacing-*, --container-*, --tracking-*, --leading-*) so that
+ * globals.css can map them with `@theme inline` without self-referencing (see DESIGN.md §9).
+ */
+
+:root {
+  /* ── 1. Brand colours (names and hexes exactly as 01-brand.md §3) ───────────── */
+  --plum-ink: #2E2340;   /* headlines on light, logo, primary buttons */
+  --cream: #F7F0EA;      /* page background (default) */
+  --paper: #F2F1EF;      /* alternate section background */
+  --blush-line: #E6B3C2; /* hairlines, dividers, icon strokes (decorative only) */
+  --lotus-pink: #EE6FA0; /* decorative accent only: never text on light (2.51:1) */
+  --petal-soft: #F7B9CF; /* hover fills, glows, 3D petal base */
+  --peach-glow: #FBD5B4; /* radial glow backgrounds */
+  --stem-mint: #6FD3A8;  /* sprout / growth accents only, sparingly, never text */
+  --ink: #1C1A1E;        /* strong text, text on glows and fills */
+  --ink-soft: #6E6A70;   /* body text and captions on flat cream/paper only */
+  /* --thread-1..n: sample from GIEO's real brocade photos (TODO(products)). Never invent. */
+
+  /* ── 2. Alpha tints (derived from brand colours; no new hues) ─────────────── */
+  --peach-glow-a85: color-mix(in srgb, var(--peach-glow) 85%, transparent);
+  --peach-glow-a60: color-mix(in srgb, var(--peach-glow) 60%, transparent);
+  --peach-glow-a35: color-mix(in srgb, var(--peach-glow) 35%, transparent);
+  --peach-glow-a20: color-mix(in srgb, var(--peach-glow) 20%, transparent); /* max under --ink-soft text */
+  --petal-soft-a40: color-mix(in srgb, var(--petal-soft) 40%, transparent);
+  --petal-soft-a24: color-mix(in srgb, var(--petal-soft) 24%, transparent);
+  --lotus-pink-a35: color-mix(in srgb, var(--lotus-pink) 35%, transparent);
+  --lotus-pink-a18: color-mix(in srgb, var(--lotus-pink) 18%, transparent);
+  --plum-ink-a16: color-mix(in srgb, var(--plum-ink) 16%, transparent);
+  --plum-ink-a08: color-mix(in srgb, var(--plum-ink) 8%, transparent);
+  --cream-a86: color-mix(in srgb, var(--cream) 86%, transparent);        /* nav glass, hero copy scrim */
+  --cream-a35: color-mix(in srgb, var(--cream) 35%, transparent);        /* stitches on plum */
+
+  /* ── 3. Colour roles (what components should reach for) ───────────────────── */
+  --bg-page: var(--cream);
+  --bg-alt: var(--paper);
+  --fg-heading: var(--plum-ink);  /* 13.0:1 on cream/paper */
+  --fg-strong: var(--ink);        /* 15.3:1; lead text, text on glows, fills, nav */
+  --fg-body: var(--ink-soft);     /* 4.70:1; flat cream/paper only */
+  --fg-on-fill: var(--cream);     /* on --plum-ink fills, 13.0:1 */
+  --line-hair: var(--blush-line); /* decorative separators, never a control boundary */
+  --line-field: var(--ink-soft);  /* input borders, 4.70:1 (>= 3:1 for UI) */
+  --focus-color: var(--plum-ink); /* focus outline, 13.0:1 */
+  --selection-bg: var(--petal-soft);
+  --fill-primary: var(--plum-ink); /* primary button fill; its label is --fg-on-fill */
+
+  /* ── 4. Typography ─────────────────────────────────────────────────────────── */
+  /* Faces are declared in fonts.css (critical) and LateFonts.tsx (Playfair 500 and italic). */
+  --ff-display: "Playfair Display", "Playfair Display Fallback", Georgia, "Times New Roman", serif;
+  --ff-body: "Be Vietnam Pro", "Be Vietnam Pro Fallback", "Segoe UI", system-ui, sans-serif;
+
+  /* Fluid sizes: linear from 375px to 1440px viewport, capped after. 01-brand.md §4 */
+  /* Redesign v2 (docs/07 §2): hero, h2, quote and lead went up; mega is new. */
+  /* "GIEO" fits the content width (the word is 2.24 em wide), unless the screen is too short to also hold
+     the nav, the eyebrow and the sub line: 149 at 390, 560 at 1440×900. The word's advance is 2.312 em. */
+  --fs-hero: max(4rem, min(calc(min(100vw - 2 * var(--gutter), var(--wrap-max)) / 2.34), calc((100svh - 18rem) / 0.95)));
+  --fs-mega: clamp(3.5rem, 0.331rem + 13.5211vw, 12.5rem);   /* 56 → 200: partner name, kinetic band, dictionary word, footer line */
+  --fs-h2: clamp(3.5rem, 1.8275rem + 7.1362vw, 8.25rem);     /* 56 → 132 */
+  --fs-quote: clamp(2rem, 1.1197rem + 3.7559vw, 4.5rem);     /* 32 → 72 */
+  --fs-h3: clamp(1.5rem, 1.2359rem + 1.1268vw, 2.25rem);     /* 24 → 36 */
+  --fs-h4: clamp(1.25rem, 1.162rem + 0.3756vw, 1.5rem);      /* 20 → 24 */
+  --fs-lead: clamp(1.125rem, 0.949rem + 0.7512vw, 1.625rem); /* 18 → 26 */
+  --fs-body: clamp(1rem, 0.956rem + 0.1878vw, 1.125rem);     /* 16 → 18 */
+  --fs-ui: clamp(0.875rem, 0.853rem + 0.0939vw, 0.9375rem);  /* 14 → 15 */
+  --fs-caption: 0.875rem;                                    /* 14: the floor for credits and captions */
+
+  /* Line-heights. EN defaults here; VI overrides below (measured, see DESIGN.md §3). */
+  --lh-hero: 0.95;   /* ONLY for the unaccented hero word "GIEO". Accented text overflows below 1.16 */
+  --lh-mega: 1.04;   /* EN, and the partner name (single marks on lowercase only) */
+  --lh-h2: 1.06;
+  --lh-h3: 1.15;
+  --lh-h4: 1.2;
+  --lh-quote: 1.18;
+  --lh-lead: 1.55;
+  --lh-body: 1.65;
+  --lh-ui: 1.25;     /* >= 1.22 so a wrapped VI button label never collides */
+  --lh-caption: 1.5;
+
+  --ls-display: -0.02em;  /* hero, h2 */
+  --ls-heading: -0.01em;  /* h3, h4, quote */
+  --ls-body: 0em;
+  --ls-ui: 0.01em;
+  --ls-caption: 0.02em;
+  --ls-logo-placeholder: 0.12em;
+
+  --fw-display: 400;  /* Playfair hero/h2/quote */
+  --fw-heading: 500;  /* Playfair h3/h4 */
+  --fw-light: 300;    /* Be Vietnam Pro, lead text >= 18px only */
+  --fw-body: 400;
+  --fw-ui: 500;
+
+  --measure: 66ch;          /* body paragraphs (60–72 chars) */
+  --measure-lead: 58ch;
+  --measure-narrow: 44ch;   /* captions, card copy, marginal notes */
+  --measure-heading: 18ch;  /* h2 max-width, in the heading's own font size */
+
+  /* ── 5. Spacing (4px steps; the number matches Tailwind's numeric scale) ─── */
+  --space-1: 0.25rem;  /* 4 */
+  --space-2: 0.5rem;   /* 8 */
+  --space-3: 0.75rem;  /* 12 */
+  --space-4: 1rem;     /* 16 */
+  --space-6: 1.5rem;   /* 24 */
+  --space-8: 2rem;     /* 32 */
+  --space-12: 3rem;    /* 48 */
+  --space-16: 4rem;    /* 64 */
+  --space-24: 6rem;    /* 96 */
+  --space-32: 8rem;    /* 128 */
+  --space-40: 10rem;   /* 160 */
+  /* Fluid rhythm (375 → 1440) */
+  --space-section: clamp(3.5rem, 2.2676rem + 5.2582vw, 7rem);      /* 56 → 112 section padding-block */
+  --space-section-sm: clamp(2rem, 1.1197rem + 3.7559vw, 4.5rem);   /* 32 → 72 short sections */
+  --gutter: clamp(1.25rem, 0.2817rem + 4.1315vw, 4rem);            /* 20 → 64 page side padding */
+  --grid-gap: clamp(1rem, 0.6479rem + 1.5023vw, 2rem);             /* 16 → 32 column gap */
+  --handoff: clamp(3rem, 1.9437rem + 4.507vw, 6rem);               /* 48 → 96 tone gradient height */
+
+  /* ── 6. Layout ─────────────────────────────────────────────────────────────── */
+  --wrap-max: 90rem;  /* 1440 content width; gutters sit outside it */
+  --grid-cols: 4;     /* 8 at >= 48rem, 12 at >= 64rem (below) */
+  --nav-h: 3.25rem;   /* 52px pill (kit max 56) */
+  --nav-top: 0.75rem;
+  --nav-offset: calc(var(--nav-top) + var(--nav-h) + var(--space-4)); /* hero top padding, scroll-margin-top */
+  --target-min: 2.75rem; /* 44px touch target */
+  /* Sticky film stage heights below 64rem (docs/07 §3). The weave canvas is 107.5vw wide there, so its warp
+     beat bleeds off both sides (globals.css .weave-stage); the band shows 95.5 % of it under the nav pill. */
+  --stage-phone-weave: min(102.7vw + var(--nav-offset), 64svh);
+  --stage-phone-lotus: 40svh;
+  --deck-peek: 4.5rem;        /* how much of a stacked pillar card stays visible (its title row) */
+
+  /* ── 7. Shape ──────────────────────────────────────────────────────────────── */
+  --round-field: 0.75rem;  /* inputs, textarea, todo marker */
+  --round-frame: 1rem;     /* photo frames, product images, video */
+  --round-card: 1.75rem;   /* dictionary card, pillar card, involve card hover fill, menu sheet */
+  --round-pill: 999px;     /* nav, buttons, language toggle */
+  --hairline: 1px;
+  --stitch-w: 1.5px;        /* the running stitch: the site's ornament (docs/07 §3) */
+  --stitch-dash: 0.625rem;
+  --stitch-gap: 0.4375rem;
+  --focus-width: 2px;
+  --focus-offset: 3px;
+
+  /* ── 8. Glows and elevation (no grey drop shadows anywhere) ───────────────── */
+  --glow-dawn: /* hero: the 20/10 "sun", top-left; plus a faint blush low-right */
+    radial-gradient(ellipse 70% 60% at 14% 8%, var(--peach-glow-a85) 0%, var(--peach-glow-a35) 40%, transparent 70%),
+    radial-gradient(ellipse 45% 40% at 88% 70%, var(--petal-soft-a24) 0%, transparent 70%);
+  --glow-blush: /* NextGen, Pillars: blush bloom on the stage side */
+    radial-gradient(ellipse 50% 45% at 22% 55%, var(--petal-soft-a40) 0%, transparent 70%);
+  --glow-dusk: /* footer: the sun again, setting from the bottom edge */
+    radial-gradient(ellipse 80% 70% at 50% 115%, var(--peach-glow-a85) 0%, var(--peach-glow-a35) 40%, transparent 72%);
+  /* Film stage gradients: what a stage shows until its film has drawn, and for good if there is no film. */
+  --still-seed: /* full-bleed hero: the sun where the seed will hang (the film's focus) */
+    radial-gradient(circle closest-side at 64% 47%, var(--peach-glow) 0%, var(--peach-glow-a60) 34%, var(--petal-soft-a24) 68%, transparent 100%);
+  --still-loom: /* weave stage, on plum: warm light behind the yarn (stays under the alpha film) */
+    radial-gradient(circle closest-side at 50% 50%, var(--lotus-pink-a35) 0%, var(--lotus-pink-a18) 45%, transparent 100%);
+  --still-bloom: /* lotus stage (stays under the alpha film) */
+    radial-gradient(circle closest-side at 50% 56%, var(--petal-soft) 0%, var(--petal-soft-a40) 37%, var(--peach-glow-a35) 71%, transparent 100%);
+
+  --elev-nav: 0 0.5rem 1.5rem -0.75rem var(--plum-ink-a16);
+  --elev-lift: 0 0.75rem 2rem -0.75rem var(--lotus-pink-a35);  /* hover: soft pink glow */
+  --elev-halo: 0 0 0 0.375rem var(--lotus-pink-a18);           /* decorative ring beside the focus outline */
+
+  /* ── 9. Motion (03-motion-and-3d.md §0 and §5) ────────────────────────────── */
+  --curve-out: cubic-bezier(0.16, 1, 0.3, 1);      /* the house curve: reveals, hovers, nav */
+  --curve-in-out: cubic-bezier(0.65, 0, 0.35, 1);  /* ≈ GSAP power2.inOut: petals, crossfades */
+  --dur-press: 120ms;
+  --dur-hover: 180ms;
+  --dur-nav: 240ms;
+  --dur-menu: 280ms;
+  --dur-fade: 300ms;    /* also the reduced-motion fade */
+  --dur-reveal: 700ms;  /* headline line reveal */
+  --dur-draw: 1200ms;   /* logo lotus draw-on (Phase 2, needs the SVG) */
+  --dur-sew: 900ms;     /* a stitch sewing in, a still-life unveiling */
+  --stagger: 60ms;      /* between revealed lines */
+  --reveal-distance: 24px;
+  --lift: -2px;         /* hover translateY */
+  --press-scale: 0.98;
+  --tilt-max: 4deg;     /* interactive cards only (Phase 2) */
+
+  /* ── 10. Layers ────────────────────────────────────────────────────────────── */
+  --z-section-bg: -1;  /* section tone + glow layers: MUST stay below the WebGL canvas */
+  --z-canvas: 0;       /* the page thread on the home page (was the fixed R3F canvas) */
+  --z-content: 1;      /* all HTML copy */
+  --z-nav: 50;
+  --z-menu: 60;
+  --z-skip: 70;
+  --z-progress: 80;    /* 2px load hairline */
+  --z-dev: 90;         /* TODO markers, dev only */
+}
+
+/* Vietnamese: stacked marks (ấ ầ ỗ ữ ặ) reach 1.066em (Playfair roman), 1.094em (italic),
+   1.0em (Be Vietnam Pro); descenders reach -0.19em / -0.23em. Measured from the font files.
+   These are the smallest values at which line N+1's marks never touch line N's descenders. */
+:root:lang(vi) {
+  --lh-mega: 1.3; /* set in italic too */
+  --lh-h2: 1.26;
+  --lh-h3: 1.3;   /* h3 is also set in italic (footer sign-off, journal closing) */
+  --lh-h4: 1.26;
+  --lh-quote: 1.3;
+  --lh-lead: 1.6;
+  --lh-body: 1.7;
+  --measure-heading: 22ch;
+}
+
+@media (min-width: 48rem) {
+  :root { --grid-cols: 8; }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --grid-cols: 12;
+    --nav-top: 1rem;
+  }
+}
+
+/* Reduced motion: distances collapse to zero so every transform-based effect becomes a fade. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --reveal-distance: 0px;
+    --lift: 0px;
+    --press-scale: 1;
+    --tilt-max: 0deg;
+    --dur-reveal: var(--dur-fade);
+    --stagger: 0ms;
+  }
+}

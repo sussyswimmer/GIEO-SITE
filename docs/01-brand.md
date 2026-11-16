@@ -1,0 +1,103 @@
+# GIEO Brand Reference
+
+**Sources used:** GIEO Org Info Google Doc (EN + VI tabs, team job descriptions), GIEO Facebook page (logo avatar, 20/10 Vietnamese Women's Day post, "Nhìn lại một mùa GIEO" season recap video post).
+
+**Not accessible:** the Canva pitch deck (`DAG_bPa2c2o`) returned "permission denied" both through the Canva API and in the browser. Every hex value below is eyedropped from screenshots of the logo and the 20/10 post, so treat them as close estimates. GIEO's own doc says all public work MUST follow their branding guidelines: before launch, compare these tokens against the deck or their brand kit and correct them in `src/styles/tokens.css` only.
+
+---
+
+## 1. Identity facts (use exactly, never embellish)
+
+| Field | Value |
+|---|---|
+| Full name | Girls' Initiative for Education and Opportunities (GIEO) |
+| Meaning | "gieo" is Vietnamese for **to sow**: planting seeds of hope, opportunity and lasting change for girls in rural and mountainous Vietnam |
+| Who runs it | A student-led social initiative founded and operated by high school students in Hanoi |
+| Support | Selected for the **IB Global Youth Action Fund** (International Baccalaureate) |
+| Product partner | **Chie Dù Pù Dù Pà**, an enterprise founded in 2011 that works with ethnic minority communities on traditional handicrafts (doc also spells it "Chie Dupudupa"; use "Chie Dù Pù Dù Pà") |
+| Community | H'mong women brocade artisans and their children, especially daughters |
+| Products | Contemporary lifestyle products using traditional H'mong brocade: tote bags, ceramic mugs, coasters. Each collection uses one ethnic group's pattern; profits from it go back to that group |
+| Email | gieovietnam2026@gmail.com |
+| Instagram | @gieo.vietnam |
+| Facebook | facebook.com/gieo.vietnam (page: "GIEO - Girls' Initiative for Education and Opportunities") |
+| Hashtags | #gieovietnam #socialenterprise #nonprofit #womenempowerment #educationempowerment |
+
+Spelling: English copy uses **H'mong**, Vietnamese copy uses **H'Mông** (both as in GIEO's doc). Keep each language consistent.
+
+Pronunciation (for voiceover): "gieo" is one syllable. Hanoi accent: roughly "zeh-oo" said fast.
+
+## 2. Logo
+
+Observed on the Facebook avatar:
+- Wordmark "GIEO" in a high-contrast didone serif, deep plum ink. The "I" is a thin calligraphic swash rather than a straight stem.
+- A fine single-line lotus illustration in blush pink sits behind the "E-O", with faint line-art above it (looks like soft ridges; confirm with GIEO).
+- Sits on a warm cream circle.
+
+Rules:
+- Get the vector (SVG) from GIEO. **Never redraw or retype the wordmark.** Until the SVG arrives, use `assets/logo/` raster with a `TODO(logo-svg)` comment.
+- Clear space: the height of the "O" on all sides. Minimum width 96 px on screen.
+- Light backgrounds: plum wordmark. Dark/photo backgrounds: cream wordmark, lotus line stays blush.
+- The lotus line-art is the brand's motion hook: it can be drawn on (SVG stroke animation) and it is the shape the 3D lotus resolves into.
+
+## 3. Color tokens (estimated, verify)
+
+| Token | Hex | Where it was seen | Use |
+|---|---|---|---|
+| `--plum-ink` | `#2E2340` | Logo wordmark | Headlines on light, logo, primary buttons |
+| `--cream` | `#F7F0EA` | Logo background | Page background (default) |
+| `--paper` | `#F2F1EF` | 20/10 post background | Alternate section background |
+| `--blush-line` | `#E6B3C2` | Logo lotus line-art | Hairlines, dividers, icon strokes |
+| `--lotus-pink` | `#EE6FA0` | 20/10 lotus, "Việt Nam" italic | Accent words, links, 3D petal tips |
+| `--petal-soft` | `#F7B9CF` | 20/10 lotus inner petals | 3D petal base, hover fills |
+| `--peach-glow` | `#FBD5B4` | 20/10 blurred sun | Radial glow backgrounds |
+| `--stem-mint` | `#6FD3A8` | 20/10 lotus stem | Sprout, stem, "growth" accents only (sparingly) |
+| `--ink` | `#1C1A1E` | 20/10 display type | Body headings on paper |
+| `--ink-soft` | `#6E6A70` | 20/10 body italic | Body text, captions |
+
+Brocade thread colors are **not** in this table on purpose. Sample them from GIEO's real product photos (`assets/photos/products/`) and add them as `--thread-1..n`. Do not invent "H'mong colors".
+
+Contrast: `--lotus-pink` on `--cream` fails WCAG AA for body text. Use it only at 24 px+ or for decorative accents; links in body copy use `--plum-ink` with a pink underline.
+
+## 4. Typography
+
+Observed in the 20/10 post:
+- **Display:** a condensed, high-contrast didone serif in near-black ("Ngày Phụ Nữ", "20 10").
+- **Accent:** the same serif in italic, in lotus pink ("Việt Nam").
+- **Body:** a light, italic humanist sans in grey.
+
+Web choice (all must render Vietnamese diacritics perfectly):
+- Display: **Playfair Display** (Google Fonts, `vietnamese` subset), weights 400 to 600, tracking `-0.02em`, tight leading `0.95` at hero sizes. Italic for accent words.
+- Body/UI: **Be Vietnam Pro** (built for Vietnamese), weights 300/400/500.
+- If GIEO's brand kit names a different display font, swap it in, but only if it passes the diacritics test below.
+
+Diacritics test string (render it at 96 px and 16 px, check stacked marks do not clip or collide):
+`Ngày Phụ Nữ Việt Nam · thổ cẩm H'Mông · Chie Dù Pù Dù Pà · Gieo mầm hy vọng · ỗ ữ ặ ẫ ợ`
+
+Scale (fluid, `clamp`): hero 64 to 168 px, h2 40 to 88 px, h3 24 to 36 px, body 16 to 18 px, caption 13 px. Line length 60 to 72 characters.
+
+## 5. Visual language
+
+- **Airy and editorial.** Lots of cream space, big serif headlines, small calm body text.
+- **Soft blurred glows** (peach to blush radial gradients) as atmosphere, like the "sun" in the 20/10 post.
+- **Three motifs, one story:** the seed/sprout (GIEO opens every post with a sprout), the thread/brocade (the craft), the lotus (the logo; the girls' future in bloom).
+- **3D style = the 20/10 lotus made real:** soft, matte, airbrushed gradients, gentle rim light, pastel. Think "illustration with depth", not chrome, not photoreal, not neon. No black backgrounds.
+- **Photos:** warm, natural light, real people and real hands at work. Never staged poverty.
+- **Brocade:** only real H'mong brocade from GIEO / Chie Dù Pù Dù Pà photos or scans. Credit it.
+
+## 6. Voice
+
+- Warm, hopeful, humble. Vietnamese posts use "chúng mình" (friendly "we"). Vietnamese first, English second. Posts sign off "- GIEO".
+- Lines from GIEO's own posts you may reuse verbatim:
+  - "This is GIEO, so far."
+  - "Here's to everything we've shared, everything we've learned, and everything still waiting to grow."
+  - "Every single thread, every careful stitch, and every piece of woven fabric tells the quiet, enduring story of a Vietnamese woman."
+  - VI: "Từng sợi chỉ đan, từng mũi khâu dệt, từng mảnh vải thêu đều là một câu chuyện bền bỉ về người phụ nữ Việt Nam."
+- Avoid: pity framing, "saving" or "helping the poor" language, white-savior imagery, hype words ("revolutionary"), and any statistic GIEO has not given you.
+
+## 7. Ethics guardrails (non-negotiable)
+
+1. **Minors.** Many of the girls are children. Only use photos GIEO confirms have consent. Never pair a child's face with her full name, village or school. Default to hands, backs, group shots and artisans.
+2. **No invented numbers.** No "500 girls supported" unless GIEO provides it. Use `TODO(stat)` placeholders that render nothing in production.
+3. **Cultural accuracy.** Say "inspired by traditional H'mong brocade" (GIEO's phrasing). Do not claim patterns mean things unless GIEO or the artisans say so.
+4. **IB.** Mention "IB Global Youth Action Fund" in text. Do not use the IB logo unless GIEO confirms permission.
+5. **Partner credit.** Chie Dù Pù Dù Pà is named wherever products appear.
