@@ -192,8 +192,9 @@ def cord(name, mat_, centre, radius, r, colour):
                     uv=rig.tube_uv(400, 12, 2 * np.pi * radius, 2.4 * r), col=np.tile([*lin(colour), 1.0], (400 * 13, 1)))
 
 
-def mug(yarn, at=(MUG_X, 0.0)):
-    """Glazed ceramic mug with a band of the same plain-weave cloth round it."""
+def mug(yarn, at=(MUG_X, 0.0), **cloth):
+    """Glazed ceramic mug with a band of the same plain-weave cloth round it. cloth: rig.Cloth options (K, ply) for a
+    closer view than the film's."""
     glaze = rig.mat("Glaze", mix(T["cream"], T["peach-glow"], 0.3), rough=0.16, noise=(3, 0.04),
                     **{"Coat Weight": 1.0, "Coat Roughness": 0.06, "Subsurface Weight": 0.15, "Subsurface Radius": (0.01, 0.006, 0.004)})
     Rm, H = MUG_R, MUG_H
@@ -206,7 +207,7 @@ def mug(yarn, at=(MUG_X, 0.0)):
     rig.subsurf(rig.mesh("MugHandle", rig.tube(c, 0.0115 * (1 + 0.5 * (2 * t - 1) ** 2), 12, (0, 1, 0)), rig.grid_faces(40, 13), glaze), 1)
     nw, nf = 104, 16  # an even count closes the plain weave round the mug
     Rb, zb = nw * PF / (2 * np.pi), 0.145
-    band = rig.Cloth("MugBand", nw, nf, PF, RF, yarn, WARP_COL, WEFT_COL, rings=(64, 624), accents={52: T["stem-mint"]})
+    band = rig.Cloth("MugBand", nw, nf, PF, RF, yarn, WARP_COL, WEFT_COL, rings=(64, 624), accents={52: T["stem-mint"]}, **cloth)
 
     def place(Q):
         phi = Q[..., 0] / Rb
@@ -220,14 +221,14 @@ def mug(yarn, at=(MUG_X, 0.0)):
     return body
 
 
-def coaster(yarn, at=(COASTER_X, 0.0)):
-    """Round coaster: a padded base, a plain-weave top of real yarn, plied piping round the edge."""
+def coaster(yarn, at=(COASTER_X, 0.0), **cloth):
+    """Round coaster: a padded base, a plain-weave top of real yarn, plied piping round the edge. cloth: as for mug()."""
     Rc, th = COASTER_R, 0.016
     m = rig.mat("Pad", CANVAS, rough=0.85, bump=(700, 0.4, 0.0015), **{"Sheen Weight": 0.5})
     v, f = rig.lathe([(0, 0), (Rc - 0.012, 0), (Rc - 0.003, 0.003), (Rc, th / 2), (Rc - 0.003, th - 0.003), (Rc - 0.012, th), (0, th)], 72)
     rig.mesh("CoasterPad", v + [at[0], at[1], 0], f, m)
     n = 40
-    top = rig.Cloth("CoasterTop", n, n, PF, RF, yarn, WARP_COL, WEFT_COL, rings=(200, 200), accents={26: T["stem-mint"]})
+    top = rig.Cloth("CoasterTop", n, n, PF, RF, yarn, WARP_COL, WEFT_COL, rings=(200, 200), accents={26: T["stem-mint"]}, **cloth)
     half = np.sqrt(np.clip((Rc - 0.002) ** 2 - ((np.arange(n) - (n - 1) / 2) * PF) ** 2, 1e-6, None))  # yarns end on a circle
     s = np.linspace(-1, 1, 200)[None, :] * half[:, None]
     top.update(s, s, lambda Q: (np.array([at[0], at[1], th + 2 * RF]) + Q, np.array([0, 0, 1.0])))

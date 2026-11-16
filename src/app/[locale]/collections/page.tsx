@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { CollectionBlock } from '@/components/pages/CollectionBlock';
+import { PageBand } from '@/components/pages/PageBand';
+import { art, still } from '@/components/pages/art';
 import { routing } from '@/i18n/routing';
 import { collectionPhotos, type Photo } from '@/lib/photos';
 import { alternates } from '@/lib/seo';
@@ -22,6 +24,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+// The product pictures (docs/08 §2): the Blender portraits in public/art/products, made to sit on plum, or
+// the weave film's key frame where one is not rendered. In the order the film makes them.
+const PRODUCTS = [
+  { key: 'tote', frame: 129 },
+  { key: 'mug', frame: 149 },
+  { key: 'coaster', frame: 169 },
+] as const;
+
 export default async function CollectionsPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -34,30 +44,37 @@ export default async function CollectionsPage({ params }: Props) {
     const alt = p?.consent && t.has(key) ? t(key) : '';
     return p && alt ? { ...p, alt } : undefined;
   };
-  const product = (name: string, p?: Photo) => {
-    const ok = usable(p);
-    return { name, photo: ok, alt: ok?.alt ?? '' };
-  };
-  const swatch = usable(hmong.brocade);
+  const products = PRODUCTS.map(({ key, frame }) => {
+    const photo = usable(hmong[key]);
+    return {
+      name: t(`home.craft.products.${key}`),
+      render: art(`products/${key}`)?.src ?? `/film/weave/keys/s-${String(frame).padStart(4, '0')}.webp`,
+      photo,
+      alt: photo?.alt ?? '',
+    };
+  });
+  const credit = t('collections.hmong.credit');
 
   return (
     <>
-      <PageHeader title={t('collections.title')} intro={t('collections.intro')} />
+      <PageHeader
+        title={t('collections.title')}
+        intro={t('collections.intro')}
+        art={art('pages/collections') ?? still('cloth')}
+      />
       <CollectionBlock
         id="hmong"
         tone="paper"
         from="cream"
         name={t('collections.hmong.name')}
         body={t('collections.hmong.body')}
-        credit={t('collections.hmong.credit')}
-        swatch={swatch}
-        products={[
-          product(t('home.craft.products.tote'), hmong.tote),
-          product(t('home.craft.products.mug'), hmong.mug),
-          product(t('home.craft.products.coaster'), hmong.coaster),
-        ]}
+        credit={credit}
+        swatch={usable(hmong.brocade)}
+        art={art('objects/basket')}
+        products={products}
         orderLabels={{ instagram: t('contact.instagramLabel'), email: t('contact.emailLabel') }}
       />
+      <PageBand tone="paper" items={products.map((p) => p.name)} />
     </>
   );
 }

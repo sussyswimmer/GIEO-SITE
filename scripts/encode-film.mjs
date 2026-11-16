@@ -1,8 +1,9 @@
-// Films (docs/07-redesign.md §4): PNG masters from blender/film/*.py -> scrubbed all-intra H.264, WebP keys, manifests,
+// Films (docs/07-redesign.md Â§4): PNG masters from blender/film/*.py -> scrubbed all-intra H.264, WebP keys, manifests,
 // still-lifes and contact sheets.
 // Usage: node scripts/encode-film.mjs [--scenes seed,weave,lotus,stills] [--raw D:/claude-scratch/gieo/film/raw]
 //          [--sheets D:/claude-scratch/gieo/film/sheets] [--tmp D:/claude-scratch/gieo/film/tmp]
 //        node scripts/encode-film.mjs --look seed:l:0,40,95 [--raw DIR]   (look-dev: composited montage only, no encode)
+//        node scripts/encode-film.mjs --scenes art   (page art, not in the default list: public/art/products/*, public/art/seam/*)
 // Writes public/film/<scene>/{manifest.json, <set>.mp4, keys/<set>-<iiii>.webp} and public/film/stills/*.webp.
 // `seed` is opaque: the render's alpha is laid on flat --cream with the peach sun. `weave` and `lotus` keep alpha as
 // side-by-side video (premultiplied RGB | alpha), like public/video/*.mp4. Sheets are decoded back from the mp4s.
@@ -27,6 +28,7 @@ const RAW = path.resolve(arg('raw', 'D:/claude-scratch/gieo/film/raw'));
 const SHEETS = path.resolve(arg('sheets', 'D:/claude-scratch/gieo/film/sheets'));
 const TMP = path.resolve(arg('tmp', 'D:/claude-scratch/gieo/film/tmp'));
 const OUT = path.resolve(arg('out', path.join(ROOT, 'public/film'))); // --out: look-dev only (drafts stay out of the repo)
+const ART_OUT = path.resolve(arg('art-out', path.join(ROOT, 'public/art'))); // --art-out: the same, for the `art` scene
 const FPS = 30;
 
 const tokens = fs.readFileSync(path.join(ROOT, 'src/styles/tokens.css'), 'utf8');
@@ -38,10 +40,12 @@ const FILMS = {
   seed: {
     frames: 150, alpha: false, bg: 'cream', keys: [0, 40, 95, 149],
     beats: { fall: [0, 40], sprout: [40, 95], thread: [95, 149] },
+    // `root`: where the root leaves the seed on the last frame, as shares of the frame; the page thread starts
+    // there (docs/08 H1). Measured on the render: measure again if seed.py's camera or the sprout moves.
     sets: [
-      { id: 'l', from: 'l', aspect: 'landscape', w: 1920, h: 1080, max: 8e6 },
-      { id: 'ls', from: 'l', aspect: 'landscape', w: 1280, h: 720, max: 4e6 },
-      { id: 'p', from: 'p', aspect: 'portrait', w: 900, h: 1200, max: 4e6 },
+      { id: 'l', from: 'l', aspect: 'landscape', w: 1920, h: 1080, max: 8e6, root: [0.604, 0.838] },
+      { id: 'ls', from: 'l', aspect: 'landscape', w: 1280, h: 720, max: 4e6, root: [0.604, 0.838] },
+      { id: 'p', from: 'p', aspect: 'portrait', w: 900, h: 1200, max: 4e6, root: [0.552, 0.852] },
     ],
   },
   weave: {
@@ -237,7 +241,7 @@ async function film(scene) {
   for (const set of f.sets) {
     const r = await encodeSet(scene, f, set);
     rows.push(r);
-    sets.push({ id: set.id, aspect: set.aspect, w: r.w, h: r.h, focus: set.focus, ...meta[set.id] });
+    sets.push({ id: set.id, aspect: set.aspect, w: r.w, h: r.h, focus: set.focus, ...meta[set.id], ...(set.root && { root: set.root }) });
   }
   fs.copyFileSync(rows[0].sheet, path.join(SHEETS, `${scene}.png`));
   const manifest = { scene, frames: f.frames, fps: FPS, alpha: f.alpha, sets, keys: f.keys, beats: f.beats };
@@ -246,59 +250,139 @@ async function film(scene) {
     bytes: r.bytes, ceiling: r.max, ok: r.bytes <= r.max, corner: r.corner }));
 }
 
+// A still-life master as the page shows it: straight RGBA with its long edge at most `edge`, the shadow thinned.
+async function cutout(src, name, edge, sh) {
+  const plum = rgb(hex('plum-ink')), tint = rgb(hex('peach-glow')).map((c, i) => plum[i] + (c - plum[i]) * sh.warm);
+  const m = await sharp(src).metadata();
+  const k = Math.min(1, edge / Math.max(m.width, m.height)), w = Math.round(m.width * k), h = Math.round(m.height * k);
+  // The page under each still is a shadow catcher: its shadow arrives as black in the alpha, and runs as far as the
+  // light throws it. Keep it as a light, warm contact shadow: tinted, thinned, gone within sh.reach of the object
+  // and before the frame's edge. Only black, not-quite-opaque pixels are shadow; the objects are untouched.
+  const data = await sharp(src).resize(w, h).ensureAlpha().raw().toBuffer();
+  const shade = new Float32Array(w * h), dist = new Float32Array(w * h).fill(1e9); // dist: to the object, 3-4 chamfer
+  const box = [w, h, 0, 0];
+  for (let p = 0, i = 0; p < w * h; p++, i += 4) {
+    shade[p] = data[i + 3] >= 252 ? 0 : 1 - smooth(8, 24, Math.max(data[i], data[i + 1], data[i + 2]));
+    if (!data[i + 3] || shade[p] > 0.5) continue;
+    dist[p] = 0;
+    const x = p % w, y = (p - x) / w;
+    box[0] = Math.min(box[0], x), box[1] = Math.min(box[1], y), box[2] = Math.max(box[2], x), box[3] = Math.max(box[3], y);
+  }
+  for (const s of [1, -1]) // forward pass, then the same backwards
+    for (let p = s > 0 ? 0 : w * h - 1; p >= 0 && p < w * h; p += s) {
+      const x = p % w, y = (p - x) / w, row = y - s >= 0 && y - s < h;
+      if (x - s >= 0 && x - s < w) dist[p] = Math.min(dist[p], dist[p - s] + 3, row ? dist[p - s * w - s] + 4 : 1e9);
+      if (row) dist[p] = Math.min(dist[p], dist[p - s * w] + 3, x + s >= 0 && x + s < w ? dist[p - s * w + s] + 4 : 1e9);
+    }
+  const reach = 3 * sh.reach * Math.max(w, h), clear = Math.ceil(sh.margin * Math.min(w, h)), f = sh.fade * Math.min(w, h);
+  for (let p = 0, i = 0; p < w * h; p++, i += 4) {
+    const x = p % w, y = (p - x) / w, border = Math.min(x, y, w - 1 - x, h - 1 - y);
+    if (shade[p]) {
+      const keep = sh.keep * (1 - Math.min(1, dist[p] / reach)) ** 2 * smooth(clear, clear + f, border);
+      for (let c = 0; c < 3; c++) data[i + c] = Math.round(data[i + c] + shade[p] * tint[c]);
+      data[i + 3] = Math.round(data[i + 3] * (1 - shade[p] * (1 - keep)));
+    }
+    if (border < clear && data[i + 3]) die(`still ${name}: pixel ${x},${y} is not clear, inside the ${clear} px margin`);
+  }
+  return { data, w, h, fill: `${(((box[2] - box[0] + 1) / w) * 100).toFixed(0)}x${(((box[3] - box[1] + 1) / h) * 100).toFixed(0)}%` };
+}
+
+// The best WebP of raw RGBA that fits `max` bytes: quality comes down, the pixels stay.
+async function fitWebp(data, w, h, max, what, alphaQuality = 85) {
+  let q = 88, buf;
+  do {
+    buf = await sharp(data, { raw: { width: w, height: h, channels: 4 } }).webp({ quality: q, alphaQuality, effort: 6 }).toBuffer();
+    q -= 6;
+  } while (buf.length > max && q > 30);
+  if (buf.length > max) die(`${what} is ${buf.length} bytes at quality ${q + 6}`);
+  await sharp(buf).metadata(); // decodes
+  return { buf, q: q + 6 };
+}
+
 // Still-lifes: raw/stills/<name>/f0000.png (and <name>-fg) -> public/film/stills/<name>.webp, long edge 1600, <= 150 KB.
 async function stills() {
   const dir = path.join(RAW, 'stills'), out = path.join(OUT, 'stills'), rows = [], tiles = [];
   if (!fs.existsSync(dir)) die(`${dir} is missing: render blender/film/stills.py first`);
   fs.mkdirSync(out, { recursive: true });
-  const plum = rgb(hex('plum-ink')), tint = rgb(hex('peach-glow')).map((c, i) => plum[i] + (c - plum[i]) * SHADOW.warm);
   for (const name of fs.readdirSync(dir).filter((n) => fs.existsSync(path.join(dir, n, 'f0000.png'))).sort()) {
-    const src = path.join(dir, name, 'f0000.png'), m = await sharp(src).metadata();
-    const k = Math.min(1, STILL_EDGE / Math.max(m.width, m.height)), w = Math.round(m.width * k), h = Math.round(m.height * k);
-    // The page under each still is a shadow catcher: its shadow arrives as black in the alpha, and runs as far as the
-    // light throws it. Keep it as a light, warm contact shadow: tinted, thinned, gone within SHADOW.reach of the object
-    // and before the frame's edge. Only black, not-quite-opaque pixels are shadow; the objects are untouched.
-    const data = await sharp(src).resize(w, h).ensureAlpha().raw().toBuffer();
-    const shade = new Float32Array(w * h), dist = new Float32Array(w * h).fill(1e9); // dist: to the object, 3-4 chamfer
-    const box = [w, h, 0, 0];
-    for (let p = 0, i = 0; p < w * h; p++, i += 4) {
-      shade[p] = data[i + 3] >= 252 ? 0 : 1 - smooth(8, 24, Math.max(data[i], data[i + 1], data[i + 2]));
-      if (!data[i + 3] || shade[p] > 0.5) continue;
-      dist[p] = 0;
-      const x = p % w, y = (p - x) / w;
-      box[0] = Math.min(box[0], x), box[1] = Math.min(box[1], y), box[2] = Math.max(box[2], x), box[3] = Math.max(box[3], y);
-    }
-    for (const s of [1, -1]) // forward pass, then the same backwards
-      for (let p = s > 0 ? 0 : w * h - 1; p >= 0 && p < w * h; p += s) {
-        const x = p % w, y = (p - x) / w, row = y - s >= 0 && y - s < h;
-        if (x - s >= 0 && x - s < w) dist[p] = Math.min(dist[p], dist[p - s] + 3, row ? dist[p - s * w - s] + 4 : 1e9);
-        if (row) dist[p] = Math.min(dist[p], dist[p - s * w] + 3, x + s >= 0 && x + s < w ? dist[p - s * w + s] + 4 : 1e9);
-      }
-    const reach = 3 * SHADOW.reach * Math.max(w, h), clear = Math.ceil(SHADOW.margin * Math.min(w, h)), f = SHADOW.fade * Math.min(w, h);
-    for (let p = 0, i = 0; p < w * h; p++, i += 4) {
-      const x = p % w, y = (p - x) / w, border = Math.min(x, y, w - 1 - x, h - 1 - y);
-      if (shade[p]) {
-        const keep = SHADOW.keep * (1 - Math.min(1, dist[p] / reach)) ** 2 * smooth(clear, clear + f, border);
-        for (let c = 0; c < 3; c++) data[i + c] = Math.round(data[i + c] + shade[p] * tint[c]);
-        data[i + 3] = Math.round(data[i + 3] * (1 - shade[p] * (1 - keep)));
-      }
-      if (border < clear && data[i + 3]) die(`still ${name}: pixel ${x},${y} is not clear, inside the ${clear} px margin`);
-    }
-    const fill = `${(((box[2] - box[0] + 1) / w) * 100).toFixed(0)}x${(((box[3] - box[1] + 1) / h) * 100).toFixed(0)}%`;
-    let q = 88, buf;
-    do {
-      buf = await sharp(data, { raw: { width: w, height: h, channels: 4 } }).webp({ quality: q, alphaQuality: 85, effort: 6 }).toBuffer();
-      q -= 6;
-    } while (buf.length > STILL_MAX && q > 30);
-    if (buf.length > STILL_MAX) die(`still ${name} is ${buf.length} bytes at quality ${q + 6}`);
+    const { data, w, h, fill } = await cutout(path.join(dir, name, 'f0000.png'), name, STILL_EDGE, SHADOW);
+    const { buf, q } = await fitWebp(data, w, h, STILL_MAX, `still ${name}`);
     fs.writeFileSync(path.join(out, `${name}.webp`), buf);
-    await sharp(buf).metadata(); // decodes
-    rows.push({ film: `stills/${name}.webp`, size: `${w}x${h}`, frames: 1, crf: `q${q + 6}`, bytes: buf.length, ceiling: STILL_MAX, ok: true, corner: `fills ${fill}` });
+    rows.push({ film: `stills/${name}.webp`, size: `${w}x${h}`, frames: 1, crf: `q${q}`, bytes: buf.length, ceiling: STILL_MAX, ok: true, corner: `fills ${fill}` });
     // the sheet shows each still as the page does, on both of its backgrounds, to the frame's very edge
     for (const bg of ['cream', 'paper'])
       tiles.push(await sharp(buf).flatten({ background: hex(bg) }).resize(1200, 900, { fit: 'contain', background: '#777777' }).removeAlpha().raw().toBuffer());
   }
   if (tiles.length) await montage(tiles, 1200, 900, path.join(SHEETS, 'stills.png'), 800);
+  return rows;
+}
+
+// Page art (blender/film/art.py): raw/art/<name>/f0000.png -> public/art/products/<name>{,-800}.webp (long edge 1600,
+// <= 180 KB) and public/art/seam/roots{,-1200}.webp (2400 x 900, <= 220 KB). `seam` is where the hero film's bottom
+// edge crosses roots.webp, as a share of its height: above it the piece lies on the film's soil, below it on plum.
+const ART = { edge: 1600, small: 800, max: 180_000, roots: { w: 2400, h: 900, small: 1200, max: 220_000, seam: 0.16 } };
+async function art() {
+  const dir = path.join(RAW, 'art'), rows = [], tiles = [];
+  const master = (name) => {
+    const f = path.join(dir, name, 'f0000.png');
+    return fs.existsSync(f) ? f : die(`${f} is missing: node scripts/render-film.mjs --scenes art`);
+  };
+  // the full picture at the best quality that fits, and a small one at that same quality
+  const publish = async (data, w, h, sub, name, max, small, note, alphaQuality = 85) => {
+    const { buf, q } = await fitWebp(data, w, h, max, `art ${name}`, alphaQuality), k = Math.min(1, small / Math.max(w, h));
+    const half = await sharp(data, { raw: { width: w, height: h, channels: 4 } }).resize(Math.round(w * k), Math.round(h * k))
+      .webp({ quality: q, alphaQuality, effort: 6 }).toBuffer();
+    fs.mkdirSync(path.join(ART_OUT, sub), { recursive: true });
+    for (const [file, b, s] of [[`${name}.webp`, buf, 1], [`${name}-${small}.webp`, half, k]]) {
+      fs.writeFileSync(path.join(ART_OUT, sub, file), b);
+      rows.push({ film: `art/${sub}/${file}`, size: `${Math.round(w * s)}x${Math.round(h * s)}`, frames: 1, crf: `q${q}`, bytes: b.length, ceiling: max, ok: b.length <= max, corner: note });
+    }
+    return buf;
+  };
+
+  for (const name of ['tote', 'mug', 'coaster']) {
+    // the shadow is plain --plum-ink here: a portrait may sit on plum, where the still-lifes' warmed shadow is a pale smudge
+    const { data, w, h, fill } = await cutout(master(name), name, ART.edge, { ...SHADOW, warm: 0 });
+    const buf = await publish(data, w, h, 'products', name, ART.max, ART.small, `fills ${fill}`);
+    for (const bg of ['cream', 'plum-ink']) // on a field larger than the frame, so a cut at the frame's edge would show
+      tiles.push(await sharp(buf).flatten({ background: hex(bg) }).resize(1200, 900, { fit: 'contain', background: hex(bg) }).removeAlpha().raw().toBuffer());
+  }
+  await montage(tiles, 1200, 900, path.join(SHEETS, 'art-products.png'), 800);
+
+  const R = ART.roots, d = await sharp(master('roots')).resize(R.w, R.h, { fit: 'fill' }).ensureAlpha().raw().toBuffer();
+  // The top of the piece lies over the film's soil. Its crumbs already thin out towards the top; the last of them
+  // come in from nothing, along a line that wanders, so there is no edge where the picture starts.
+  const band = 0.05 * R.h;
+  for (let x = 0; x < R.w; x++) {
+    const y0 = R.h * (0.014 + 0.02 * (0.5 + 0.5 * Math.sin(x * 0.0113 + 1.3) * Math.sin(x * 0.0037 + 0.4)));
+    for (let y = 0; y < y0 + band; y++) d[(y * R.w + x) * 4 + 3] = Math.round(d[(y * R.w + x) * 4 + 3] * smooth(y0, y0 + band, y));
+  }
+  // Nothing in it may read as a level line: the top and bottom rows are clear, and in no row does the matte step
+  // along a long run of the width. `soil` is the lowest row that is more earth than air. And within 3 % of the seam
+  // the earth is solid, so the film's bottom edge cannot show through it as a row of plum specks.
+  let step = 0, soil = 0;
+  for (let y = 0; y < R.h; y++) {
+    let n = 0, cover = 0, gaps = 0;
+    for (let x = 0; x < R.w; x++) {
+      const a = d[(y * R.w + x) * 4 + 3];
+      cover += a;
+      if (a < 128) gaps++;
+      if (y + 1 < R.h && Math.abs(a - d[((y + 1) * R.w + x) * 4 + 3]) > 96) n++;
+      if ((y === 0 || y >= R.h * 0.985) && a) die(`roots: pixel ${x},${y} is not clear`);
+    }
+    step = Math.max(step, n / R.w);
+    if (Math.abs(y / R.h - R.seam) <= 0.03 && gaps > 0.01 * R.w) die(`roots: row ${y}, by the seam, is ${((gaps / R.w) * 100).toFixed(1)} % see-through`);
+    if (cover / R.w > 127) soil = y + 1;
+  }
+  if (step > 0.2) die(`roots: the matte steps along ${(step * 100).toFixed(0)} % of one row, which reads as a level line`);
+  // Thousands of crumb edges make the matte the larger half of this file. 16 levels of it (alphaQuality 70) are
+  // plenty for edges one or two pixels wide, and leave the bytes to the earth's colour.
+  const roots = await publish(d, R.w, R.h, 'seam', 'roots', R.max, R.small, `soil to ${((soil / R.h) * 100).toFixed(0)} %, row step <= ${(step * 100).toFixed(0)} %`, 70);
+  // the sheet: the seed film's last frame at the same width, its soil above, plum below, the piece across the seam
+  const film = path.join(ROOT, 'public/film/seed/keys/l-0149.webp'), fm = await sharp(film).metadata(), fh = Math.round((fm.height * R.w) / fm.width), strip = 300;
+  const above = await sharp(film).resize(R.w, fh).extract({ left: 0, top: fh - strip, width: R.w, height: strip }).toBuffer();
+  await sharp({ create: { width: R.w, height: strip + R.h + 100, channels: 3, background: hex('plum-ink') } })
+    .composite([{ input: above, left: 0, top: 0 }, { input: roots, left: 0, top: strip - Math.round(R.seam * R.h) }]).png().toFile(path.join(SHEETS, 'art-roots.png'));
   return rows;
 }
 
@@ -316,6 +400,7 @@ else {
   const rows = [];
   for (const scene of arg('scenes', 'seed,weave,lotus,stills').split(',')) {
     if (scene === 'stills') rows.push(...(await stills()));
+    else if (scene === 'art') rows.push(...(await art()));
     else if (FILMS[scene]) rows.push(...(await film(scene)));
     else die(`unknown scene ${scene}`);
   }

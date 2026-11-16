@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { InvolveSection } from '@/components/pages/InvolveSection';
+import { PageBand } from '@/components/pages/PageBand';
 import { ProgramList } from '@/components/pages/ProgramList';
+import { art, still } from '@/components/pages/art';
 import { ButtonLink, Container, Section, TextLink, Todo } from '@/components/ui';
 import { routing } from '@/i18n/routing';
 import { alternates } from '@/lib/seo';
@@ -24,6 +26,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+// The address is the action on these rows, so it is set like the links on the contact page.
+const MAIL = 'inline-flex min-h-11 items-center font-serif text-h3 italic [overflow-wrap:anywhere]';
+
 export default async function GetInvolvedPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -33,9 +38,9 @@ export default async function GetInvolvedPage({ params }: Props) {
   // partnering is the way in until GIEO answers (docs/00-open-questions.md #4).
   return (
     <>
-      <PageHeader title={t('getInvolved.title')} intro={t('getInvolved.intro')} />
+      <PageHeader title={t('getInvolved.title')} intro={t('getInvolved.intro')} art={art('pages/get-involved') ?? still('lotus-seeds')} />
 
-      <Section tone="paper" from="cream" pad="default" id="ways">
+      <Section tone="paper" from="cream" pad="none" id="ways" className="pt-section-sm">
         <Container>
           <InvolveSection slug="shop" title={t('getInvolved.shop.title')} body={t('getInvolved.shop.body')}>
             <ButtonLink variant="secondary" href="/collections">
@@ -45,12 +50,12 @@ export default async function GetInvolvedPage({ params }: Props) {
           </InvolveSection>
 
           <InvolveSection slug="mentor" title={t('getInvolved.mentor.title')} body={t('getInvolved.mentor.body')}>
-            <TextLink href={`mailto:${EMAIL}`} className="inline-flex min-h-11 items-center">{EMAIL}</TextLink>
+            <TextLink href={`mailto:${EMAIL}`} className={MAIL}>{EMAIL}</TextLink>
             <Todo tag="mentor" />
           </InvolveSection>
 
           <InvolveSection slug="partner" title={t('getInvolved.partner.title')} body={t('getInvolved.partner.body')}>
-            <TextLink href={`mailto:${EMAIL}`} className="inline-flex min-h-11 items-center">{EMAIL}</TextLink>
+            <TextLink href={`mailto:${EMAIL}`} className={MAIL}>{EMAIL}</TextLink>
           </InvolveSection>
 
           <InvolveSection
@@ -62,6 +67,9 @@ export default async function GetInvolvedPage({ params }: Props) {
           <InvolveSection slug="donate" title={t('getInvolved.donate.title')} body={t('getInvolved.donate.body')} />
         </Container>
       </Section>
+
+      {/* The three ways that have copy, sideways. */}
+      <PageBand tone="paper" items={[t('getInvolved.shop.title'), t('getInvolved.mentor.title'), t('getInvolved.partner.title')]} />
 
       <ProgramList />
     </>

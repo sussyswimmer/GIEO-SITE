@@ -15,7 +15,41 @@ import { useMotionStore } from './motion-store';
 const FADE_MS = 300; // --dur-fade
 const STALL_MS = 6000;
 
-type Video = { update(frame: number): void; destroy(): void };
+type Video = { update(frame: number): void; redraw(): void; destroy(): void };
+
+// The hero's vista (docs/08 H0): pale ridges drawn into the seed film's own canvas, under the frame. The
+// frame goes on with `darken`, so the film's cream ground keeps the ridges while the seed, soil and sprout,
+// all darker than the art, cover them. A canvas, never an <img>: it cannot become the LCP element.
+const BACKDROP: Partial<Record<SceneName, string>> = { seed: '/art/hero/vista.webp' };
+const VISTA_GONE = 80; // by this frame (the sprout beat's copy arrives at about 90) only a faint horizon is left
+const VISTA_FAINT = 0.2; // what is left of it: under the beat copy it must stay below 25 %
+const smooth = (x: number) => x * x * (3 - 2 * x);
+let cream = ''; // the --cream token, read once
+
+/** Cream, then the vista as the camera has it at this frame: it rises and thins out as the seed falls. */
+function backdrop(ctx: CanvasRenderingContext2D, img: HTMLImageElement | null, set: FilmSet, frame: number) {
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = cream ||= getComputedStyle(document.documentElement).getPropertyValue('--cream').trim();
+  ctx.fillRect(0, 0, set.w, set.h);
+  if (!img) return;
+  const k = smooth(Math.min(1, frame / VISTA_GONE));
+  const portrait = set.h > set.w;
+  // The art is hung on what the screen shows of the frame (the cover fit crops the rest), from its left
+  // edge, so the sun stays on screen at every shape. Landscape: the panorama a little over the frame's
+  // height, the valley under the seed. Portrait: a window of it (the sun and the terraces falling to the
+  // valley), never the whole thing squashed.
+  const box = ctx.canvas;
+  const fit = Math.max(box.clientWidth / set.w, box.clientHeight / set.h) || 1;
+  const seen = Math.min(set.w, box.clientWidth / fit || set.w);
+  const left = (set.w - seen) * (set.focus?.[0] ?? 0.5);
+  const s = Math.max((set.h / img.naturalHeight) * (portrait ? 0.86 : 1.04), seen / img.naturalWidth);
+  const w = img.naturalWidth * s;
+  const h = img.naturalHeight * s;
+  ctx.globalAlpha = 1 - (1 - VISTA_FAINT) * k;
+  ctx.drawImage(img, left - (portrait ? 0.02 * w : 0), set.h * ((portrait ? 0.1 : 0.02) - 0.13 * k), w, h);
+  ctx.globalAlpha = 1;
+}
 
 const VERT = `attribute vec2 p; varying vec2 uv;
 void main() { uv = vec2(0.5 + 0.5 * p.x, 0.5 - 0.5 * p.y); gl_Position = vec4(p, 0.0, 1.0); }`;
@@ -34,10 +68,20 @@ void main() {
 }`;
 
 /** Returns a paint(video) for the canvas, or null when the alpha compositor cannot start. */
-function painter(canvas: HTMLCanvasElement, set: FilmSet, alpha: boolean): ((v: HTMLVideoElement) => void) | null {
+function painter(
+  canvas: HTMLCanvasElement,
+  set: FilmSet,
+  alpha: boolean,
+  vista?: () => HTMLImageElement | null,
+): ((v: HTMLVideoElement, frame: number) => void) | null {
   if (!alpha) {
     const ctx = canvas.getContext('2d', { alpha: false });
-    return ctx && ((v) => ctx.drawImage(v, 0, 0, set.w, set.h));
+    if (!ctx || !vista) return ctx && ((v) => ctx.drawImage(v, 0, 0, set.w, set.h));
+    return (v, frame) => {
+      backdrop(ctx, vista(), set, frame);
+      ctx.globalCompositeOperation = 'darken';
+      ctx.drawImage(v, 0, 0, set.w, set.h);
+    };
   }
   const gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false });
   if (!gl) return null;
@@ -73,11 +117,18 @@ function painter(canvas: HTMLCanvasElement, set: FilmSet, alpha: boolean): ((v: 
 }
 
 /** Scrubs <scene>/<set>.mp4: one seek in flight, followed by at most one more (the latest target). */
-function mountVideo(m: FilmManifest, set: FilmSet, stage: HTMLElement, onShown: () => void, fail: () => void): Video | null {
+function mountVideo(
+  m: FilmManifest,
+  set: FilmSet,
+  stage: HTMLElement,
+  onShown: () => void,
+  fail: () => void,
+  vista?: () => HTMLImageElement | null,
+): Video | null {
   const canvas = document.createElement('canvas');
   canvas.width = set.w;
   canvas.height = set.h;
-  const paint = painter(canvas, set, m.alpha);
+  const paint = painter(canvas, set, m.alpha, vista);
   if (!paint) return null;
 
   const video = document.createElement('video');
@@ -112,7 +163,7 @@ function mountVideo(m: FilmManifest, set: FilmSet, stage: HTMLElement, onShown: 
   on('seeked', () => {
     seeking = false;
     if (video.readyState >= 2) {
-      paint(video);
+      paint(video, pending);
       if (shown < 0) {
         canvas.dataset.on = '';
         onShown();
@@ -134,6 +185,9 @@ function mountVideo(m: FilmManifest, set: FilmSet, stage: HTMLElement, onShown: 
     update(frame) {
       target = frame;
       seek();
+    },
+    redraw() {
+      if (shown >= 0 && !seeking && video.readyState >= 2) paint(video, shown);
     },
     destroy() {
       dead = true;
@@ -162,6 +216,10 @@ function mountStage(stage: HTMLElement) {
   let drawnKey = -1;
   let raf = 0;
   const imgs = new Map<number, HTMLImageElement>();
+  // The art under an opaque film (BACKDROP). The poster waits for it, so the ridges never pop in after the seed.
+  const art = BACKDROP[scene];
+  let vista: HTMLImageElement | null = null;
+  let vistaDone = !art;
 
   const tier = () => useMotionStore.getState().tier;
   const ready = () => {
@@ -171,8 +229,9 @@ function mountStage(stage: HTMLElement) {
   // Key layer: the poster, and the whole show on the Still tier (where a change of key crossfades).
   const paintKey = () => {
     const img = imgs.get(wantKey);
-    if (dead || !m || wantKey === drawnKey || !img?.complete || !img.naturalWidth) return;
+    if (dead || !m || !vistaDone || wantKey === drawnKey || !img?.complete || !img.naturalWidth) return;
     const ctx = keys.getContext('2d')!;
+    const at = m.keys[wantKey];
     const from = drawnKey >= 0 && !video ? imgs.get(drawnKey) : undefined;
     drawnKey = wantKey;
     stage.dataset.key = String(drawnKey);
@@ -180,7 +239,12 @@ function mountStage(stage: HTMLElement) {
     cancelAnimationFrame(raf);
     const step = (now: number) => {
       const p = from ? Math.min(1, (now - t0) / FADE_MS) : 1;
-      ctx.clearRect(0, 0, set.w, set.h);
+      if (art) {
+        // Darkened onto the vista like the video; the two stills each darken by their share of the fade.
+        backdrop(ctx, vista, set, at);
+        ctx.globalCompositeOperation = 'darken';
+        ctx.globalAlpha = 1 - p;
+      } else ctx.clearRect(0, 0, set.w, set.h);
       if (from && p < 1) ctx.drawImage(from, 0, 0, set.w, set.h);
       ctx.globalAlpha = p;
       ctx.drawImage(img, 0, 0, set.w, set.h);
@@ -221,6 +285,7 @@ function mountStage(stage: HTMLElement) {
         still = true;
         stopVideo();
       },
+      art ? () => vista : undefined,
     );
     if (!video) {
       still = true; // no alpha compositor: stop retrying on every store change
@@ -238,6 +303,20 @@ function mountStage(stage: HTMLElement) {
 
   const load = async () => {
     asked = true;
+    if (art) {
+      const img = new Image();
+      img.fetchPriority = 'low';
+      img.src = art;
+      const done = (ok: boolean) => {
+        if (ok) vista = img;
+        vistaDone = true;
+        paintKey();
+        video?.redraw();
+      };
+      img.decode().then(() => done(true), () => done(false));
+      // a stalled vista image must not keep the poster from painting
+      setTimeout(() => !vistaDone && done(false), 2500);
+    }
     try {
       const res = await fetch(`/film/${scene}/manifest.json`);
       if (!res.ok) {

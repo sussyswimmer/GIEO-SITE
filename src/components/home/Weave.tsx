@@ -1,7 +1,10 @@
+import { Fragment } from 'react';
 import { getTranslations } from 'next-intl/server';
-import { ButtonLink, Container, FilmStage, Grid, ProductTile, Prose, Section } from '@/components/ui';
+import { ButtonLink, Container, FilmStage, Grid, Prose, Section } from '@/components/ui';
+import { BandLine } from './KineticBand';
 
 const BEAT = 'mt-10 motion-safe:lg:mt-[12svh]';
+const PRODUCTS = ['tote', 'mug', 'coaster'] as const;
 
 /**
  * S1 Weave: thread, cloth, product. The one dark section; every colour inside comes from the
@@ -10,6 +13,8 @@ const BEAT = 'mt-10 motion-safe:lg:mt-[12svh]';
  * its plum backdrop. The stage's size and bleed are the .weave-stage rule in globals.css: the canvas is
  * larger than the band it shows in, and every product stays inside the screen.
  * The quote is split on spaces for the scroll reveal; it stays one sentence for screen readers.
+ * The section ends on the product run: the three names, large, each lit while its product rests on the stage
+ * (docs/08 H2; the pacing is WEAVE_PACE in fallback-timeline.ts), then a band of the names running sideways.
  * No visible heading: there is no key for one (PLAN.md §6).
  */
 export async function Weave() {
@@ -22,8 +27,11 @@ export async function Weave() {
       <Container>
         <Grid className="lg:items-start">
           <div
+            // the seam (docs/08 H1): the page thread's runtime places the yarn's point in this box; its plum
+            // backdrop ([data-seam], globals.css) starts there, so the thread shows running in above it
+            data-seam
             className={[
-              'relative z-(--z-content) col-span-full -mx-gutter h-(--stage-phone-weave) overflow-x-clip bg-plum-ink',
+              'relative z-(--z-content) col-span-full -mx-gutter h-(--stage-phone-weave) overflow-x-clip',
               'motion-safe:[@media(min-height:37.5rem)]:sticky motion-safe:[@media(min-height:37.5rem)]:top-0',
               // the copy fades out under the stage instead of being cut
               'after:absolute after:inset-x-0 after:top-full after:h-8 after:bg-linear-to-b after:from-plum-ink after:to-transparent',
@@ -40,7 +48,7 @@ export async function Weave() {
           </div>
 
           {/* From 1024 the copy is above the stage: at 1280 the film's faded left edge reaches under it. */}
-          <div className="col-span-full pt-6 pb-section-sm lg:relative lg:z-(--z-content) lg:col-start-1 lg:col-end-7 lg:row-start-1 lg:pt-[12svh] xl:col-end-6">
+          <div className="col-span-full pt-6 lg:relative lg:z-(--z-content) lg:col-start-1 lg:col-end-7 lg:row-start-1 lg:pt-[12svh] xl:col-end-6">
             <p data-beat className="max-w-[34ch] font-serif text-h3 text-fg-heading">
               {t('beat1')}
             </p>
@@ -62,20 +70,38 @@ export async function Weave() {
               </blockquote>
             </figure>
 
-            <div data-beat className={BEAT}>
-              <Prose>{t('beat3')}</Prose>
-              <ul role="list" className="mt-8 flex flex-col gap-4">
-                <ProductTile variant="compact" name={t('products.tote')} />
-                <ProductTile variant="compact" name={t('products.mug')} />
-                <ProductTile variant="compact" name={t('products.coaster')} />
-              </ul>
-              <ButtonLink variant="primary" href="/collections" className="mt-8">
-                {t('cta')}
-              </ButtonLink>
+            <Prose data-beat variant="lead" className={BEAT}>
+              {t('beat3')}
+            </Prose>
+
+            {/* The product run (docs/08 H2). In flow this is a list of three names. With the runtime up, on a
+                screen tall enough, the names stick beside (below, on a phone) the stage for the length the
+                runtime gives the run, and each is lit while its product rests on the stage. */}
+            <div data-weave-run className={BEAT}>
+              <div data-weave-names className="flex flex-col justify-center pb-section-sm lg:pt-(--nav-offset)">
+                <p className="text-body font-medium text-fg-body">{tCollection('name')}</p>
+                <ul role="list" className="weave-names mt-2 font-serif italic text-fg-heading lg:mt-4">
+                  <li>{t('products.tote')}</li>
+                  <li>{t('products.mug')}</li>
+                  <li>{t('products.coaster')}</li>
+                </ul>
+                <ButtonLink variant="primary" href="/collections" className="mt-6 self-start lg:mt-10">
+                  {t('cta')}
+                </ButtonLink>
+              </div>
             </div>
           </div>
         </Grid>
       </Container>
+      {/* The second sideways band (docs/08 H2): the three products, running against the pillar band below. */}
+      <BandLine reverse className="pt-2 pb-6 text-fg-heading lg:pb-10" outline="var(--cream)">
+        {PRODUCTS.map((key) => (
+          <Fragment key={key}>
+            {t(`products.${key}`)}
+            <span className="mx-[0.35em] not-italic text-lotus-pink">·</span>
+          </Fragment>
+        ))}
+      </BandLine>
     </Section>
   );
 }

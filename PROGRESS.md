@@ -491,3 +491,54 @@ Open, added by this round:
 - **The seed film's rope and the weave film's yarn do not line up at the seam.** The rope leaves the hero at x ≈ 1310 (1440 wide); the weave film opens on its own yarn 225 to 300 px to the left, in the middle of its canvas; on a 390 phone it is the screen's left edge against x ≈ 235. The page thread does start under the rope, but the weave stage sits above it, so at that seam the reader sees two film threads and not the page thread (`D:\claude-scratch\gieo\seam-hero-w{1440,390}.png`). Lining them up is a film change (the weave's opening yarn, or the seed's exit point), or a stage shift that would undo the product framing. Not done here.
 - The credit reads "Products made with …" from the drape beat, when the cloth on screen is not yet a product. That is where the review asked for it to start.
 - The density walk samples every 0.75 screen, so it can step over a short bad window, as it did above. Only the pillars-to-vision seam was swept finely.
+
+## 2026-11-16 · Fuller pass, "The descent" (docs/08-fuller.md) ⚠️ checked on this PC, but the last check run was cut short; see "Not run"
+
+Maxwell looked at redesign v2 and asked for a fuller site: a hero with more than words, no flat bar between the hero and the products, slower products, bigger type, more imagery and motion, and sub-pages at the home page's level. `docs/08-fuller.md` is the brief. Where this entry and earlier ones disagree, this one is current.
+
+Home:
+- **Hero.** The headline stands on a misty mountain vista (`art/hero/vista.webp`, drawn into the seed film's canvas under the video with `darken`, so it cannot be the LCP element). Under it: the sub line, two buttons (`home.craft.cta`, `nav.getInvolved`), the IB note, and a slim sideways band of `meaning.word` · `meaning.gloss`. The vista thins out as the seed falls.
+- **Seam.** The flat soil edge is gone: the foot of the pinned hero sinks through earth into `--plum-ink`, thin roots leave the soil, and the page thread runs from the root into the top of the weave film's yarn. The yarn comes out of a point (a mask on `.weave-stage`, placed by `--seam`). Thread x equals yarn x at 390, 768, 1024, 1440 and 1920 (measured before the last fixes; 390 measured again after them: 203.8 against 203.8).
+- **Weave.** Each product rests for 54 to 56svh of scroll on desktop (49svh on a phone, floor 45; it was about 29), each change takes 25 to 26svh (14 on a phone, ceiling 30), the three span 215svh. The pacing is `WEAVE_PACE` in `src/lib/fallback-timeline.ts`. The product list is three large italic names, each lit while its product rests; a second sideways band of the names follows on plum. The stage sways a little during a rest (CSS variables `--sway-r`, `--sway-y`).
+- **Hands, Bloom, Vision / Mission, Journal.** Body copy at `text-lead`; larger stills; three scroll-scrubbed clips (`ScrubClip`: sprout, books, thread); pillar cards with `text-h3` titles and an object each; Vision / Mission on a full-bleed dusk picture with a mist loop and a plum scrim; the Journal closing on pale ridges with a sideways rail of stills. Involve rows and footer unchanged, as asked.
+
+Sub-pages (Collections, About, Get involved, Contact): a shared one-screen header (title in very large italic, intro at `text-lead`, the page's picture), large rows and tiles, one sideways band per page, no pins. Collections shows the three products as plum tiles with the Blender portraits and the partner credit. No content keys added or changed.
+
+**Art added, all for GIEO to approve before launch.** None shows people, buildings or brocade patterns; none states a fact; all decorative (`alt=""`).
+- AI-generated illustrations (Higgsfield), soft clay style: `art/hero/vista.webp`, `art/hero/ridge-near.webp` (not placed), `art/bands/ridges.webp`, `art/vision/dusk.webp` and `dusk-mist.mp4`, `art/pages/{collections,about,get-involved,contact}.webp`, `art/objects/{books,knot,basket,buds}.webp`.
+- AI-generated motion from our own Blender stills: `art/loops/{sprout,books,thread}.mp4` with first- and last-frame posters (`scripts/encode-loops.mjs`).
+- Blender (`node scripts/render-film.mjs --scenes art`, scenes in `blender/film/art.py`): `art/products/{tote,mug,coaster}.webp`, `art/seam/roots.webp` (not placed: the seam is built in CSS and the film canvas).
+
+Two independent code reviews ran on the uncommitted work (home, then sub-pages). Fixed from them:
+- The rest-time sway animated `transform` on `.weave-stage`, which is laid out with the CSS `translate` property; GSAP overwrote it, and at 1280×720 the stage sank half its height so the product stood half off screen. The sway now animates two CSS variables. `scripts/qa-fuller-b.mjs pace` measures the product's own box at seven sizes.
+- Scrub clips: a 6 s stall falls back to the end picture, slow connections (2g/3g) get the picture like Save-Data, and files are asked for one screen ahead (was 1.5).
+- The seed film's poster no longer waits forever on the vista image (2.5 s limit).
+- Sub-page pictures were sliced by their unveil clip while drifting: the clipped box now drifts as a whole. `art.ts` reads plain lossy WebP headers too. The email address on Get involved can wrap on a 320 px phone.
+- The page thread's start point (`root` in the seed manifest) is now part of `scripts/encode-film.mjs`'s contract, so a re-encode keeps it.
+
+Checks on the final combined build (`GIEO_DIST=.next-i`, built 22:44 after every app change above):
+- `node scripts/qa-fuller-b.mjs all`: **all checks passed.** Pace at 1280×720, 1366×768, 1536×864, 1440×900, 1920×1080, 1024×768 and 390×844 (numbers above; each product whole on screen at every held position where it rests or its name is lit). Walk from the weave down, EN 1440 and 390, VI 390: tallest empty band 27 % as seen (one desktop shot is 41 % with the sideways band hidden, 12 % with it showing). Text on the dusk picture: lowest 6.06:1 (EN 390, "Vision"), VI 1024×768 lowest 7.47:1. Reduced motion at 1440: nothing sticky, 0 of 47 copy elements hidden.
+- `node scripts/qa-redesign.mjs`: **33 pass, 0 fail.** LCP element `<span>` "GIEO" at 252 to 440 ms at 4× CPU; overflow 0 at 375; no-JS and reduced-motion copy all visible; scroll trace 820 frames, worst 16.9 ms, no long task.
+- `node scripts/qa-fuller-pages.mjs`: smallest text on the sub-pages 14 px (captions and labels only); no overflow at 375 on any `/vi` sub-page.
+- `node scripts/qa-fuller-nav.mjs` (EN): **32 of 32.** Every nav and footer link from the top and from mid-scroll, at 1440 and 390: lands at the top, h1 on screen, current page marked, wheel scrolls, Back and Forward work.
+- Typecheck, lint (0 errors, the same 2 warnings in `scripts/encode-film.mjs`), `content:check` (109 keys), `test:motion` (37/37) clean after the last edit.
+
+**Not run or not seen** (the PC ran low on memory and the servers and the check run were stopped at 23:08):
+- The sub-pages were looked at (EN 1440 and 390, VI 390) **before** three late changes: the Blender portraits on the Collections tiles (they had the film's key frames), the drift fix on sub-page pictures, and the email wrap. Those three are built but not yet seen in a browser.
+- `qa-density.mjs` on the ten routes of the final build. Earlier sub-page run: EN 53 of 53 shots pass, VI 55 of 56 (one Get involved screen at 11.5 % against the script's 12 % floor).
+- The seam at 768 to 1920 after the review fixes (390 was).
+- Navigation in VI: the script looked for `/vi/...` links, but the default locale's links have no prefix. Script fixed, not rerun.
+- Safari, a real phone, a keyboard pass, heights under 720 px.
+
+Deviations from standing rules, all following docs/08:
+- **Pins.** `CLAUDE.md` says no pin over 150vh. The hero run is 190svh (as before) and the product run holds its stage for 215svh, because each product now gets time. Scroll is never blocked; under reduced motion nothing pins.
+- **Page length.** Home is 15308 px at 1440×900 (17.0 screens raw) against docs/07's 12-screen cap; the extra is the product run and the new bands.
+- **Density targets of docs/08 §1** (20 % desktop, 16 % phone, band 28 %) are not met everywhere: on home the Journal closing, Involve rows and footer sit at 14 to 19 % (kept as they are, by request), and about fifteen sub-page screens sit between 12.6 and 19.7 %. The scripts still enforce the older floors, and the home walk measures the empty band with the sideways type showing.
+
+Open, added by this pass:
+- `home.journal.closing` is empty in `vi.json` (it was before this pass); the line shows in English only.
+- Collections tiles load the 1600 px portraits on phones too (`-800` files exist, unused there).
+- The three scrub clips weigh 1.0 to 1.9 MB each.
+- The page thread passes behind the dusk picture and the Journal ridges.
+- On resize the hero's lift and vista crop are not rebuilt until the next frame update.
+- `art/seam/roots.webp` and `art/hero/ridge-near.webp` are in `public/` but not used by any page.

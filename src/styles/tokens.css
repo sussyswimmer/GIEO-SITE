@@ -60,8 +60,9 @@
   /* Fluid sizes: linear from 375px to 1440px viewport, capped after. 01-brand.md §4 */
   /* Redesign v2 (docs/07 §2): hero, h2, quote and lead went up; mega is new. */
   /* "GIEO" fits the content width (the word is 2.24 em wide), unless the screen is too short to also hold
-     the nav, the eyebrow and the sub line: 149 at 390, 560 at 1440×900. The word's advance is 2.312 em. */
-  --fs-hero: max(4rem, min(calc(min(100vw - 2 * var(--gutter), var(--wrap-max)) / 2.34), calc((100svh - 18rem) / 0.95)));
+     the nav, the eyebrow, the sub line with its buttons and the band: 149 at 390, 560 at 1440×900. The
+     word's advance is 2.312 em. */
+  --fs-hero: max(4rem, min(calc(min(100vw - 2 * var(--gutter), var(--wrap-max)) / 2.34), calc((100svh - 21rem) / 0.95)));
   --fs-mega: clamp(3.5rem, 0.331rem + 13.5211vw, 12.5rem);   /* 56 → 200: partner name, kinetic band, dictionary word, footer line */
   --fs-h2: clamp(3.5rem, 1.8275rem + 7.1362vw, 8.25rem);     /* 56 → 132 */
   --fs-quote: clamp(2rem, 1.1197rem + 3.7559vw, 4.5rem);     /* 32 → 72 */

@@ -64,7 +64,7 @@ export function ContactForm({ labels, siteName }: { labels: ContactFormLabels; s
       <Button type="submit" variant="primary" className="mt-8">
         {labels.submit}
       </Button>
-      <p className="mt-4 text-caption text-ink-soft">{labels.note}</p>
+      <p className="mt-4 text-body text-fg-body">{labels.note}</p>
     </form>
   );
 }

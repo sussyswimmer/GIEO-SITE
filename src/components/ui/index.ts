@@ -11,6 +11,7 @@ export { PillarCard } from './PillarCard';
 export { ProductTile, type ProductPhoto } from './ProductTile';
 export { PullQuote } from './PullQuote';
 export { SceneStage, type SceneName } from './SceneStage';
+export { ScrubClip } from './ScrubClip';
 export { Section, type SectionProps } from './Section';
 export { TextLink } from './TextLink';
 export { Todo } from './Todo';

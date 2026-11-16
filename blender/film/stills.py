@@ -62,9 +62,10 @@ def extent(cam, w, h):
     return (*(lo + 1) / 2, *(hi + 1) / 2)
 
 
-def shoot(a, name, cam, **view):
+def shoot(a, name, cam, scene="stills", **view):
     """Frame the subject tight: centred, FILL of the frame both ways. The frame takes the subject's shape (within
-    3:4 .. 16:9) with its long edge at EDGE pixels; the view's own height and `at` are only the starting point."""
+    3:4 .. 16:9) with its long edge at EDGE pixels; the view's own height and `at` are only the starting point.
+    scene: the folder under <out> the master goes to (art.py sends its portraits to `art`)."""
     a.set = name
     view.setdefault("at", (0.0, 0.0))
     w, h = STILLS[name]
@@ -80,7 +81,7 @@ def shoot(a, name, cam, **view):
         w, h = w2, h2
     print(f"STILL {name} {w}x{h} subject {x1 - x0:.3f} x {y1 - y0:.3f} of the frame, centre {(x0 + x1) / 2:.3f}, {(y0 + y1) / 2:.3f}", flush=True)
     assert abs(max(x1 - x0, y1 - y0) - FILL) < 0.01 and abs((x0 + x1) / 2 - 0.5) < 0.01 and abs((y0 + y1) / 2 - 0.5) < 0.01, "framing did not settle"
-    rig.render(a, "stills", {name: (w, h)}, 1, lambda f, sid, aspect: rig.frame_cam(cam, aspect, **view))
+    rig.render(a, scene, {name: (w, h)}, 1, lambda f, sid, aspect: rig.frame_cam(cam, aspect, **view))
 
 
 def thread(name, yarn, points, r, colour, per_seg=24):

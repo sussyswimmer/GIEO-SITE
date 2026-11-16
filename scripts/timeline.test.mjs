@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
 import { existsSync, readFileSync } from 'node:fs';
-import { TRACKS, beatsAt, timeOf, frameAt, keyAt } from '../src/lib/fallback-timeline.ts';
+import { TRACKS, WEAVE_PACE, beatsAt, timeOf, frameAt, keyAt, weaveRun } from '../src/lib/fallback-timeline.ts';
 
 const state = (scene, v) => {
   const s = { seed: 0, weave: {}, lotus: {} };
@@ -34,6 +34,25 @@ for (const scene of ['seed', 'weave', 'lotus']) {
     keys.forEach((k, i) => assert.equal(keyAt(scene, k), i));
   });
 }
+
+// docs/08 H2: each product rests for at least 45svh, a change takes at most 30svh, and the three span at
+// least 210svh on desktop and 150svh on a phone. A rest is on the product's last frame, which is a Still
+// key: the Still tier and the QA hook (pose) show the same picture the scrubbed film rests on.
+test('weave: the product run meets the brief, and every rest is a Still key', () => {
+  for (const pace of Object.values(WEAVE_PACE)) {
+    assert.ok(pace.hold >= 45, `hold ${pace.hold}svh`);
+    assert.ok(pace.change <= 30, `change ${pace.change}svh`);
+  }
+  assert.ok(weaveRun(WEAVE_PACE.wide) >= 210, `desktop run ${weaveRun(WEAVE_PACE.wide)}svh`);
+  assert.ok(weaveRun(WEAVE_PACE.phone) >= 150, `phone run ${weaveRun(WEAVE_PACE.phone)}svh`);
+  const { beats, keys } = TRACKS.weave;
+  ['tote', 'mug', 'coaster'].forEach((product) => {
+    const done = beats.map((_, k) => (k <= beats.indexOf(product) ? 1 : 0));
+    const t = timeOf('weave', state('weave', done));
+    assert.ok(Math.abs(keys[keyAt('weave', t)] - t) < 1e-9, `${product} rests on a Still key`);
+    assert.equal(frameAt('weave', t), { tote: 129, mug: 149, coaster: 169 }[product]);
+  });
+});
 
 // docs/07 §4: public/film/<scene>/manifest.json is the film's source of truth. When a film has been
 // rendered, the site's timeline must agree with it; with no film yet there is nothing to hold it to.

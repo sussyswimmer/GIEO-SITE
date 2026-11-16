@@ -9,6 +9,7 @@ export type FilmSet = {
   focus?: [number, number]; // normalised; the cover fit is anchored here
   threadExit?: [number, number]; // seed only: where the stem leaves the frame
   textSafe?: [number, number, number, number]; // seed only: [x0, y0, x1, y1] kept free of busy detail
+  root?: [number, number]; // seed only: where the sprout stands in the soil in the last frame; the hero's roots start here
 };
 
 export type FilmManifest = {

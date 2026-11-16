@@ -182,7 +182,18 @@
   .weave-stage {
     --s: calc((var(--stage-phone-weave) - var(--nav-offset)) / 0.955);
     position: absolute; bottom: 0; left: 48.5%; translate: -50% 0; width: var(--s); aspect-ratio: 1;
+    --sway-r: 0deg; --sway-y: 0px; /* explicit start values for the tween */
+    rotate: var(--sway-r); transform: translateY(var(--sway-y)); /* the rest-time sway (motion-runtime) */
+    /* The seam (docs/08 H1): the top never cuts. The yarn hangs from the top of the canvas at 53.5 % of its
+       width; above --seam (px down the canvas, set by the page thread's runtime, which ends the thread
+       there) nothing shows, from it the yarn widens out of a point, and 30 % further down the whole canvas
+       is in. The point belongs to the page, so once the stage sticks it slides up and out. */
+    --seam-point: conic-gradient(from 160deg at 53.5% var(--seam, -100%), transparent 0, #000 1.5deg, #000 38.5deg, transparent 40deg);
+    --seam-rise: linear-gradient(to bottom, transparent calc(var(--seam, -100%) + 22%), #000 calc(var(--seam, -100%) + 30%));
   }
+  .weave-stage > canvas { mask-image: var(--seam-point), var(--seam-rise); }
+  /* the light behind the yarn has no point to come out of: it just rises */
+  .weave-stage::before { mask-image: linear-gradient(to bottom, transparent calc(var(--seam, -100%) + 6%), #000 calc(var(--seam, -100%) + 46%)); }
   @media (min-width: 64rem) {
     .weave-stage { --s: min(100%, 100svh - var(--nav-offset)); inset: 50% 0 auto auto; translate: 0 -50%; }
   }
@@ -194,10 +205,45 @@
     }
   }
 
+  /* The stage's box (Weave.tsx). Under 1024 it is the plum backdrop the copy scrolls beneath; above the
+     yarn's point (--seam-box, from the same runtime) it is open, so the page thread shows running in. */
+  [data-seam] { background-image: linear-gradient(to bottom, transparent var(--seam-box, var(--handoff)), var(--plum-ink) 0); }
+  @media (min-width: 64rem) { [data-seam] { background-image: none; } }
+
   /* The partner credit under the weave film: there by default, and with the runtime up only once the cloth
      starts to become a product (it sets data-on from the drape beat). */
   [data-credit] { transition: opacity var(--dur-fade) var(--curve-out); }
   html[data-motion="on"] [data-credit]:not([data-on]) { opacity: 0; }
+
+  /* The weave's product run (docs/08 H2, Weave.tsx). In flow it is a list of three large names. With the
+     runtime up, on a screen tall enough to pin, the names stick beside the stage (below it under 1024) for
+     --weave-run, which the runtime sets from WEAVE_PACE, and only the product resting on the stage is lit:
+     the others are drawn in outline, like the second run of a kinetic band. */
+  .weave-names {
+    font-size: min(var(--fs-h2), (100svh - var(--stage-phone-weave)) / 4.6);
+    line-height: var(--lh-h2); letter-spacing: var(--ls-display);
+  }
+  .weave-names > li {
+    -webkit-text-stroke: 1.5px transparent;
+    transition: color var(--dur-fade) var(--curve-out), -webkit-text-stroke-color var(--dur-fade) var(--curve-out),
+      translate var(--dur-reveal) var(--curve-out);
+  }
+  [data-weave-names] { --names-top: var(--stage-phone-weave); }
+  @media (min-width: 64rem) {
+    .weave-names { font-size: min(var(--fs-h2), 14svh); }
+    [data-weave-names] { --names-top: 0px; }
+  }
+  @media (min-height: 37.5rem) {
+    /* a block, not padding: a sticky box cannot leave its parent's content box */
+    html[data-motion="on"] [data-weave-run]::after { content: ""; display: block; height: var(--weave-run, 0px); }
+    html[data-motion="on"] [data-weave-names] {
+      position: sticky; top: var(--names-top); min-height: calc(100svh - var(--names-top));
+    }
+  }
+  html[data-motion="on"] .weave-names > li:not([data-active]) {
+    color: transparent; -webkit-text-stroke-color: color-mix(in srgb, var(--cream) 60%, transparent);
+  }
+  html[data-motion="on"] .weave-names > li[data-active] { translate: 0.12em 0; }
 
   /* The running stitch (docs/07 §3): every hairline on the site. .stitch-y is the vertical one. */
   .stitch, .stitch-y { display: block; border: 0; flex: none; }
@@ -214,6 +260,34 @@
     position: sticky;
     top: calc(var(--deck-top) + var(--i) * var(--deck-peek));
   }
+
+  /* A scrub clip (ScrubClip.tsx, scrub-clip.ts). The clip's flat ground is a shade above cream: darken
+     blends it away against the box's own tone, and the mask eases the box's edges so no rectangle shows. */
+  .scrub-clip {
+    position: relative;
+    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent), linear-gradient(to bottom, transparent, #000 8%, #000 92%, transparent);
+    mask-composite: intersect;
+  }
+  .scrub-clip > canvas {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; mix-blend-mode: darken;
+    opacity: 0; transition: opacity var(--dur-fade) var(--curve-out);
+  }
+  .scrub-clip > canvas[data-on] { opacity: 1; }
+
+  /* Vision / Mission on the dusk valley (docs/08 H3). The picture's left is calm and dark and its right
+     glows; a plum scrim under the copy holds cream text at 4.5:1 or better on every pixel (measured:
+     node scripts/qa-fuller-b.mjs contrast). Under 1024 the copy runs the full width below the horizon, so the scrim
+     comes down from the top instead of in from the left. */
+  .dusk-scrim {
+    --scrim: color-mix(in srgb, var(--plum-ink) 78%, transparent);
+    position: absolute; inset: 0;
+    background-image: linear-gradient(to bottom, transparent 0, var(--scrim) 15rem);
+  }
+  @media (min-width: 64rem) {
+    .dusk-scrim { background-image: linear-gradient(to right, var(--scrim) 0, var(--scrim) 72%, transparent 90%); }
+  }
+  video[data-loop] { opacity: 0; transition: opacity var(--dur-reveal) var(--curve-out); }
+  video[data-loop][data-on] { opacity: 1; }
 
   /* Sewn in / unveiled on entering view. Visible by default: the runtime sets "pending" below the fold. */
   [data-enter] { transition: clip-path var(--dur-sew) var(--curve-out); }
@@ -252,6 +326,39 @@
     html[data-motion="on"] [data-hero-beat] { position: absolute; inset: 0 0 auto; opacity: 0; }
   }
 
+  /* Going under (docs/08 H1). [data-hero-ground] is the film, the plum its soil sinks into, and the roots;
+     the pin's timeline lifts it at the end of the run. The sink starts just above the soil line and reaches
+     below the film, so the lifted ground uncovers only plum and the film never ends in a line: as far below
+     as the ground lifts (HERO_LIFT, motion-runtime.ts) plus 3 px, which keeps a fractional screen height
+     from leaving a hairline of cream at the hero's foot; any further would cover the page thread under the
+     hero. All of it is off unless the pin is on: in flow the film is just the first screen. Roots are
+     drawn by --root (1 hidden, 0 whole). */
+  [data-hero-sink], [data-hero-roots] { display: none; }
+  @media (min-height: 37.5rem) {
+    html[data-motion="on"] [data-hero-sink] {
+      display: block; position: absolute; inset: 70% 0 calc(-15% - 3px); opacity: 0;
+      background-image: linear-gradient(to bottom, transparent,
+        color-mix(in srgb, var(--plum-ink) 26%, transparent) 20%,
+        color-mix(in srgb, var(--plum-ink) 70%, transparent) 44%, var(--plum-ink) 65%);
+    }
+    html[data-motion="on"] [data-hero-roots] {
+      --root: 1;
+      display: block; position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible;
+    }
+    [data-hero-roots] path { fill: none; stroke-dasharray: 1 2; stroke-dashoffset: var(--root); }
+  }
+  /* Where the hero does not pin (no JS, reduced motion, a short screen) its foot is still cream, so the
+     weave takes its handoff from cream instead of meeting it in a line. The pin ends in plum and needs none.
+     (!important beats the inline --from Section sets.) */
+  #craft > .section-bg { --from: var(--cream) !important; }
+  @media (min-height: 37.5rem) {
+    html[data-motion="on"] #craft > .section-bg { --from: var(--plum-ink) !important; }
+  }
+
+  /* The hero's slim band: the word and its gloss, drifting sideways. The line is there twice, so -50 % loops. */
+  @keyframes hero-band { to { transform: translateX(-50%); } }
+  .hero-band { animation: hero-band 70s linear infinite; }
+
   @keyframes load-hairline {
     0% { transform: scaleX(0); opacity: 1; }
     80% { transform: scaleX(1); opacity: 1; }
@@ -286,7 +393,7 @@
   }
   .load-hairline { display: none; }
   .draw-on path { animation: none; stroke-dashoffset: 0; }
-  .word-in { animation: none; }
+  .word-in, .hero-band { animation: none; }
 }
 /* A pending line reveal holds its heading at opacity 0; paper never scrolls to fire it. */
 @media print {

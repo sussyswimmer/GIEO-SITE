@@ -27,8 +27,17 @@ export const TRACKS = {
   lotus: { beats: LOTUS, weights: LOTUS_W, frames: 160, keys: [0, 1, 2, 3, 4].map((i) => endOf(LOTUS_W, i)) },
 } satisfies Record<SceneName, Track<string>>;
 
+/**
+ * The weave's product run (docs/08 H2), in svh of scroll. The film is not re-timed: scroll is mapped to it
+ * piecewise. Each of tote, mug and coaster rests on its last frame (a Still key) for `hold`, and the film
+ * moves from one to the next over `change`. The runtime pins the product names for `weaveRun` and reads
+ * its trigger offsets from these numbers; scripts/timeline.test.mjs holds them to the brief's floors.
+ */
+export const WEAVE_PACE = { phone: { hold: 48, change: 14 }, wide: { hold: 54, change: 26 } } as const;
+export const weaveRun = ({ hold, change }: { hold: number; change: number }) => 3 * hold + 2 * change;
+
 const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
-const total = (w: readonly number[]) => w.reduce((a, b) => a + b, 0);
+const total =(w: readonly number[]) => w.reduce((a, b) => a + b, 0);
 
 /** The store slice each scene reads. */
 export type TimelineState = { seed: number; weave: Record<WeaveBeat, number>; lotus: Record<LotusBeat, number> };

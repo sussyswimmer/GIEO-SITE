@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { DictionaryCard } from '@/components/home/DictionaryCard';
-import { Partner } from '@/components/home/Partner';
+import { KineticBand } from '@/components/home/KineticBand';
 import { VisionMission } from '@/components/home/VisionMission';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { ArtLife } from '@/components/pages/ArtLife';
 import { DepartmentList } from '@/components/pages/DepartmentList';
+import { DictionaryEntry } from '@/components/pages/DictionaryEntry';
+import { PartnerBlock } from '@/components/pages/PartnerBlock';
+import { art, still } from '@/components/pages/art';
 import { Container, Grid, Heading, PillarCard, Prose, Section, Todo } from '@/components/ui';
 import { routing } from '@/i18n/routing';
 import { alternates } from '@/lib/seo';
@@ -25,56 +28,61 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// Each pillar's placement at 1280 / 1920 (PLAN.md §3); below 1024 they stack. No explicit rows:
-// auto-placement sets cards 1 and 2 side by side (2 dropped by mt-24), card 3 on the next row.
-const PILLARS = [
-  { key: 'economic', at: 'lg:col-start-1 lg:col-end-7 3xl:col-end-6' },
-  { key: 'education', at: 'lg:col-start-7 lg:col-end-13 lg:mt-24 3xl:col-start-8' },
-  { key: 'mentorship', at: 'lg:col-start-4 lg:col-end-10 lg:mt-16' },
-] as const;
+const PILLARS = ['economic', 'education', 'mentorship'] as const;
 
 export default async function AboutPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations();
   const tp = await getTranslations('home.pillars');
+  const seeds = still('lotus-seeds');
+  const buds = art('objects/buds');
 
   return (
     <>
-      <PageHeader title={t('about.title')} intro={t('about.intro')} />
+      <PageHeader title={t('about.title')} intro={t('about.intro')} art={art('pages/about') ?? still('sprouts')} />
 
-      <Section tone="paper" from="cream" pad="default" id="story" labelledBy="story-title">
+      {/* The word, set large, with what GIEO does beside it. */}
+      <Section tone="paper" from="cream" pad="none" id="story" labelledBy="story-title" className="pt-section-sm pb-section-sm">
         <Container>
-          <Grid>
-            <DictionaryCard
+          <Grid className="items-start">
+            <DictionaryEntry
               headingId="story-title"
               word={t('home.meaning.word')}
               pos={t('home.meaning.pos')}
               pron={t('home.meaning.pron')}
               gloss={t('home.meaning.gloss')}
               body={t('home.meaning.body')}
-              className="col-span-4 md:col-span-7 lg:col-span-6 lg:row-start-1"
+              className="relative z-1 col-span-full lg:col-end-8"
             />
-            <div className="col-span-4 mt-12 md:col-span-7 md:col-start-2 lg:col-span-5 lg:col-start-8 lg:row-start-1 lg:mt-0 lg:self-center">
-              <Prose variant="lead">{t('home.craft.beat1')}</Prose>
-              <p className="mt-6 text-caption text-ink-soft">{t('footer.supportedBy')}</p>
+            <div className="col-span-full mt-8 lg:col-start-8 lg:col-end-13 lg:mt-0">
+              {seeds && (
+                <ArtLife art={seeds} sizes="(min-width: 1024px) 40vw, 80vw" className="-mr-gutter ml-auto w-4/5 lg:-mt-8 lg:w-auto" />
+              )}
+              <Prose variant="lead" className="relative z-1 mt-4 lg:-mt-6">
+                {t('home.craft.beat1')}
+              </Prose>
+              <small className="mt-4 block text-caption text-fg-body">{t('footer.supportedBy')}</small>
             </div>
           </Grid>
         </Container>
       </Section>
 
-      <Section tone="cream" from="paper" pad="default" id="pillars" labelledBy="about-pillars-title">
+      {/* Three wide cards beside the heading; the band below runs their titles sideways, as on the home page. */}
+      <Section tone="cream" from="paper" glow="blush" pad="none" id="about-pillars" labelledBy="about-pillars-title" className="pt-section-sm pb-6">
         <Container>
-          <Grid>
-            <Heading id="about-pillars-title" className="col-span-4 max-w-(--measure-heading) md:col-span-6 lg:col-span-6">
-              {tp('heading')}
-            </Heading>
-            <ul
-              role="list"
-              className="col-span-4 mt-12 flex flex-col gap-6 md:col-span-8 md:gap-8 lg:col-span-12 lg:mt-16 lg:grid lg:grid-cols-12 lg:gap-x-gap lg:gap-y-0"
-            >
-              {PILLARS.map(({ key, at }) => (
-                <li key={key} className={at}>
+          <Grid className="items-start">
+            <div className="col-span-full lg:col-end-6">
+              <Heading id="about-pillars-title" className="max-w-(--measure-heading)">
+                {tp('heading')}
+              </Heading>
+              {buds && (
+                <ArtLife art={buds} sizes="(min-width: 1024px) 22vw, 40vw" className="mt-2 ml-auto w-2/5 max-lg:hidden lg:mx-auto lg:mt-8 lg:w-1/2" />
+              )}
+            </div>
+            <ul role="list" className="col-span-full mt-6 flex flex-col gap-4 lg:col-start-6 lg:col-end-13 lg:mt-4 lg:gap-6">
+              {PILLARS.map((key) => (
+                <li key={key}>
                   <PillarCard title={tp(`${key}.title`)} body={tp(`${key}.body`)} />
                 </li>
               ))}
@@ -82,6 +90,7 @@ export default async function AboutPage({ params }: Props) {
           </Grid>
         </Container>
       </Section>
+      <KineticBand />
 
       <VisionMission />
       <DepartmentList />
@@ -93,7 +102,7 @@ export default async function AboutPage({ params }: Props) {
         </Container>
       )}
 
-      <Partner heading={t('about.partnerHeading')} from="cream" />
+      <PartnerBlock heading={t('about.partnerHeading')} from="cream" />
     </>
   );
 }

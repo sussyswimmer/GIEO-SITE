@@ -1,8 +1,11 @@
 // Films and still-lifes, end to end (docs/07-redesign.md §4; run: npm run film).
 // Blender renders PNG masters from blender/film/{seed,weave,lotus,stills}.py into the scratch folder, then
-// scripts/encode-film.mjs turns them into public/film/**. Nothing but public/film/** is written inside the repo.
+// scripts/encode-film.mjs turns them into public/film/**. Nothing but public/film/** is written inside the repo
+// (and public/art/products/, public/art/seam/ when the `art` scene is asked for).
 // Usage: node scripts/render-film.mjs [--scenes seed,weave,lotus,stills] [--quality final|draft] [--resume]
 //          [--scratch D:/claude-scratch/gieo/film] [--no-encode]
+//        node scripts/render-film.mjs --scenes art   (blender/film/art.py: the three product portraits and the seam
+//          piece, into public/art/products/ and public/art/seam/; about a minute)
 //   --resume keeps frames that are already on disk (after an interrupted run); without it every frame is rendered again.
 // A full final-quality run is about 45 minutes on an RTX 3070. Logs: <scratch>/logs/<scene>.log.
 
@@ -21,7 +24,7 @@ const win = 'C:\\Program Files\\Blender Foundation\\Blender 5.2\\blender.exe';
 const blender = process.env.BLENDER || (fs.existsSync(win) ? win : 'blender');
 const scratch = path.resolve(arg('scratch', 'D:/claude-scratch/gieo/film'));
 const scenes = arg('scenes', 'seed,weave,lotus,stills').split(',');
-const known = ['seed', 'weave', 'lotus', 'stills'];
+const known = ['seed', 'weave', 'lotus', 'stills', 'art']; // art: asked for by name, never part of the default run
 const bad = scenes.filter((s) => !known.includes(s));
 if (bad.length) {
   console.error(`render-film: unknown scene ${bad.join(', ')} (known: ${known.join(', ')})`);
