@@ -12,7 +12,7 @@
     "qa:screens": "node scripts/qa-screens.mjs",
     "images": "node scripts/process-images.mjs",
     "test:images": "node --test scripts/process-images.test.mjs",
-    "test:motion": "node --test scripts/tier.test.mjs scripts/timeline.test.mjs scripts/film.test.mjs scripts/density.test.mjs",
+    "test:motion": "node --test scripts/tier.test.mjs scripts/timeline.test.mjs scripts/film.test.mjs scripts/density.test.mjs scripts/showroom.test.mjs scripts/vine.test.mjs scripts/roots.test.mjs",
     "qa:density": "node scripts/qa-density.mjs",
     "qa:redesign": "node scripts/qa-redesign.mjs",
     "fallbacks": "node scripts/render-fallbacks.mjs",

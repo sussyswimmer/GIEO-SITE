@@ -6,24 +6,20 @@ import {
   ClampToEdgeWrapping,
   Color,
   DoubleSide,
-  FrontSide,
   Group,
   MathUtils,
   Mesh,
   MeshBasicMaterial,
-  MeshPhysicalMaterial,
   SRGBColorSpace,
   TextureLoader,
-  type IUniform,
   type Material,
   type Object3D,
-  type Texture,
-  type WebGLProgramParametersWithUniforms,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
 import { SCENE_FADE } from '@/lib/motion';
 import { useMotionStore } from '@/lib/motion-store';
+import { type ClothUniforms, makeBody, makeCloth, setDrape, token } from './weave-materials';
 
 const FOV = 35;
 const DIST = 10;
@@ -34,7 +30,6 @@ const smooth = MathUtils.smoothstep; // (x, min, max)
 const lerp = MathUtils.lerp;
 const easeOut = (x: number) => 1 - (1 - x) ** 2;
 const easeInOut = (x: number) => (x < 0.5 ? 2 * x * x : 1 - (2 - 2 * x) ** 2 / 2);
-const token = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
 // Hero thread geometry (stage units): ribbon origin y and length, so a head position maps straight to s.
 const THREAD_TOP = 3.4;
@@ -43,7 +38,6 @@ const HERO_Y = 0.36; // where the hero thread meets the panel's top edge
 const RADIUS = 1.3; // carousel
 const CAROUSEL_Z = -1.3;
 // Start values, tune by eye.
-const HEAD_TINT = 0.55;
 const COASTER_TILT = deg(62);
 const ARC = deg(25);
 const STATIONS = [
@@ -55,61 +49,6 @@ const STATIONS = [
 // Both preloaded so the GLB and the texture travel in parallel instead of one after the other.
 useLoader.preload(GLTFLoader, GLB, (l) => l.setMeshoptDecoder(MeshoptDecoder));
 useLoader.preload(TextureLoader, CLOTH);
-
-type ClothUniforms = Record<'uYarns' | 'uYarn' | 'uRows' | 'uReveal' | 'uHeadCol' | 'uHeadAmt', IUniform>;
-
-// One function for every cloth material: the same reference keeps the program cache key equal, and each
-// material still carries its own uniforms. Material.clone() does not copy onBeforeCompile, hence the factory.
-function clothCompile(this: Material, shader: WebGLProgramParametersWithUniforms) {
-  Object.assign(shader.uniforms, (this.userData as { u: ClothUniforms }).u);
-  shader.fragmentShader = shader.fragmentShader
-    .replace(
-      '#include <common>',
-      `#include <common>
-uniform float uYarns, uYarn, uRows, uReveal, uHeadAmt;
-uniform vec3 uHeadCol;`,
-    )
-    .replace(
-      '#include <map_fragment>',
-      `#include <map_fragment>
-vec2 c = vMapUv * uYarns, id = floor(c), f = fract(c);
-float over = mod(id.x + id.y, 2.);
-float prof = over < .5 ? sin(PI * f.x) : sin(PI * f.y);
-prof = mix(prof, .64, smoothstep(.14, .28, max(fwidth(c.x), fwidth(c.y)))); // undersampled yarn aliases into figures, so it must flatten early
-diffuseColor.rgb *= mix(1., .92 + .125 * prof, uYarn);
-float i = floor((1. - vMapUv.y) * uRows);
-float u = mod(i, 2.) < 1. ? vMapUv.x : 1. - vMapUv.x;
-float k = uReveal * (uRows + 1.) - i - u;
-diffuseColor.a *= smoothstep(0., .12, k - .07 * over);
-float e = min(min(vMapUv.x, 1. - vMapUv.x), min(vMapUv.y, 1. - vMapUv.y));
-diffuseColor.a *= smoothstep(0., 1.5 * fwidth(e), e);
-if (diffuseColor.a < .003) discard;
-float head = smoothstep(0., .05, k) * (1. - smoothstep(.05, .22, k));
-diffuseColor.rgb = mix(diffuseColor.rgb, uHeadCol, head * uHeadAmt);`,
-    );
-}
-
-function makeCloth(map: Texture, yarns: number, yarn: number, lift: [number, number, number], headCol: Color): MeshPhysicalMaterial {
-  const m = new MeshPhysicalMaterial({
-    map,
-    roughness: 0.9,
-    metalness: 0,
-    sheen: 0,
-    transparent: true,
-    side: FrontSide, // DoubleSide would draw twice, with two programs
-  });
-  m.color.setRGB(...lift);
-  m.userData.u = {
-    uYarns: { value: yarns },
-    uYarn: { value: yarn },
-    uRows: { value: 16 },
-    uReveal: { value: 1 },
-    uHeadCol: { value: headCol.clone().multiply(m.color) }, // same lift as the cloth, or the lights darken the head
-    uHeadAmt: { value: HEAD_TINT },
-  } satisfies ClothUniforms;
-  m.onBeforeCompile = clothCompile;
-  return m;
-}
 
 export default function WeaveScene() {
   const gltf = useLoader(GLTFLoader, GLB, (l) => l.setMeshoptDecoder(MeshoptDecoder));
@@ -133,23 +72,9 @@ export default function WeaveScene() {
     // No yarn on the coaster: its tilt and turn shear the grid into a rhomb lattice, which reads as a pattern.
     const top = makeCloth(cloth, 74, 0, [1.01, 1.17, 1.21], headCol);
 
-    const body = () => {
-      const m = new MeshPhysicalMaterial({
-        vertexColors: true,
-        roughness: 0.8,
-        metalness: 0,
-        sheen: 1,
-        sheenRoughness: 0.45,
-        sheenColor: new Color(token('--peach-glow')),
-        transparent: true,
-        side: FrontSide,
-      });
-      m.color.setRGB(1.1, 1.43, 1.39);
-      return m;
-    };
-    const tote = body();
-    const mug = body();
-    const coaster = body();
+    const tote = makeBody();
+    const mug = makeBody();
+    const coaster = makeBody();
     coaster.color.setRGB(1.01, 1.17, 1.21); // tilted to the light, so the camera-facing lift would clip
 
     const ribbon = new MeshBasicMaterial({ vertexColors: true, transparent: true, depthWrite: false, side: DoubleSide });
@@ -301,16 +226,7 @@ diffuseColor.a *= (1. - smoothstep(vH - .012, vH, vS)) * (1. - smoothstep(uClipY
     const lean = Math.sin(Math.PI * w.drape);
     rig.panel.color.setRGB(1.1 * (1 - 0.1 * lean), 1.42 * (1 - 0.15 * lean), 1.38 * (1 - 0.12 * lean));
 
-    // Drape: eight keys, hand-weighted. influences[a - 1] = 1 - f, influences[a] = f.
-    const inf = rig.panelMesh?.morphTargetInfluences;
-    if (inf) {
-      inf.fill(0);
-      const x = w.drape * inf.length;
-      const a = Math.min(Math.floor(x), inf.length);
-      const f = x - a;
-      if (a >= 1) inf[a - 1] = 1 - f;
-      if (a < inf.length) inf[a] = f;
-    }
+    setDrape(rig.panelMesh, w.drape);
     const handles = -1.35 * (1 - smooth(w.drape, 0.55, 1));
     rig.pivots.forEach((pv) => (pv.rotation.x = handles));
 

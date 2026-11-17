@@ -191,7 +191,9 @@
     --seam-point: conic-gradient(from 160deg at 53.5% var(--seam, -100%), transparent 0, #000 1.5deg, #000 38.5deg, transparent 40deg);
     --seam-rise: linear-gradient(to bottom, transparent calc(var(--seam, -100%) + 22%), #000 calc(var(--seam, -100%) + 30%));
   }
-  .weave-stage > canvas { mask-image: var(--seam-point), var(--seam-rise); }
+  /* No point any more (Maxwell, 2026-11-17: the yarn seam is gone and the film starts with its warps laid):
+     the canvas just rises softly out of the plum, over the top fifth of its height. */
+  .weave-stage > canvas { mask-image: linear-gradient(to bottom, transparent 2%, #000 20%); }
   /* the light behind the yarn has no point to come out of: it just rises */
   .weave-stage::before { mask-image: linear-gradient(to bottom, transparent calc(var(--seam, -100%) + 6%), #000 calc(var(--seam, -100%) + 46%)); }
   @media (min-width: 64rem) {
@@ -309,6 +311,9 @@
   [data-hero-pin] { position: relative; }
   [data-hero-run] { display: none; height: 150svh; }
   @media (min-width: 64rem) { [data-hero-run] { height: 190svh; } }
+  /* Act 1, the vine (VineScene, Full tier): its 180svh (ACT1_SVH, src/lib/vine.ts) go before the film's run. */
+  html[data-vine="on"] [data-hero-run] { height: calc(150svh + 180svh); }
+  @media (min-width: 64rem) { html[data-vine="on"] [data-hero-run] { height: calc(190svh + 180svh); } }
   [data-hero-beats] {
     display: flex; flex-direction: column; gap: 2.5rem;
     max-width: var(--measure-lead); padding-block: var(--space-section-sm);
@@ -355,6 +360,58 @@
     html[data-motion="on"] #craft > .section-bg { --from: var(--plum-ink) !important; }
   }
 
+  /* The seam, simplified (Maxwell, 2026-11-17): no roots under the hero and no thread running into the
+     weave film; the soil just sinks into plum and the weave stage is there, its warps already laid. */
+  html[data-motion="on"] [data-hero-roots], [data-thread-in] { display: none !important; }
+
+  /* The pointer's dot (Cursor.tsx). The native cursor hides only once the dot is on screen (html[data-cursor]),
+     and text fields keep their caret. Plum with a cream rim, so it reads on cream and on plum alike. */
+  html[data-cursor="on"], html[data-cursor="on"] * { cursor: none !important; }
+  html[data-cursor="on"] :is(input:not([type="submit"], [type="checkbox"], [type="radio"]), textarea, [contenteditable="true"]) { cursor: text !important; }
+  .cursor-dot {
+    position: fixed; left: 0; top: 0; z-index: 90; pointer-events: none;
+    width: 0.625rem; height: 0.625rem; margin: -0.3125rem 0 0 -0.3125rem; border-radius: 50%;
+    background-color: var(--plum-ink); box-shadow: 0 0 0 1.5px var(--cream-a86);
+    transition: scale 220ms var(--curve-out), opacity 200ms var(--curve-out),
+      background-color 220ms var(--curve-out), box-shadow 220ms var(--curve-out);
+  }
+  .cursor-dot[data-state="out"], .cursor-dot[data-state="text"] { opacity: 0; }
+  /* Over something that can be clicked: it opens into a soft pink ring. */
+  .cursor-dot[data-state="hot"] {
+    scale: 3.6; background-color: var(--lotus-pink-a18);
+    box-shadow: 0 0 0 0.6px var(--plum-ink), 0 0 0 1.1px var(--cream-a86);
+  }
+  .cursor-dot[data-down] { scale: 0.7; }
+  .cursor-dot[data-state="hot"][data-down] { scale: 3; }
+  /* A petal the pointer lets fall: tiny, pointed at one end, gone in about a second. */
+  .cursor-petal {
+    position: fixed; z-index: 89; pointer-events: none; width: 0.5rem; height: 0.375rem;
+    border-radius: 80% 0 80% 0; opacity: 0;
+  }
+
+  /* The live seam (RootsScene) draws the weaving itself and hands over to the film's finished cloth: the
+     film's canvases show only as far as --film-in says (RootsScene sets it on the stage; until it has,
+     and without it, the film shows as usual). */
+  html[data-roots="on"] #craft .weave-stage > canvas[data-on] { opacity: var(--film-in, 1); transition: none; }
+
+  /* The vine's cover (VineStage): the film's backdrop over the film, so the film's seed is not seen until the
+     tree drops it. It appears at once when painted; it only ever fades out. */
+  .vine-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+  .vine-cover[data-on] { opacity: 1; }
+  .vine-cover[data-off] { opacity: 0 !important; transition: opacity 400ms var(--curve-out); }
+
+  /* The vine's loading bar (VineStage): slim, under the word, while the 3D loads; gone once it is drawn. */
+  .vine-load {
+    position: absolute; left: 50%; bottom: 9svh; width: min(12rem, 44vw); height: 3px; translate: -50% 0;
+    border-radius: 3px; background-color: var(--plum-ink-a16); overflow: hidden;
+    transition: opacity 500ms var(--curve-out);
+  }
+  .vine-load > span {
+    display: block; height: 100%; border-radius: inherit; background-color: var(--plum-ink);
+    transform-origin: 0 50%; transform: scaleX(var(--p, 0)); transition: transform 500ms var(--curve-out);
+  }
+  .vine-load[data-done] { opacity: 0; }
+
   /* The hero's slim band: the word and its gloss, drifting sideways. The line is there twice, so -50 % loops. */
   @keyframes hero-band { to { transform: translateX(-50%); } }
   .hero-band { animation: hero-band 70s linear infinite; }
@@ -379,6 +436,71 @@
     stroke-dasharray: 1; stroke-dashoffset: 1;
     animation: draw-on var(--dur-draw) var(--curve-out) 200ms forwards;
   }
+
+  /* Collections track (Showroom.tsx, ShowroomDriver.tsx, src/lib/showroom.ts). Default (no JS, reduced
+     motion, print): a plain list, intro then each product with its picture, then how to order. With the
+     driver on (html[data-track]): the run pins for --run, the row is one line wider than the screen and
+     slides left with the scroll; each product slot is about a screen wide, so one product hangs in the
+     middle at a time, its name beside it, brightening as it arrives (--f). */
+  .showroom-run { padding-block: var(--space-section-sm); }
+  .showroom-track {
+    display: flex; flex-direction: column; gap: 3rem;
+    max-width: var(--wrap-max); margin-inline: auto; padding-inline: var(--gutter);
+  }
+  .showroom-product { display: grid; gap: 1rem; }
+  /* Sized so the longest word of each name fits its column whole (no break-word splits). */
+  .showroom-title { font-size: clamp(3rem, 11vw, var(--fs-mega)); line-height: var(--lh-mega); }
+  .showroom-name { font-size: clamp(2.75rem, 11vw, var(--fs-mega)); line-height: var(--lh-mega); }
+  .showroom-box { position: relative; aspect-ratio: 1; width: min(100%, 60svh); }
+  .showroom-still { position: absolute; inset: 0; }
+  .showroom-cloth { aspect-ratio: 1600 / 1338; width: min(100%, 24rem); }
+  .showroom-credit { display: none; }
+
+  html[data-track="on"] .showroom-run { --run: 300svh; height: calc(100svh + var(--run)); padding: 0; }
+  html[data-track="on"] .showroom-pin {
+    position: sticky; top: 0; height: 100svh; overflow: hidden; display: flex; align-items: center;
+  }
+  html[data-track="on"] .showroom-track {
+    flex-direction: row; align-items: center; gap: 0;
+    width: max-content; max-width: none; margin: 0; padding-inline: var(--gutter) 8vw;
+  }
+  html[data-track="on"] .showroom-slot { flex: 0 0 auto; }
+  html[data-track="on"] .showroom-intro { width: 84vw; padding-top: var(--nav-offset); }
+  html[data-track="on"] .showroom-product {
+    width: 100vw; height: 100svh; grid-template-rows: auto 1fr; gap: 0;
+    padding: var(--nav-offset) 0 3rem;
+  }
+  html[data-track="on"] .showroom-box { width: 100%; height: 100%; aspect-ratio: auto; }
+  /* Each letter rises, turns upright and fades in on its own, a beat after the one before (--i). */
+  .showroom-word { display: inline-block; white-space: nowrap; }
+  .showroom-letter { display: inline-block; }
+  html[data-track="on"] .showroom-letter {
+    --k: clamp(0, calc(var(--f, 1) * 1.7 - var(--i) * 0.06), 1);
+    opacity: var(--k);
+    translate: 0 calc((1 - var(--k)) * 0.5em);
+    rotate: calc((1 - var(--k)) * 10deg);
+  }
+  /* The intro's cloth hangs in the air like the products. */
+  @keyframes showroom-float { 50% { translate: 0 -0.6rem; rotate: -1.5deg; } }
+  html[data-track="on"] .showroom-cloth { animation: showroom-float 6s ease-in-out infinite; }
+  html[data-track="on"] .showroom-order { width: 72vw; padding-left: var(--gutter); }
+  html[data-track="on"] .showroom-credit { display: block; position: absolute; right: var(--gutter); bottom: 1rem; }
+  html[data-track="on"] .showroom-cloth { width: min(100%, 22rem); }
+  @media (min-width: 64rem) {
+    html[data-track="on"] .showroom-run { --run: 260svh; }
+    html[data-track="on"] .showroom-intro { width: min(44vw, 38rem); margin-right: 4vw; padding-top: 0; }
+    html[data-track="on"] .showroom-title { font-size: clamp(3rem, 6vw, var(--fs-mega)); }
+    html[data-track="on"] .showroom-name { font-size: clamp(2.75rem, 5.6vw, 6.5rem); }
+    html[data-track="on"] .showroom-product {
+      width: 76vw; grid-template-columns: 34% 1fr; grid-template-rows: 1fr; align-items: end;
+      padding: var(--nav-offset) 0 0;
+    }
+    html[data-track="on"] .showroom-name { padding-bottom: 18svh; }
+    html[data-track="on"] .showroom-order { width: 36vw; }
+    html[data-track="on"] .showroom-credit { bottom: 1.5rem; }
+  }
+  /* The canvas is drawing the products in their boxes: the pictures step aside (layout unchanged). */
+  html[data-showroom="ready"] .showroom-still { opacity: 0; transition: opacity var(--dur-fade) var(--curve-out); }
 }
 
 /* Reduced motion: tokens.css already zeroes every travel distance. This also drops movement

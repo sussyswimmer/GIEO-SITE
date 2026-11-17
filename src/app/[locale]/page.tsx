@@ -9,6 +9,7 @@ import { Sow } from '@/components/home/Sow';
 import { Thread } from '@/components/home/Thread';
 import { VisionMission } from '@/components/home/VisionMission';
 import { Weave } from '@/components/home/Weave';
+import { RootsStage } from '@/components/motion/RootsStage';
 import { alternates } from '@/lib/seo';
 
 type Props = { params: Promise<{ locale: string }> };
@@ -35,6 +36,8 @@ export default async function HomePage({ params }: Props) {
       <Thread />
       <Sow />
       <Weave />
+      {/* The live seam between the two (Full tier): roots out of the hero's soil, into the weave's cloth. */}
+      <RootsStage />
       <Hands />
       <Bloom />
       <KineticBand />

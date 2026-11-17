@@ -542,3 +542,76 @@ Open, added by this pass:
 - The page thread passes behind the dusk picture and the Journal ridges.
 - On resize the hero's lift and vista crop are not rebuilt until the next frame update.
 - `art/seam/roots.webp` and `art/hero/ridge-near.webp` are in `public/` but not used by any page.
+
+## 2026-11-17: Collections gallery track (live 3D)
+
+Maxwell found the old Collections page "lazily done" and asked for a long scroll animation with 3D. A first pass (about 11 screens of chapters: a cloth fly-over, then each product splitting apart) was "even worse": sloppy and too spread out. He then picked a gallery track and asked that each product "rotate and seem suspended in the air and then glide out when the next product comes in". Branch `feat/collections-showroom`, not committed.
+
+- `/collections` runs `PageHeader` → `Showroom` (plum) → `PageBand`. `CollectionBlock` is no longer used by the page.
+- `Showroom.tsx`: one row (intro, tote, mug, coaster, order buttons). `ShowroomDriver.tsx` turns on `html[data-track]` when motion is welcome, pins the run (300svh phone, 260svh desktop: about 3.6 screens) and slides the row left with the scroll, eased; each slot gets `--f` (how centred), which brightens its name. Without JS or with reduced motion: a plain list.
+- `ShowroomScene.tsx` (Full tier, on the existing fixed canvas; `SceneCanvas` mounts it only where `[data-scene-stage="showroom"]` exists) hangs each product from `public/models/weave.glb` in its box: a slow spin plus the turn its travel gives it, a bob and sway over a soft shadow, a petal glow behind; it glides out smaller and further back. The coaster rocks instead of spinning (edge-on it read as a pill). Without the canvas, each box shows the product's Blender portrait, sliding the same way.
+- Cloth parts use a procedural plain weave (`makeBrocade` in `weave-materials.ts`: cream warp, petal weft, one mint stitch; no motif). `WeaveScene`'s material factories moved to that module unchanged.
+- Timing and pose math: `src/lib/showroom.ts`, tested by `scripts/showroom.test.mjs` (in `test:motion`). No new copy keys.
+
+Deviation: the pin holds about 2.6 to 3 screens, past docs/03's 150vh, at Maxwell's request. Scroll is never blocked.
+
+Checks: typecheck, lint, `content:check`, `test:motion` 43/43. Walked the production build at 1440×900 and 390×844 with `?tier=full`: 3D ready, 0 console errors; contact sheets in `~/.playwright-mcp/gieo/show5/`.
+
+Not done or not seen: VI pass, the Lite/Still/no-JS views in a browser, Safari, a real phone, a perf trace (the float renders every frame while the products are on screen). Product bodies still read flatter than the Blender portraits. `npm ci` fails on this branch's base (lockfile missing `@swc/helpers@0.5.24`); used `npm install` and restored the lockfile.
+
+Parked from the same review (home): hero should show only GIEO + seed + vista on load; the hero pin feels like a freeze; the soil-to-plum seam is disliked. Maxwell's idea for the hero: a vine wraps the word GIEO, grows into a tree as you scroll, the tree drops one seed, and the seed falls into the current dirt-and-sprout film.
+
+## 2026-11-17: Vine hero (Act 1)
+
+Maxwell's idea: the home page opens on GIEO; scrolling grows a vine on a journey round the letters, which sprouts into a tree; the tree drops one seed, which becomes the seed of the existing film. Design: docs/superpowers/specs/2026-11-17-vine-hero-design.md; plan: docs/superpowers/plans/2026-11-17-vine-hero.md. Same branch, not committed.
+
+- First screen is the word alone: the eyebrow is `sr-only` (still in the h1), the "gieo · to sow" band is gone, the sub line and the two buttons are a new fourth beat at the end of the hero (`HERO_BEATS`).
+- Act 1 (Full tier): `VineStage` mounts its own small R3F canvas inside `[data-hero-ground]`, over the film and under the word (the shared canvas sits under all page content, so it cannot cover the film: a deviation from "one canvas"). `VineScene` paints the film's own `backdrop()` (now exported from film-stage.ts) so the film's seed is not seen twice, then grows, in word units measured per frame (each letter's box via a Range): a vine that weaves over G, under I, over E, once round O and up into the E–O gap; a trunk that sprouts from its end; branches, leaves (facing the camera) and blossoms; the seed from seed.glb, which swells on the crown, falls and grows onto the film seed's measured mark (`SEED_AT`), where the canvas fades and the film takes over. Timing in `src/lib/vine.ts` (`ACT1_SVH` 180), tested by `scripts/vine.test.mjs`.
+- motion-runtime: with the vine on (`html[data-vine="on"]`), the hero run grows by 180svh and every old hero position is remapped into the rest of the run (`remap`), so Act 2 plays as before from the moment the seed lands.
+- Bug found on the way: a transparent backdrop is drawn after every opaque mesh whatever its render order; it is opaque until it fades.
+
+Checks: `test:motion` (52), typecheck, lint, `content:check`. Walked the production build with `?tier=full` at 1440×900 and 390×844: 0 console errors (one three.js deprecation warning from R3F's clock); sheets in `~/.playwright-mcp/gieo/hero4/`.
+
+Not done or not seen: Lite/Still hero after the copy move, VI, Safari, a real phone, a perf trace (Act 1 renders every frame while on screen). The capitals' place in the line box (`CAP_TOP`, `CAP_BOTTOM`) is measured, not computed from the font. The seam and the beats that still change in place are unchanged.
+
+### Vine hero, realism pass (2026-11-17, same day)
+
+Maxwell: "really high quality looking vines into a realistic tree", and the seed "doesn't look similar at all and it disappears". `VineScene.tsx` rewritten:
+- Leaves are shaped blades (midrib, side veins, fold, droop) in three deeper greens; stems carry procedural bark (striations, grain, knots; woody at the base, green at the tip); the vine has tendrils; blossoms are five cupped petals round a centre; a RoomEnvironment map lights it. Still live, procedural 3D: not photoreal (that needs a Blender or generated film).
+- The seed is now its own geometry modelled on the film's frame 0 (dark ribbed teardrop, round below, point up) and no longer the GLB halves. It hangs tree-sized, grows to the film seed's size as it falls and lands on `SEED_AT`.
+- The handoff fades the canvas element (CSS opacity), not the materials. Per-material fading had two faults: a fading backdrop was drawn over still-opaque meshes (the seed vanished), and branches showed through fading leaves. `Stages.seed` is no longer read by the scene.
+
+Checked on the production build (`?tier=full`), frame by frame at a = 0.12 … 1.04 for 1440×900 and 390×844: `~/.playwright-mcp/gieo/hero8/` (`CHECK.jpg` is the seed sequence). 0 console errors; `test:motion` 52/52, typecheck, lint clean. Known: a faint outline of the 3D seed round the film's mid-dissolve; the crown is a low wide band on desktop (the nav leaves 0.5 of the word's height above the capitals).
+
+### Hero and seam fixes after Maxwell's review (2026-11-17, evening)
+
+- **First scroll looked frozen.** The motion boot waited 2.5 s after load before anything 3D began, and the vine started as a tip off the left edge. Now: pages with the vine boot 100 ms after load (`MotionBoot`), `VineStage` starts the scene's import at load, the vine is 14 % grown at a = 0 and sprouts in by itself over 1.5 s, and a slim loading bar under the word shows real progress (page loaded, tier known, code loaded, scene drawn).
+- **Film seed popped out at load.** The cover (the film's `backdrop()`) is now a 2D canvas painted by `VineStage` as soon as the film reports its frame size, not by the 3D scene, so the film's seed is never seen before the tree drops it. Bug on the way: `document.querySelector('[data-vine]')` matched `<html data-vine="on">`; lookups are scoped to `#hero`.
+- **"Tree is not connected."** The trunk now starts back along the vine's own last stretch, as thin as the vine (`uBase`), and swells as it climbs: one stem.
+- **"Goes back to the original logo."** At the handoff only the cover fades. The plant stays, laid out in the word's box, so it shrinks away and fades with the word (`HERO_WORD_VINE` 0 to 0.16) while the film follows the seed to the soil.
+- **"Scroll stays locked" at the gieo / to sow beat.** The film no longer rests on a frame while a beat is read: `HERO_FILM` and `HERO_FILM_VINE` run from the first scroll to the sink.
+- **The seam (asked for twice).** The weave film starts at frame 50, its warps laid, never on the hairy green yarn (frames 0 to 50); the roots under the hero, the thread into the film and the conic "point" mask on the weave canvas are gone. The soil sinks into plum and the stage rises softly out of it.
+- **Cursor.** `Cursor.tsx` in the locale layout: a plum dot with a cream rim that opens into a pink ring over anything clickable, and a tiny petal about every 90 px of travel (8 alive at most). Mouse only; text fields keep the caret; reduced motion gets no petals. Deviation: hides the native cursor while the dot is on screen.
+
+Checked on the production build (`?tier=full`), 1440×900 and 390×844: first load at 0.3 to 5 s without scrolling, the hero at 14 positions through Act 1 and Act 2, the seam at 6, the cursor plain and over a link: `~/.playwright-mcp/gieo/all3/` (and `all2/cursor-*.jpg`). 0 console errors; `test:motion`, typecheck, lint, `content:check` clean. Not checked: Lite/Still/reduced-motion hero, VI, Safari, a real phone; the beats still change in place.
+
+### The seam, third version: roots become threads (2026-11-17, night)
+
+Maxwell rejected the seam twice (the hairy yarn; then an empty plum band and a slab of blown-up warps) and picked "roots become threads" from three options.
+- `RootsStage` (page.tsx, after `<Weave />`; Full tier) mounts a fixed, see-through R3F canvas and sets `<html data-roots="on">`. `RootsScene`: the sprout's roots grow down out of the soil (pinned to the seed film's `root` point, which rides the page), fan out and straighten into the warp threads of a cloth fitted to the weave film's finished cloth in the sticky stage (its frame 89, `CLOTH_AT`); the other warps run down between them; the weft weaves across from the top; then the canvas fades as the film's cloth fades in on the same spot (`--film-in` on `.weave-stage`). Timing and marks in `src/lib/roots.ts`, tested by `scripts/roots.test.mjs`.
+- With the seam on, `mountWeave` starts the film at frame 89 and holds its scrub until the run is over (`FILM_START`); without it (Lite, Still) the film starts at frame 50 as before.
+- Reuses the vine's `tube()` (exported from VineScene). Bug found by the check: VineScene stopped drawing when the word was gone but its easing had not caught up, leaving the cover over the film after a fast scroll; it now keeps drawing until it has.
+
+### Collections: closer, petals, materials
+
+Maxwell: too minimal; zoom into the product, petals instead of the loose yarn, a more realistic bag. Products are about a third larger; the drifting loops are cupped flower petals in the two pinks and cream; the tote and coaster bodies carry a woven canvas grain and the mug a glaze (`makeBody(lift, 'canvas' | 'ceramic')`); a RoomEnvironment map lights the scene, with every lift lowered so nothing clips. The models are the same low-polygon ones: a truly photographic bag needs GIEO's product photos or a new model.
+
+Checked on the production build (`?tier=full`), 1440×900 and 390×844: the seam at 14 scroll positions (`~/.playwright-mcp/gieo/seam2/`), Collections walk (`show9/`). 0 console errors; `test:motion` 55/55, typecheck, lint, `content:check` clean. Not checked: Lite/Still, VI, Safari, a real phone, performance (three WebGL canvases can be live on the home page: shared, vine, roots).
+
+### Seam follow-up: lag, natural roots, roots out of the soil (2026-11-17, late)
+
+- **Lag at the film's cloth.** VineScene and RootsScene were asking for a frame on every scroll event even when they had nothing to draw, so two full-screen canvases were re-composited over the scrubbing weave film. Each now sleeps once its end state is applied (no `invalidate()` outside its run), hides its canvas (`visibility: hidden`) while empty, and runs at dpr 1.5 at most. Measured in a real Chrome window, 240 frames of steady scroll through the weave: 8.3 ms average, 9.4 ms worst, none over 33 ms.
+- **Roots too orderly.** 13 main roots with uneven targets, some swapped so they cross; each has its own exit point, turn, meander, depth, thickness and the height at which it becomes a straight thread; one thicker taproot; 22 thin rootlets that wander off and end in the earth.
+- **Roots did not connect to the plant.** They start at the foot of the stem and are buried by the soil itself: the tube shader's `uBury` discards by a ground-fixed noise between the soil's surface and the foot of the seed film's frame (`uSoil`), fully at the surface, in patches lower down, and darkens the root while it is in the earth.
+
+Checked: `~/.playwright-mcp/gieo/seam4/` (14 positions, both sizes), 0 console errors, `test:motion` 55/55, typecheck, lint. Known: the buried edge is a hard cut-out, not a soft one; roots still read pale against the dark soil.

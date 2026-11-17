@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { CollectionBlock } from '@/components/pages/CollectionBlock';
 import { PageBand } from '@/components/pages/PageBand';
+import { Showroom } from '@/components/pages/Showroom';
 import { art, still } from '@/components/pages/art';
 import { routing } from '@/i18n/routing';
 import { collectionPhotos, type Photo } from '@/lib/photos';
@@ -47,6 +47,7 @@ export default async function CollectionsPage({ params }: Props) {
   const products = PRODUCTS.map(({ key, frame }) => {
     const photo = usable(hmong[key]);
     return {
+      key,
       name: t(`home.craft.products.${key}`),
       render: art(`products/${key}`)?.src ?? `/film/weave/keys/s-${String(frame).padStart(4, '0')}.webp`,
       photo,
@@ -62,19 +63,16 @@ export default async function CollectionsPage({ params }: Props) {
         intro={t('collections.intro')}
         art={art('pages/collections') ?? still('cloth')}
       />
-      <CollectionBlock
-        id="hmong"
-        tone="paper"
-        from="cream"
+      <Showroom
         name={t('collections.hmong.name')}
         body={t('collections.hmong.body')}
         credit={credit}
+        cloth={still('cloth')}
         swatch={usable(hmong.brocade)}
-        art={art('objects/basket')}
         products={products}
         orderLabels={{ instagram: t('contact.instagramLabel'), email: t('contact.emailLabel') }}
       />
-      <PageBand tone="paper" items={products.map((p) => p.name)} />
+      <PageBand tone="paper" from="plum" items={products.map((p) => p.name)} />
     </>
   );
 }

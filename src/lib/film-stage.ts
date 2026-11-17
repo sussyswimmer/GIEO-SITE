@@ -27,7 +27,8 @@ const smooth = (x: number) => x * x * (3 - 2 * x);
 let cream = ''; // the --cream token, read once
 
 /** Cream, then the vista as the camera has it at this frame: it rises and thins out as the seed falls. */
-function backdrop(ctx: CanvasRenderingContext2D, img: HTMLImageElement | null, set: FilmSet, frame: number) {
+// Exported for the hero's Act 1 (VineScene), which paints the same backdrop under its tree.
+export function backdrop(ctx: CanvasRenderingContext2D, img: HTMLImageElement | null, set: FilmSet, frame: number) {
   ctx.globalCompositeOperation = 'source-over';
   ctx.globalAlpha = 1;
   ctx.fillStyle = cream ||= getComputedStyle(document.documentElement).getPropertyValue('--cream').trim();

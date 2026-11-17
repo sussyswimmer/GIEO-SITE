@@ -18,6 +18,8 @@ import { beatsAt, timeOf, TRACKS, WEAVE_PACE, weaveRun } from './fallback-timeli
 import { coverPoint, type FilmManifest, type FilmSet } from './film';
 import { useMotionStore, type WeaveBeat } from './motion-store';
 import { mountClips } from './scrub-clip';
+import { FILM_START } from './roots';
+import { ACT1_SVH, remap } from './vine';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 ScrollTrigger.config({ ignoreMobileResize: true });
@@ -210,9 +212,14 @@ function mountTilt(signal: AbortSignal) {
 // The Sow pin, in shares of its run. The film rests while something is being read and moves while one
 // thing gives way to the next: the seed hangs in the air under the headline, falls and sprouts as the
 // dictionary entry arrives, and grows into the thread on the way to the initiative line.
-const HERO_FILM: [until: number, frame: number][] = [[0.1, 0], [0.3, 95], [0.47, 95], [0.76, 149], [1, 149]];
+// The film never rests (Maxwell, 2026-11-17: a held frame reads as a locked scroll): it moves from the
+// first scroll to the sink. HERO_FILM_VINE: after Act 1 the seed is already falling, so no opening hold.
+const HERO_FILM: [until: number, frame: number][] = [[0.06, 0], [0.32, 95], [0.92, 149], [1, 149]];
+const HERO_FILM_VINE: [until: number, frame: number][] = [[0.3, 95], [0.92, 149], [1, 149]];
+const HERO_WORD_VINE = [0, 0.16]; // the word and its plant shrink away as the seed drops
 const HERO_WORD = [0.12, 0.24]; // the headline is whole until the first, gone by the second
-const HERO_BEATS: [shown: number, until: number][] = [[0.29, 0.45], [0.55, 0.67], [0.77, 1]];
+// The last beat is the sub line and the two ways in (Sow.tsx): the first screen shows only the word.
+const HERO_BEATS: [shown: number, until: number][] = [[0.29, 0.45], [0.55, 0.67], [0.77, 0.86], [0.9, 1]];
 const HERO_FADE = 0.04;
 // The seam (docs/08 H1). In the last stretch of the pin the ground lifts by this share of the screen, as if
 // the camera went under it, and what it uncovers is already plum.
@@ -228,6 +235,17 @@ const yarnX = () => {
 
 /** S0. One scrub across the whole Sow pin; the headline shrinks to a ghost before the first beat takes its corner. */
 function mountSow(reduced: boolean): () => void {
+  const hero = document.querySelector<HTMLElement>('#hero')!;
+  const html = document.documentElement;
+  // Act 1 (the vine, VineScene): Full tier only. It lengthens the run (globals.css) and goes first; every
+  // position below then lands in the rest of the run, so the film still starts the moment the seed lands.
+  const vine = !reduced && useMotionStore.getState().tier === 'full' && !!hero.querySelector('[data-vine]');
+  if (vine) html.dataset.vine = 'on';
+  const run0 = hero.offsetHeight - window.innerHeight;
+  const share = vine && run0 > 0 ? Math.min(0.8, ((ACT1_SVH / 100) * window.innerHeight) / run0) : 0;
+  const at = (x: number) => remap(x, share);
+  const span = (d: number) => d * (1 - share);
+
   const proxy = { p: 0 };
   const film = gsap.timeline({
     defaults: { ease: 'none' },
@@ -239,8 +257,9 @@ function mountSow(reduced: boolean): () => void {
     return () => {};
   }
   const last = TRACKS.seed.frames - 1;
-  HERO_FILM.forEach(([until, frame], i) => film.to(proxy, { p: frame / last, duration: until - (HERO_FILM[i - 1]?.[0] ?? 0) }));
-  const hero = document.querySelector<HTMLElement>('#hero')!;
+  if (share) film.to(proxy, { p: 0, duration: share }); // Act 1: the film waits on frame 0 under the vine's canvas
+  const steps = vine ? HERO_FILM_VINE : HERO_FILM;
+  steps.forEach(([until, frame], i) => film.to(proxy, { p: frame / last, duration: span(until - (steps[i - 1]?.[0] ?? 0)) }));
   const stage = hero.querySelector<HTMLElement>('[data-film]')!;
   const word = hero.querySelector<HTMLElement>('[data-hero-word]')!;
 
@@ -301,30 +320,30 @@ function mountSow(reduced: boolean): () => void {
   const mm = gsap.matchMedia();
   mm.add('(min-height: 37.5rem)', () => {
     // The CSS entrance has long finished; while it fills it would hold the transform GSAP is about to drive.
-    gsap.set('[data-hero-word], [data-hero-fade]', { animation: 'none' });
+    gsap.set(word, { animation: 'none' });
     // The word shrinks away under the nav and is gone before the first beat arrives in the same corner.
     const tl = gsap.timeline({
       defaults: { ease: 'none' },
       scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom bottom', scrub: true, invalidateOnRefresh: true },
     });
-    const [whole, gone] = HERO_WORD;
-    // autoAlpha: the two buttons must leave the tab order with the first screen
-    tl.to('[data-hero-fade]', { autoAlpha: 0, duration: HERO_FADE }, whole).to(
+    const [whole, gone] = vine ? HERO_WORD_VINE : HERO_WORD;
+    tl.to(
       word,
-      { scale: 0.42, opacity: 0, y: () => Math.min(0, HERO_GHOST_TOP - word.offsetTop), transformOrigin: '0 0', duration: gone - whole },
-      whole,
+      { scale: 0.42, opacity: 0, y: () => Math.min(0, HERO_GHOST_TOP - word.offsetTop), transformOrigin: '0 0', duration: span(gone - whole) },
+      at(whole),
     );
+    // autoAlpha: a beat's buttons leave the tab order while it is hidden
     all('[data-hero-beat]').forEach((beat, i) => {
-      const [shown, until] = HERO_BEATS[i];
-      tl.fromTo(beat, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: HERO_FADE }, shown - HERO_FADE);
-      if (until < 1) tl.to(beat, { opacity: 0, y: -12, duration: HERO_FADE }, until);
+      const [shown, until] = HERO_BEATS[i] ?? HERO_BEATS[HERO_BEATS.length - 1];
+      tl.fromTo(beat, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: span(HERO_FADE) }, at(shown - HERO_FADE));
+      if (until < 1) tl.to(beat, { autoAlpha: 0, y: -12, duration: span(HERO_FADE) }, at(until));
     });
     // Going under (docs/08 H1): the soil darkens into plum, then the ground lifts while the roots grow down
     // to the foot of the screen. The lift eases in over just the stretch that ends it at the page's own
     // speed (a quadratic ends at 2 × distance / time), so the pin lets go without a change of pace.
     const run = hero.offsetHeight - window.innerHeight;
     const lift = Math.min(0.2, (2 * HERO_LIFT * stage.clientHeight) / Math.max(1, run));
-    tl.fromTo('[data-hero-sink]', { opacity: 0 }, { opacity: 1, duration: HERO_SINK[1] - HERO_SINK[0] }, HERO_SINK[0])
+    tl.fromTo('[data-hero-sink]', { opacity: 0 }, { opacity: 1, duration: span(HERO_SINK[1] - HERO_SINK[0]) }, at(HERO_SINK[0]))
       .fromTo('[data-hero-ground]', { yPercent: 0 }, { yPercent: -100 * HERO_LIFT, ease: 'power2.in', duration: lift }, 1 - lift)
       .fromTo('[data-hero-roots]', { '--root': 1 }, { '--root': 0, duration: lift }, 1 - lift);
     tl.to({}, { duration: 0.001 }, 0.999); // so the timeline spans the whole run
@@ -336,6 +355,7 @@ function mountSow(reduced: boolean): () => void {
     hero.style.removeProperty('--safe-x');
     hero.style.removeProperty('--safe-y');
     svg?.replaceChildren();
+    if (vine) delete html.dataset.vine;
   };
 }
 
@@ -357,7 +377,13 @@ function mountWeave(reduced: boolean): () => void {
   const credit = craft.querySelector<HTMLElement>('[data-credit]');
   const wide = matchMedia('(min-width: 64rem)');
   const pace = () => (wide.matches ? WEAVE_PACE.wide : WEAVE_PACE.phone);
-  const v = { cloth: 0, p0: 0, p1: 0, p2: 0 };
+  // The film opens on a close-up of one hairy green yarn (frames 0 to 50: 'thread', 'warps'). Maxwell found
+  // that seam "horrible", twice: the film now starts where the warps are laid, and the cloth weaves from there.
+  // With the live seam (RootsScene, Full tier: <html data-roots="on">) the roots and the weaving are drawn
+  // live, and the film waits on its finished cloth (frame 89) until that run is over (FILM_START).
+  const roots = document.documentElement.dataset.roots === 'on';
+  const start = (weights[0] + weights[1] + (roots ? weights[2] : 0)) / made;
+  const v = { cloth: start, p0: 0, p1: 0, p2: 0 };
   const push = () => {
     const now = [...beatsAt('weave', (made * v.cloth) / total).slice(0, 4), v.p0, v.p1, v.p2];
     useMotionStore.setState({ weave: Object.fromEntries(beats.map((b, i) => [b, now[i]])) as Record<WeaveBeat, number> });
@@ -391,7 +417,8 @@ function mountWeave(reduced: boolean): () => void {
   };
   const scrub = (vars: gsap.TweenVars, scrollTrigger: ScrollTrigger.Vars) =>
     gsap.to(v, { ...vars, ease: 'none', scrollTrigger: { scrub: SCRUB, ...scrollTrigger }, onUpdate: push });
-  scrub({ cloth: 1 }, { id: 'weave', trigger: craft, start: 'top 80%', end: mark(0, 0) });
+  push(); // the stage shows the laid warps before any scroll reaches it, never frame 0
+  scrub({ cloth: 1 }, { id: 'weave', trigger: craft, start: roots ? FILM_START : 'top 80%', end: mark(0, 0) });
   [0, 1, 2].forEach((i) => scrub({ [`p${i}`]: 1 }, { trigger: run, start: mark(i, 0), end: mark(i, 1) }));
 
   const stage = craft.querySelector<HTMLElement>('[data-film]');
