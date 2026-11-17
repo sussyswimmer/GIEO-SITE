@@ -303,12 +303,15 @@ function mountStage(stage: HTMLElement) {
 
   const load = async () => {
     asked = true;
-    if (art) {
+    if (art && !vistaDone) {
       const img = new Image();
       img.fetchPriority = 'low';
       img.src = art;
       const done = (ok: boolean) => {
-        if (ok) vista = img;
+        if (ok) {
+          vista = img;
+          drawnKey = -1; // a poster already painted without the art (the 2.5 s limit) must be drawn again
+        }
         vistaDone = true;
         paintKey();
         video?.redraw();
@@ -325,7 +328,7 @@ function mountStage(stage: HTMLElement) {
       }
       const data = (await res.json()) as FilmManifest;
       if (dead) return;
-      // shortcut: the sets are picked once from the box (poster at load, video at start); upgrade if a phone-to-desktop resize must swap them.
+      // The set is picked from the box as it is now; an orientation flip later reloads (see onResize).
       set = pickSet(data.sets, stage.clientWidth, stage.clientHeight, false);
       const [fx, fy] = set.focus ?? [0.5, 0.5];
       stage.style.setProperty('--film-focus', `${fx * 100}% ${fy * 100}%`);
@@ -352,6 +355,34 @@ function mountStage(stage: HTMLElement) {
     video?.update(frame);
     showKey();
   };
+
+  // Tear the media down and load again, for a box whose orientation no longer fits the loaded set.
+  const reload = () => {
+    cancelAnimationFrame(raf); // an in-flight crossfade would paint the removed canvas
+    m = null; // before stopVideo, whose showKey would otherwise start loading a key of the old set
+    stopVideo();
+    keys.remove();
+    imgs.clear();
+    wantKey = -1;
+    void load();
+  };
+  // A drag fires many callbacks, and crossing the square aspect flips the orientation each time: act when it settles.
+  let resizeT = 0;
+  const onResize = () => {
+    // m is null while a load is in flight; it picks its set from the box when the manifest arrives, so a flip then is not lost.
+    if (!m || !stage.clientWidth || !stage.clientHeight) return;
+    // pickSet, not the box: a manifest with one set (weave, lotus) never has a set of the other orientation, so it never reloads.
+    const next = pickSet(m.sets, stage.clientWidth, stage.clientHeight, false);
+    if (next.h > next.w !== set.h > set.w) return reload();
+    video?.redraw(); // the vista's crop is hung on the box
+    drawnKey = -1;
+    showKey();
+  };
+  const resizeIo = new ResizeObserver(() => {
+    clearTimeout(resizeT);
+    resizeT = window.setTimeout(onResize, 120);
+  });
+  resizeIo.observe(stage);
 
   // Load within 1.5 screens; give the video back beyond 3.
   const nearIo = new IntersectionObserver(
@@ -383,6 +414,8 @@ function mountStage(stage: HTMLElement) {
       cancelAnimationFrame(raf);
       nearIo.disconnect();
       farIo.disconnect();
+      resizeIo.disconnect();
+      clearTimeout(resizeT);
       video?.destroy();
       stage.querySelectorAll('canvas').forEach((c) => c.remove());
       for (const key of ['media', 'alpha', 'key', 'set', 'size', 'focus', 'threadExit']) delete stage.dataset[key];

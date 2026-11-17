@@ -37,7 +37,8 @@ export async function PartnerBlock({ heading, from = 'cream' }: { heading: strin
               credit={credit}
               sizes="(min-width: 1024px) 45vw, 75vw"
               className="col-span-full -mr-gutter mt-6 ml-auto w-3/4 lg:col-start-7 lg:col-end-13 lg:-mt-20 lg:ml-0 lg:w-auto"
-              creditClassName="mt-2 lg:ml-[10%]"
+              // under 1024 the picture hangs off the right edge; its caption stays inside the text column
+              creditClassName="mt-2 text-balance max-lg:mr-gutter lg:ml-[10%]"
             />
           )}
         </Grid>

@@ -52,7 +52,7 @@ export default async function ContactPage({ params }: Props) {
               <ArtLife
                 art={picture}
                 sizes="(min-width: 1024px) 45vw, 70vw"
-                className="col-span-full -ml-gutter w-[70%] md:w-1/2 lg:col-start-1 lg:col-end-7 lg:ml-0 lg:w-auto"
+                className="col-span-full w-[70%] md:w-1/2 lg:col-start-1 lg:col-end-7 lg:w-auto"
               />
             )}
             <div className="col-span-full mt-6 md:col-span-7 lg:col-start-7 lg:col-end-13 lg:mt-0">

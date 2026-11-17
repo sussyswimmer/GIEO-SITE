@@ -28,6 +28,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 // The address is the action on these rows, so it is set like the links on the contact page.
 const MAIL = 'inline-flex min-h-11 items-center font-serif text-h3 italic [overflow-wrap:anywhere]';
+// Prefers to break before the "@"; a span, because each child of the inline-flex link would be its own flex item.
+const [MAIL_USER, MAIL_HOST] = EMAIL.split('@');
+const MAIL_TEXT = (
+  <span>
+    {MAIL_USER}
+    <wbr />@{MAIL_HOST}
+  </span>
+);
 
 export default async function GetInvolvedPage({ params }: Props) {
   const { locale } = await params;
@@ -50,12 +58,12 @@ export default async function GetInvolvedPage({ params }: Props) {
           </InvolveSection>
 
           <InvolveSection slug="mentor" title={t('getInvolved.mentor.title')} body={t('getInvolved.mentor.body')}>
-            <TextLink href={`mailto:${EMAIL}`} className={MAIL}>{EMAIL}</TextLink>
+            <TextLink href={`mailto:${EMAIL}`} className={MAIL}>{MAIL_TEXT}</TextLink>
             <Todo tag="mentor" />
           </InvolveSection>
 
           <InvolveSection slug="partner" title={t('getInvolved.partner.title')} body={t('getInvolved.partner.body')}>
-            <TextLink href={`mailto:${EMAIL}`} className={MAIL}>{EMAIL}</TextLink>
+            <TextLink href={`mailto:${EMAIL}`} className={MAIL}>{MAIL_TEXT}</TextLink>
           </InvolveSection>
 
           <InvolveSection

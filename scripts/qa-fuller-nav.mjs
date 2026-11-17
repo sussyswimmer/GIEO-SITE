@@ -24,6 +24,7 @@ for (const [w, h] of SIZES) {
         const home = `${BASE}/${LOCALE}`;
         // the default locale's links carry no prefix (src/i18n/routing.ts, localePrefix 'as-needed')
         const href = LOCALE === 'vi' ? `/${name}` : `/${LOCALE}/${name}`;
+        const homePath = LOCALE === 'vi' ? '/' : `/${LOCALE}`; // the server redirects /vi to /
         await page.goto(home, { waitUntil: 'networkidle' });
         await page.waitForFunction(() => document.documentElement.dataset.motion, null, { timeout: 10000 }).catch(() => {});
         await page.mouse.move(w / 2, h / 2);
@@ -75,9 +76,9 @@ for (const [w, h] of SIZES) {
         const wheelY = await page.evaluate(() => Math.round(scrollY));
 
         await page.goBack();
-        await page.waitForURL((u) => u.pathname === `/${LOCALE}`, { timeout: 10000 }).catch(() => {});
+        await page.waitForURL((u) => u.pathname === homePath, { timeout: 10000 }).catch(() => {});
         await page.waitForTimeout(700);
-        const back = await page.evaluate((l) => location.pathname === `/${l}` && !!document.querySelector('#hero h1'), LOCALE);
+        const back = await page.evaluate((l) => location.pathname === l && !!document.querySelector('#hero h1'), homePath);
         await page.goForward();
         await page.waitForURL(`**${href}`, { timeout: 10000 }).catch(() => {});
         await page.waitForTimeout(700);

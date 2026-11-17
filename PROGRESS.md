@@ -542,3 +542,56 @@ Open, added by this pass:
 - The page thread passes behind the dusk picture and the Journal ridges.
 - On resize the hero's lift and vista crop are not rebuilt until the next frame update.
 - `art/seam/roots.webp` and `art/hero/ridge-near.webp` are in `public/` but not used by any page.
+
+## 2026-11-17 · Fuller pass follow-up: the owed checks, and fixes from a code review ✅ checked on this PC; Safari and a real phone still to see it
+
+The check run of 2026-11-16 was cut short. This entry closes it: the checks that were owed ran, a read-only review of the fuller-pass code turned up eight real defects (each one confirmed by a second reviewer before it was touched), and those are fixed. Where this entry and the one above disagree, this one is current.
+
+Fixed from the review:
+- **Hero picture stale after a resize.** The vista's crop was drawn once per frame change, so widening the window left a hard vertical edge of art on screen. `film-stage.ts` now watches the stage's box (120 ms after it settles) and redraws.
+- **Wrong film set after an orientation flip.** The seed film's set (`l` / `ls` / `p`) was picked once at load. A box that changes orientation now reloads with the right set; weave and lotus have one square set and never reload.
+- **A late vista never painted on the Still tier.** If the picture arrived after the 2.5 s limit, the poster already drawn without it stayed. It is drawn again when the picture lands.
+- **Reduced motion never showed the products.** With nothing pinned, the three products were mapped to a stretch of scroll in which the stage was mostly off screen. They now share the stage box's climb from 60 % of the screen to its top.
+- **Scrub clips: the first-frame poster could land on top of the end picture.**
+- **The Journal's rail of stills could not be reached without motion** (it was clipped, with nothing to move it). It scrolls sideways unless the runtime is on.
+- **Collections tiles sent the 1600 px portraits to phones.** They go through the image optimiser now: a 390 phone gets a 384 px file, 1440 gets 750 px.
+- **`srcset` claimed 800 px for small files that are narrower.** The small file's real width is read from its header (`smallW`).
+
+Also changed:
+- **The seam on phones and tablets.** Under the yarn's point the warp opened as a flat shoulder across the whole canvas. The point now has soft edges and the warp comes up in a long eased rise (`--seam-point`, `--seam-rise` in `globals.css`).
+- **The seam where the stage cannot stick** (reduced motion, screens under 600 px tall). The point never left, so its mask lay across the products. It now slides out as the stage box climbs from the foot of the screen to 60 % of it (`mountThread`).
+- **Get involved:** the email address breaks before the "@" (it broke as "gmail.co / m" at 320 px).
+- **About, under 1024:** the credit under the partner picture stays inside the text column and keeps the partner's name on one line. **Collections:** the tile credit is balanced the same way.
+- **Contact, under 1024:** the knot picture no longer hangs off the left edge, where the rope's tip looked cut. This moves it at 768 to 1023 as well as on phones.
+- Scripts: `qa-fuller-nav.mjs` knows the Vietnamese home is `/`; `qa-fuller-b.mjs` has a `reducedproducts` mode; `qa-fuller-resize.mjs` is new (vista after a resize, set swap both ways).
+
+Checks, all against one production build of this tree (built 20:16, served on 3131, one browser at a time):
+- **Seam** (`qa-fuller-hero.mjs`): thread x equals yarn x at 390 (203.8), 768 (393.6), 1024 (791.9), 1440 (1013.2) and 1920 (1407.9); overflow 0 at each. Two reviewers compared before and after shots at the five widths: better at 390, 768, 1440 and 1920, unchanged at 1024, nothing new broken.
+- **Resize** (`qa-fuller-resize.mjs`): 3 of 3. Vista fills the stage after 1440×900 → 1920×900; set `l` → `p` at 960×1000 and `p` → `l` at 1024×768.
+- **Home** (`qa-fuller-b.mjs all`): pace at seven sizes, the walk, contrast on the dusk picture (lowest 6.06:1, EN 390 "Vision") and reduced motion all pass. `reducedproducts`: tote, mug and coaster each shown, EN and VI at 1440×900 and 390×844 (4 of 4; the first run failed on the new check's own bug, which compared frame numbers with key indexes).
+- **Reduced-motion seam:** the mask is fully open by the time the stage box reaches 60 % of the screen at 1440×900, 768×1024, 390×844 and 844×390 (`--seam` −392, −241, −168 and −71 px; it used to stay at 125 px on desktop and 12 px on a phone).
+- **Late changes from 2026-11-16, now seen:** email inside the screen at 320 and 360 px, EN and VI; the three Blender portraits on the Collections tiles; sub-page pictures drift whole.
+- **About pictures:** all six load and unveil at 1440 on `/about` and `/en/about`. A screenshot review had reported three missing on the Vietnamese page; that was the capture, not the page.
+- **Navigation** (`qa-fuller-nav.mjs`): EN 32 of 32, VI 32 of 32 (VI failed every case on 2026-11-16 because of the script's home path).
+- **Sub-pages** (`qa-fuller-pages.mjs`): smallest text 14 px, captions and labels only; no overflow at 375 on any `/vi` sub-page.
+- **`qa-redesign.mjs`: 33 pass, 0 fail** on the first run. A second run failed the scroll trace alone (32 pass, 1 fail): one frame of 33.4 ms in 842, no long task. LCP element `<span>` "GIEO" at 260 to 660 ms at 4× CPU across the two runs.
+- **Scroll trace, this build against 5e81e99's** (the trace alone, eight runs each, taken in turn, on a PC that was busy with another session): both builds have clean runs (worst 16.9 to 17.1 ms, nothing over 20 ms: two of eight here, three of eight there), and both drop one frame 415 to 435 px into the hero in some runs (three here, two there). The remaining runs on both builds carry stray frames of 50 to 730 ms spread over the page. So the 33 ms frame does not come from this entry's changes; see "Open".
+- Typecheck, lint (0 errors, the same 2 warnings in `scripts/encode-film.mjs`), `content:check` (109 keys) and `test:motion` (37 of 37) clean.
+- An independent review of the last hunks (seam mask, the slide where nothing sticks, the three sub-page tweaks) found nothing that stood.
+
+**Density on the ten routes** (`qa-density.mjs`, owed since 2026-11-16): 196 of 199 shots pass. Every miss was already there before this entry's changes:
+- Home length: 15.11 (EN) and 15.77 (VI) counted screens at 1440×900 against the script's cap of 12, and 14.00 and 14.76 at 390×844 against 12.5. This is docs/08's longer product run; the script still holds docs/07's cap.
+- One home shot per language at 1440 has a 36 to 41 % empty band (y = 6750). The script hides decoration, so the sideways band of names counts as empty; as seen it is 12 %.
+- `/vi/get-involved` at 1440, one screen at 11.5 % coverage against a floor of 12.
+- The script flags the hero's IB line (`<p>`, `text-caption`, 14 px) against its 16 px floor for paragraphs. It is a label, and the same sentence stands at 16 px in the hero's third beat. Left as it is.
+
+Not run or not seen:
+- Safari, a real phone, a keyboard pass. Heights under 720 px only at 844×390, and only for the seam.
+- The orientation reload was checked by resizing a desktop window, not by turning a device.
+
+Open, added by this entry:
+- **The pinned stage still has a straight top edge** at 1024 and on phones once the point has left the screen (docs/08 H1, read strictly). Unchanged by this entry; it needs the film reframed, not a mask change.
+- At 390 and 768 the hard shoulder is now a soft level band, and the point stands less far above it than before (about 60 px against 90 at 390).
+- Under reduced motion a short stub of the page thread shows through the tote's handle at 1440.
+- **One frame is sometimes dropped about 416 px into the hero** at 1440×900 (33 to 50 ms). 5e81e99 does it too; it was not seen on 2026-11-16 (worst 16.9 ms then). Not traced. The scroll trace should be run again on a quiet PC.
+- Nits from the sub-page screenshot review, not changed: on About at 1440 the tote's handles touch the foot of the partner's name partway through the picture's drift; the Collections header's green thread crosses the title; "Ba trụ cột" and "Các phòng ban" each leave one short word alone on a line; the two lead paragraphs on About start 16 px (VI) to 77 px (EN) apart.

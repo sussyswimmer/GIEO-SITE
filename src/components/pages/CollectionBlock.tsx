@@ -54,12 +54,12 @@ function ProductSlab({ product, credit, flip }: { product: Product; credit: stri
           <Image src={photo.src} alt={alt} fill sizes="(min-width: 1024px) 45vw, 90vw" className="object-cover" />
         ) : (
           // The name beside it says what this is, so the render itself is decoration.
-          <Image src={render} alt="" fill unoptimized sizes="(min-width: 1024px) 45vw, 90vw" data-drift="3" className="object-contain p-[4%]" />
+          <Image src={render} alt="" fill sizes="(min-width: 1024px) 45vw, 90vw" data-drift="3" className="object-contain p-[4%]" />
         )}
       </div>
       <div className="flex flex-col justify-center gap-4 p-6 md:p-10 lg:gap-6 lg:p-16">
         <h3 className="font-serif text-h2 text-fg-heading">{name}</h3>
-        <small className="block text-caption text-fg-body">{credit}</small>
+        <small className="block text-balance text-caption text-fg-body">{credit}</small>
       </div>
     </li>
   );

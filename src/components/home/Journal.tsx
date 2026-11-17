@@ -86,7 +86,7 @@ export async function Journal() {
       </Container>
 
       {stills.length > 0 && (
-        <div className="relative mt-8 overflow-x-clip lg:mt-10">
+        <div className="relative mt-8 overflow-x-auto [html[data-motion=on]_&]:overflow-x-clip lg:mt-10">
           <div data-band className="flex w-max items-end gap-[4vw] pl-gutter lg:gap-[2.5vw]">
             {stills.map((still, i) => (
               <StillLife key={still.src} still={still} credit={credit} index={i % 3} sizes={RAIL_SIZES} className={RAIL_SLOT[i % 3]} />

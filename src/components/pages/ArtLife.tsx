@@ -29,7 +29,7 @@ export function ArtLife({ art, credit, sizes, eager, drift = 4, className, credi
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={art.src}
-            srcSet={art.small && `${art.small} 800w, ${art.src} ${art.w}w`}
+            srcSet={art.small && `${art.small} ${art.smallW ?? 800}w, ${art.src} ${art.w}w`}
             sizes={art.small && sizes}
             width={art.w}
             height={art.h}

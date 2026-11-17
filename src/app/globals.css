@@ -186,10 +186,16 @@
     rotate: var(--sway-r); transform: translateY(var(--sway-y)); /* the rest-time sway (motion-runtime) */
     /* The seam (docs/08 H1): the top never cuts. The yarn hangs from the top of the canvas at 53.5 % of its
        width; above --seam (px down the canvas, set by the page thread's runtime, which ends the thread
-       there) nothing shows, from it the yarn widens out of a point, and 30 % further down the whole canvas
-       is in. The point belongs to the page, so once the stage sticks it slides up and out. */
-    --seam-point: conic-gradient(from 160deg at 53.5% var(--seam, -100%), transparent 0, #000 1.5deg, #000 38.5deg, transparent 40deg);
-    --seam-rise: linear-gradient(to bottom, transparent calc(var(--seam, -100%) + 22%), #000 calc(var(--seam, -100%) + 30%));
+       there) nothing shows, from it the yarn widens out of a soft-edged point, and beside the point the
+       warp comes up out of the dark in a long eased rise: a short rise reads as a flat shoulder across the
+       whole canvas. The rise is done 40 % under the point, which is as far up as the runtime lets the point
+       slide (mountThread), so by then the whole canvas is in. The point belongs to the page: once the stage
+       sticks it slides up and out (where the stage cannot stick, as its box climbs the screen). */
+    --seam-point: conic-gradient(from 160deg at 53.5% var(--seam, -100%), transparent 0, #000 7deg, #000 33deg, transparent 40deg);
+    --seam-rise: linear-gradient(to bottom,
+      transparent calc(var(--seam, -100%) + 12%), rgb(0 0 0 / 0.1) calc(var(--seam, -100%) + 19%),
+      rgb(0 0 0 / 0.45) calc(var(--seam, -100%) + 27%), rgb(0 0 0 / 0.85) calc(var(--seam, -100%) + 34%),
+      #000 calc(var(--seam, -100%) + 40%));
   }
   .weave-stage > canvas { mask-image: var(--seam-point), var(--seam-rise); }
   /* the light behind the yarn has no point to come out of: it just rises */

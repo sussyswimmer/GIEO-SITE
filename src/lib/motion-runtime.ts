@@ -344,7 +344,7 @@ function mountSow(reduced: boolean): () => void {
  * run (docs/08 H2). Scroll maps to the film piecewise, the film itself is not re-timed: each product is made
  * over `change` svh and then rests on its last frame for `hold` svh (WEAVE_PACE) while its name is lit and
  * the stage sways a little, so a rest is never dead. Where nothing pins (reduced motion, a short screen)
- * the three share the list's passage through the screen instead.
+ * the three share the stage box's climb to the top of the screen instead.
  */
 function mountWeave(reduced: boolean): () => void {
   const { beats, weights } = TRACKS.weave;
@@ -352,6 +352,7 @@ function mountWeave(reduced: boolean): () => void {
   const total = weights.reduce((a, b) => a + b, 0);
   const craft = document.querySelector<HTMLElement>('#craft')!;
   const run = craft.querySelector<HTMLElement>('[data-weave-run]') ?? craft;
+  const box = craft.querySelector<HTMLElement>('[data-seam]') ?? craft; // the stage's box
   const names = run.querySelector<HTMLElement>('[data-weave-names]');
   const tiles = all('#craft ul[role="list"] > li');
   const credit = craft.querySelector<HTMLElement>('[data-credit]');
@@ -377,12 +378,13 @@ function mountWeave(reduced: boolean): () => void {
   size();
   ScrollTrigger.addEventListener('refreshInit', size);
   const y = (el: Element, edge: 'top' | 'bottom') => el.getBoundingClientRect()[edge] + window.scrollY;
-  // The scroll position `svh` after the names stick; with nothing pinned, share k of the list's passage.
+  // The scroll position `svh` after the names stick; with nothing pinned, share k of the stage box's climb
+  // from 60 % of the screen to its top.
   const point = (svh: number, k: number) => {
     const unit = (parseFloat(getComputedStyle(run, '::after').height) || 0) / weaveRun(pace()); // px per svh, 0 unpinned
     if (unit && names) return y(run, 'top') - (parseFloat(getComputedStyle(names).top) || 0) + svh * unit;
-    const from = y(run, 'top') - 0.95 * window.innerHeight;
-    return from + k * Math.max(1, y(craft, 'bottom') - window.innerHeight - from);
+    const from = y(box, 'top') - 0.6 * window.innerHeight; // the stage is whole on screen from here to its top at 0
+    return from + k * 0.6 * window.innerHeight;
   };
   // Product i is made between mark(i, 0) and mark(i, 1), and rests from there to mark(i + 1, 0).
   const mark = (i: number, done: 0 | 1) => () => {
@@ -504,7 +506,8 @@ function mountThread(reduced: boolean): () => void {
   const seam = craft?.querySelector<HTMLElement>('[data-seam]');
   const yarn = seam?.querySelector<HTMLElement>('[data-film]');
   const SEAM_DROP = 0.08; // from 1024: how far under the section's top the yarn's point sits, in screens
-  let point: { off: number; local: number } | null = null; // the point: the canvas in its box, and the point in the canvas
+  // the point: the canvas in its box, the point in the canvas, and whether the box scrolls free (it cannot stick)
+  let point: { off: number; local: number; free: boolean } | null = null;
   let pointAt = NaN;
   const COPY = ':is(h2, h3, p, li, blockquote, figcaption, dd, a):not([aria-hidden="true"] *)';
   const CLEAR = 16; // px kept between the thread and the nearest line of copy
@@ -537,7 +540,8 @@ function mountThread(reduced: boolean): () => void {
     if (craft && seam && yarn) {
       const canvas = yarn.getBoundingClientRect();
       const off = canvas.top - seam.getBoundingClientRect().top;
-      point = { off, local: Math.max(0, (wide ? window.innerHeight * SEAM_DROP : 0) - off) + 12 };
+      const free = getComputedStyle(seam).position !== 'sticky'; // reduced motion, or a screen under 600 px tall
+      point = { off, local: Math.max(0, (wide ? window.innerHeight * SEAM_DROP : 0) - off) + 12, free };
       const top = craft.getBoundingClientRect().top - page.top;
       const x = canvas.left - page.left + YARN_X * canvas.width;
       pathIn.setAttribute('d', `M${x} ${hero.getBoundingClientRect().bottom - page.top}V${top + off + point.local + 28}`);
@@ -623,7 +627,14 @@ function mountThread(reduced: boolean): () => void {
       // The yarn's point belongs to the page, the canvas sticks: tell the mask where the point is in the
       // canvas now (and the box, whose phone backdrop starts there). Past the top it stops being written.
       const y = craft.getBoundingClientRect().top + point.off + point.local;
-      const local = Math.round(Math.max(-0.4 * yarn.offsetHeight, y - yarn.getBoundingClientRect().top));
+      const open = -0.4 * yarn.offsetHeight; // the mask's rise is done 40 % under the point: from here the canvas is whole
+      let at = y - yarn.getBoundingClientRect().top;
+      // A box that cannot stick carries the canvas up the page with it, so the point would never leave and its
+      // mask would lie across the products. There it slides out as the box climbs from the foot of the screen
+      // to 60 % of it, which is where the products begin (mountWeave).
+      if (point.free)
+        at += (open - at) * gsap.utils.clamp(0, 1, (window.innerHeight - seam.getBoundingClientRect().top) / (0.4 * window.innerHeight));
+      const local = Math.round(Math.max(open, at));
       if (local !== pointAt) {
         pointAt = local;
         yarn.style.setProperty('--seam', `${local}px`);

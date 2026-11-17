@@ -7,8 +7,10 @@
 //             the smallest font size of any p, li or small in <main>
 //   contrast  text on the Vision / Mission picture against the darkest and the lightest pixel under it
 //   reduced   the same walk under prefers-reduced-motion at 1440x900: nothing sticky, no copy hidden
+//   reducedproducts  under reduced motion, 1440x900 and 390x844, /en and /vi: scrolling through #craft, the
+//             stage shows tote, mug and coaster while at least 60 % of its box is on screen
 //
-// Usage: node scripts/qa-fuller-b.mjs <pace|walk|contrast|reduced|all> [--base http://localhost:3112] [--out qa/fuller/b]
+// Usage: node scripts/qa-fuller-b.mjs <pace|walk|contrast|reduced|reducedproducts|all> [--base http://localhost:3112] [--out qa/fuller/b]
 // Exit 1 when a check fails.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -303,6 +305,41 @@ async function contrast() {
   }
 }
 
+// ── reducedproducts ───────────────────────────────────────────────────────────────────────────────
+async function reducedProducts() {
+  // the stage's data-key indexes the manifest's keys; the last three are the tote, mug and coaster frames
+  const names = ['tote', 'mug', 'coaster'];
+  const count = JSON.parse(fs.readFileSync(path.resolve('public/film/weave/manifest.json'), 'utf8')).keys.length;
+  const keyOf = [count - 3, count - 2, count - 1]; // indexes, as data-key holds them, not frame numbers
+  for (const route of ['/en', '/vi']) {
+    for (const size of [DESKTOP, PHONE]) {
+      const h = size[1];
+      const page = await open(route, size, { reducedMotion: 'reduce' });
+      const [from, to] = await page.evaluate(() => {
+        const r = document.querySelector('#craft').getBoundingClientRect();
+        return [Math.round(r.top + scrollY - innerHeight), Math.round(r.bottom + scrollY)];
+      });
+      const seen = new Set();
+      let steps = 0;
+      for (let y = from; y <= to; y += Math.round(h * 0.08)) {
+        await page.evaluate((yy) => window.scrollTo(0, yy), y);
+        const shown = () => {
+          const r = document.querySelector('#craft [data-seam]').getBoundingClientRect();
+          return (Math.min(r.bottom, innerHeight) - Math.max(r.top, 0)) / r.height >= 0.6;
+        };
+        if (!(await page.evaluate(shown))) continue;
+        await page.waitForTimeout(900); // scrub and key load settle
+        steps++;
+        const key = await page.evaluate(() => document.querySelector('#craft [data-film="weave"]').dataset.key);
+        seen.add(key);
+      }
+      const hit = names.filter((_, i) => seen.has(String(keyOf[i])));
+      check(hit.length === 3, `reduced ${route} ${size.join('x')}: stage keys seen [${[...seen].join(', ')}] over ${steps} steps with 60 % of the stage on screen; products seen: ${hit.join(', ') || 'none'} (need ${names.join(', ')} = keys ${keyOf.join(', ')})`);
+      await page.close();
+    }
+  }
+}
+
 if (what === 'pace' || what === 'all') await pace();
 if (what === 'walk' || what === 'all') {
   await walk('/en', DESKTOP);
@@ -311,6 +348,7 @@ if (what === 'walk' || what === 'all') {
 }
 if (what === 'contrast' || what === 'all') await contrast();
 if (what === 'reduced' || what === 'all') await walk('/en', DESKTOP, true);
+if (what === 'reducedproducts' || what === 'all') await reducedProducts();
 await browser.close();
 console.log(failed ? `\n${failed} check(s) failed` : '\nall checks passed');
 process.exit(failed ? 1 : 0);
