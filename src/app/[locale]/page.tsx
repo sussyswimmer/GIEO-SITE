@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Bloom } from '@/components/home/Bloom';
+import { HeroLoader } from '@/components/home/HeroLoader';
 import { Hands } from '@/components/home/Hands';
 import { Involve } from '@/components/home/Involve';
 import { Journal } from '@/components/home/Journal';
@@ -30,9 +31,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const hero = await getTranslations({ locale, namespace: 'home.hero' });
 
   return (
     <>
+      {/* The loader: over everything from the first paint; never shown without JS. */}
+      <noscript>
+        <style>{'.site-loader{display:none!important}'}</style>
+      </noscript>
+      <HeroLoader word={hero('headline')} />
       <Thread />
       <Sow />
       <Weave />

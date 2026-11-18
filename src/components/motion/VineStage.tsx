@@ -1,24 +1,23 @@
 'use client';
 
-import { lazy, Suspense, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useMotionStore } from '@/lib/motion-store';
 
 // One import, started early and reused by lazy(): the chunk (three.js, R3F, the scene) is on its way as
 // soon as the page has loaded, so the vine is usually there before the first scroll.
 let chunk: Promise<typeof import('./VineScene')> | null = null;
-const load = () => (chunk ??= import('./VineScene'));
-const VineCanvas = lazy(load);
+/** Starts (once) the scene's code on its way; HeroLoader waits on it too. */
+export const loadVine = () => (chunk ??= import('./VineScene'));
+const VineCanvas = lazy(loadVine);
 
 /**
  * The hero's Act 1 layer (docs/superpowers/specs/2026-11-17-vine-hero-design.md): over the seed film, under
  * the word. On the Full tier it mounts its own small canvas (the shared one sits under all page content, so
- * it cannot draw over the film). While that loads, a slim loading bar under the word shows real progress
- * (Maxwell, 2026-11-17: without it the first scroll looked frozen): page loaded, tier known, code loaded,
- * scene drawn. On any other tier, with reduced motion, or without JS, there is no vine and no bar.
+ * it cannot draw over the film). While that loads, the page's loader is up (HeroLoader). On any other tier,
+ * with reduced motion, or without JS, there is no vine.
  */
 export function VineStage() {
   const tier = useMotionStore((s) => s.tier);
-  const [p, setP] = useState(0); // 0: no bar yet (server render, reduced motion)
   const [done, setDone] = useState(false);
   const [failed, setFailed] = useState(false); // the scene's code did not load: no vine, so no cover either
   const cover = useRef<HTMLCanvasElement>(null);
@@ -63,42 +62,18 @@ export function VineStage() {
     };
   }, []);
 
+  // Where no vine is coming (another tier, or its code failed to load), the cover goes and the film shows.
   useEffect(() => {
-    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const raise = (to: number) => setP((now) => Math.max(now, to));
-    const drawn = () => raise(1);
-    raise(0.12);
-    const onLoad = () => {
-      raise(0.3);
-      void load().then(() => raise(0.75), () => {
-        setDone(true);
-        setFailed(true);
-      });
-    };
-    if (document.readyState === 'complete') onLoad();
-    else window.addEventListener('load', onLoad, { once: true });
-    window.addEventListener('gieo:vine', drawn);
-    const giveUp = setTimeout(() => setDone(true), 15000); // never leave a bar hanging
-    return () => {
-      window.removeEventListener('load', onLoad);
-      window.removeEventListener('gieo:vine', drawn);
-      clearTimeout(giveUp);
-    };
-  }, []);
-
-  // The tier decides whether a vine is coming at all.
-  useEffect(() => {
-    if (!tier) return;
-    if (tier === 'full') setP((now) => Math.max(now, 0.5));
-    else setDone(true);
+    if (tier && tier !== 'full') setDone(true);
   }, [tier]);
-
-  // Full: let the bar reach the end before it fades.
   useEffect(() => {
-    if (p < 1) return;
-    const id = setTimeout(() => setDone(true), 450);
-    return () => clearTimeout(id);
-  }, [p]);
+    if (tier !== 'full') return;
+    let live = true;
+    loadVine().catch(() => live && setFailed(true));
+    return () => {
+      live = false;
+    };
+  }, [tier]);
 
   return (
     <div data-vine aria-hidden="true" className="pointer-events-none absolute inset-0">
@@ -107,11 +82,6 @@ export function VineStage() {
         <Suspense fallback={null}>
           <VineCanvas />
         </Suspense>
-      )}
-      {p > 0 && (
-        <div className="vine-load" data-done={done ? '' : undefined} style={{ '--p': p } as CSSProperties}>
-          <span />
-        </div>
       )}
     </div>
   );

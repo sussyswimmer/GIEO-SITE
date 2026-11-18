@@ -400,17 +400,40 @@
   .vine-cover[data-on] { opacity: 1; }
   .vine-cover[data-off] { opacity: 0 !important; transition: opacity 400ms var(--curve-out); }
 
-  /* The vine's loading bar (VineStage): slim, under the word, while the 3D loads; gone once it is drawn. */
-  .vine-load {
-    position: absolute; left: 50%; bottom: 9svh; width: min(12rem, 44vw); height: 3px; translate: -50% 0;
-    border-radius: 3px; background-color: var(--plum-ink-a16); overflow: hidden;
-    transition: opacity 500ms var(--curve-out);
+  /* The home page's loader (HeroLoader): the whole screen, cream, the word and a bar, from the first paint.
+     It fades when done; the animation is the safety net that takes it away after 12 s whatever the script
+     does. Nothing under it scrolls while it is up (html[data-loading]). Reduced motion: no vine is coming, so no loader. */
+  .site-loader {
+    position: fixed; inset: 0; z-index: 95; display: grid; place-content: center; justify-items: center; gap: 1.5rem;
+    background-color: var(--cream);
+    background-image: radial-gradient(60% 50% at 50% 46%, var(--peach-glow-a35), transparent 70%);
+    transition: opacity 700ms var(--curve-out), visibility 0s 700ms;
+    animation: site-loader-out 600ms var(--curve-out) 12s forwards;
   }
-  .vine-load > span {
+  .site-loader > p { font-size: clamp(3rem, 12vw, 7rem); line-height: 1; letter-spacing: 0.02em; }
+  .site-loader-bar {
+    width: min(14rem, 52vw); height: 3px; border-radius: 3px; background-color: var(--plum-ink-a16); overflow: hidden;
+  }
+  .site-loader-bar > span {
     display: block; height: 100%; border-radius: inherit; background-color: var(--plum-ink);
     transform-origin: 0 50%; transform: scaleX(var(--p, 0)); transition: transform 500ms var(--curve-out);
   }
-  .vine-load[data-done] { opacity: 0; }
+  .site-loader[data-done] { opacity: 0; visibility: hidden; pointer-events: none; }
+  @keyframes site-loader-out { to { opacity: 0; visibility: hidden; } }
+  /* html[data-loading] is set and cleared by HeroLoader itself, so a page whose script never runs is never
+     left unable to scroll. */
+  html[data-loading] { overflow: hidden; }
+  @media (prefers-reduced-motion: reduce) { .site-loader { display: none; } }
+
+  /* The scroll cue (ScrollCue): an arrow at the foot of the first screen, nodding; it waits for the loader
+     and leaves once the reader scrolls. */
+  @keyframes scroll-cue { 0%, 100% { translate: -50% 0; } 50% { translate: -50% 0.5rem; } }
+  .scroll-cue {
+    position: absolute; left: 50%; bottom: max(1.25rem, 3svh); translate: -50% 0; color: var(--plum-ink);
+    animation: scroll-cue 1.8s ease-in-out infinite; transition: opacity 500ms var(--curve-out); pointer-events: none;
+  }
+  .scroll-cue[data-used], html[data-loading] .scroll-cue { opacity: 0; }
+  @media (prefers-reduced-motion: reduce) { .scroll-cue { animation: none; } }
 
   /* The hero's slim band: the word and its gloss, drifting sideways. The line is there twice, so -50 % loops. */
   @keyframes hero-band { to { transform: translateX(-50%); } }

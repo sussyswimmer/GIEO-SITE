@@ -619,3 +619,11 @@ Checked: `~/.playwright-mcp/gieo/seam4/` (14 positions, both sizes), 0 console e
 ### GitHub Pages (2026-11-18)
 
 Maxwell asked for the site to be hosted on GitHub for his team, and chose to make the repo public for it. `node scripts/build-pages.mjs` writes a static export to `out/` for `https://sussyswimmer.github.io/GIEO-SITE/`: `GIEO_STATIC=1` turns on `output: 'export'`, the base path and `localePrefix: 'always'`; the script sets `src/middleware.ts` and the on-demand `opengraph-image` aside for the build (and puts them back), prefixes the app's `/art/`, `/film/`, … paths with the base path in the output, and writes `.nojekyll` and a root `index.html` that goes to `/vi/`. `inlineCss` is off in this build (editing inlined CSS corrupts the page data: blank pages). The server build (`npm run build`) is unchanged. Published by pushing `out/` to the `gh-pages` branch; rerun the script and push again to update. Differences from the server build: every URL carries its locale, no social preview image, no automatic language choice.
+
+### Full-screen loader and scroll cue (2026-11-18)
+
+Maxwell asked for the loading bar to take the whole screen and fade into the hero, and for a sign that the page scrolls. Both are exceptions he asked for to CLAUDE.md's "no full-screen preloader" and docs/03's "no scroll-down pill".
+- `HeroLoader` (home page only, in page.tsx): a fixed cream screen with the word and the bar, from the first paint; the same real steps as before; fades when the vine is drawn, or as soon as the tier says none is coming. Safety: hidden by a `<noscript>` rule, not shown with reduced motion, a 10 s timer and a 12 s CSS animation both take it away, and the scroll lock (`html[data-loading]`) is set and lifted by the component itself. The small bar in `VineStage` is gone.
+- `ScrollCue` (in the hero's first screen): a nodding down-arrow, no words; waits for the loader, leaves on the first scroll.
+
+Checked on the production build at 1440×900, 390×844 and with reduced motion: `~/.playwright-mcp/gieo/loader1/`. Note: the loader now covers the headline at first paint, so LCP will have moved; not measured.

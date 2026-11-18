@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { ButtonLink, Container, FilmStage, Hairline, Section } from '@/components/ui';
 import { VineStage } from '@/components/motion/VineStage';
+import { ScrollCue } from './ScrollCue';
 
 /**
  * S0 Sow: the hero and the meaning of "gieo" in one pin (docs/07 §3, docs/08 H0 and H1). The first screen
@@ -50,6 +51,7 @@ export async function Sow() {
               </span>
             </h1>
           </Container>
+          <ScrollCue />
         </div>
 
         <Container>
