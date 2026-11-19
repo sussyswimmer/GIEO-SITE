@@ -1,0 +1,6 @@
+User-Agent: *
+Allow: /
+Disallow: /qa
+Disallow: /en/qa
+
+Sitemap: https://sussyswimmer.github.io/GIEO-SITE/sitemap.xml
