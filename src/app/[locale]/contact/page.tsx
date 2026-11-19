@@ -1,11 +1,9 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { ArtLife } from '@/components/pages/ArtLife';
 import { ContactForm } from '@/components/pages/ContactForm';
 import { ContactLinks } from '@/components/pages/ContactLinks';
 import { PageBand } from '@/components/pages/PageBand';
-import { art, still } from '@/components/pages/art';
 import { Container, Grid, Section } from '@/components/ui';
 import { routing } from '@/i18n/routing';
 import { alternates } from '@/lib/seo';
@@ -30,13 +28,13 @@ export default async function ContactPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations();
-  const picture = art('objects/knot') ?? still('spools');
 
   return (
     <>
-      <PageHeader title={t('contact.title')} intro={t('contact.intro')} art={art('pages/contact') ?? still('cloth')} />
+      {/* No picture (Maxwell, 2026-11-19): the title, then straight to the ways in, which slide up into place. */}
+      <PageHeader compact title={t('contact.title')} intro={t('contact.intro')} />
 
-      <Section tone="paper" from="cream" pad="none" id="reach" className="pt-section-sm pb-6">
+      <Section tone="paper" from="cream" pad="none" id="reach" className="pt-8 pb-6 lg:pt-12">
         <Container>
           <ContactLinks />
         </Container>
@@ -47,15 +45,8 @@ export default async function ContactPage({ params }: Props) {
 
       <Section tone="cream" from="paper" pad="none" id="write" className="pt-section-sm pb-section-sm">
         <Container>
-          <Grid className="items-center">
-            {picture && (
-              <ArtLife
-                art={picture}
-                sizes="(min-width: 1024px) 45vw, 70vw"
-                className="col-span-full -ml-gutter w-[70%] md:w-1/2 lg:col-start-1 lg:col-end-7 lg:ml-0 lg:w-auto"
-              />
-            )}
-            <div className="col-span-full mt-6 md:col-span-7 lg:col-start-7 lg:col-end-13 lg:mt-0">
+          <Grid>
+            <div className="col-span-full md:col-span-7 lg:col-start-4 lg:col-end-10">
               <ContactForm
                 siteName={t('meta.siteName')}
                 labels={{

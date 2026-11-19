@@ -125,6 +125,34 @@ function mountParallax() {
       { xPercent: to, ease: 'none', scrollTrigger: { trigger: band, start: 'top bottom', end: 'bottom top', scrub: SCRUB } },
     );
   });
+  // A line of type that slides as its block crosses the screen: data-slide is the travel each way, in % of
+  // its own width (negative: the other way). Two lines with opposite signs pass each other.
+  all('[data-slide]').forEach((el) => {
+    const v = Number(el.dataset.slide);
+    gsap.fromTo(
+      el,
+      { xPercent: v },
+      { xPercent: -v, ease: 'none', scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: SCRUB } },
+    );
+  });
+  // A loose petal or leaf: it floats up past its place by data-float px each way, turning a little as it goes.
+  all('[data-float]').forEach((el, i) => {
+    const v = Number(el.dataset.float);
+    gsap.fromTo(
+      el,
+      { y: v, rotation: i % 2 ? -40 : 30 },
+      { y: -v, rotation: i % 2 ? 50 : -45, ease: 'none', scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: SCRUB } },
+    );
+  });
+  // A ring that turns with the scroll: data-spin is the turn each way, in degrees.
+  all<SVGElement>('[data-spin]').forEach((el) => {
+    const v = Number(el.dataset.spin);
+    gsap.fromTo(
+      el,
+      { rotation: -v, svgOrigin: '50 50' },
+      { rotation: v, svgOrigin: '50 50', ease: 'none', scrollTrigger: { trigger: el.closest('svg'), start: 'top bottom', end: 'bottom top', scrub: SCRUB } },
+    );
+  });
   // A full-bleed picture settles as it crosses the screen (docs/08 H3: 1.08 → 1). Its wrapper clips it.
   all('[data-zoom]').forEach((el) => {
     gsap.fromTo(
@@ -384,9 +412,31 @@ function mountWeave(reduced: boolean): () => void {
   const roots = document.documentElement.dataset.roots === 'on';
   const start = (weights[0] + weights[1] + (roots ? weights[2] : 0)) / made;
   const v = { cloth: start, p0: 0, p1: 0, p2: 0 };
+  // One product gives way to the next by gliding (Maxwell, 2026-11-19: "super laggy"). The film makes each
+  // change in about eight frames (a wipe), which scrubbed over a quarter of a screen is eight jumps. So the
+  // stage itself carries the change, at the screen's own rate: the product at rest glides out and fades, the
+  // film skips its wipe while nothing shows (`WIPE` frames of each 20-frame beat), and the next glides in.
+  const glideStage = reduced ? null : craft.querySelector<HTMLElement>('[data-film]');
+  const WIPE = [9 / 20, 5 / 20]; // mug, coaster: where each beat's wipe ends and the product stands whole
+  let glided = '';
   const push = () => {
-    const now = [...beatsAt('weave', (made * v.cloth) / total).slice(0, 4), v.p0, v.p1, v.p2];
+    const pose = (p: number, wipe: number) => (!glideStage ? p : p < 0.5 ? 0 : wipe + (p - 0.5) * 2 * (1 - wipe));
+    const now = [...beatsAt('weave', (made * v.cloth) / total).slice(0, 4), v.p0, pose(v.p1, WIPE[0]), pose(v.p2, WIPE[1])];
     useMotionStore.setState({ weave: Object.fromEntries(beats.map((b, i) => [b, now[i]])) as Record<WeaveBeat, number> });
+    if (glideStage) {
+      // The change in flight, if any: out to the left over its first half, in from the right over its second.
+      const p = v.p2 > 0 && v.p2 < 1 ? v.p2 : v.p1 > 0 && v.p1 < 1 ? v.p1 : 0;
+      const k = p < 0.5 ? p * 2 : (1 - p) * 2; // 0 at rest, 1 where the film changes product
+      const x = (p < 0.5 ? -1 : 1) * 16 * k * k;
+      const next = `${x.toFixed(2)}%,${(1 - k * k * (3 - 2 * k)).toFixed(3)}`;
+      if (next !== glided) {
+        glided = next;
+        glideStage.style.setProperty('--glide-x', `${x.toFixed(2)}%`);
+        glideStage.style.setProperty('--glide-o', next.split(',')[1]);
+      }
+    }
+    now[5] = v.p1; // the names below follow the scroll, not the film's frames
+    now[6] = v.p2;
     credit?.toggleAttribute('data-on', now[3] > 0); // from the drape: the cloth is becoming a product
     tiles.forEach((li, i) => {
       // A name is lit from the moment its product is more in than out, until the next one is.
@@ -446,6 +496,8 @@ function mountWeave(reduced: boolean): () => void {
   return () => {
     ScrollTrigger.removeEventListener('refreshInit', size);
     run.style.removeProperty('--weave-run');
+    glideStage?.style.removeProperty('--glide-x');
+    glideStage?.style.removeProperty('--glide-o');
     // a reverted tween never fires onUpdate
     tiles.forEach((li) => delete li.dataset.active);
     credit?.removeAttribute('data-on');
@@ -522,6 +574,9 @@ function mountBloom(reduced: boolean): () => void {
 function mountThread(reduced: boolean): () => void {
   const svg = document.querySelector<SVGSVGElement>('svg[data-thread]');
   const path = svg?.querySelector<SVGPathElement>('[data-thread-run]');
+  const light = svg?.querySelector<SVGPathElement>('[data-thread-light]');
+  const budsBox = svg?.querySelector<SVGGElement>('[data-thread-buds]');
+  const tipBox = svg?.querySelector<SVGGElement>('[data-thread-tip]');
   const pathIn = svg?.querySelector<SVGPathElement>('[data-thread-in]');
   const main = svg?.parentElement;
   const hero = document.querySelector<HTMLElement>('#hero');
@@ -537,15 +592,70 @@ function mountThread(reduced: boolean): () => void {
   const CLEAR = 16; // px kept between the thread and the nearest line of copy
   // Length along the path at each height, worked out here rather than asked of the SVG: sampling
   // getPointAtLength down the whole page cost a 100 ms task per build. The path only ever runs down.
-  let marks: { y: number; l: number }[] = [];
+  let marks: { x: number; y: number; l: number }[] = [];
   let total = 0;
+  // The thread is a vine (Maxwell, 2026-11-19): leaves, tendrils and blossoms stand along it, each at a
+  // length down the path, and each opens when the growing tip has passed it (`open` of them are open now).
+  let buds: { l: number; el: Element }[] = [];
+  let open = 0;
+  // Where the path is at length l, and which way it is heading there (degrees; 90 is straight down).
+  const at = (l: number) => {
+    let i = marks.findIndex((m) => m.l >= l);
+    if (i < 1) i = i < 0 ? marks.length - 1 : 1;
+    const a = marks[i - 1];
+    const b = marks[i];
+    if (!a || !b) return { x: 0, y: 0, deg: 90 };
+    const t = Math.min(1, Math.max(0, (l - a.l) / (b.l - a.l || 1)));
+    return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t, deg: (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI };
+  };
+  const grow = (gutter: number, wide: boolean) => {
+    if (!budsBox) return;
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+    const n = (v: number) => v.toFixed(1);
+    const S = Math.max(wide ? 13 : 8, Math.min(28, gutter * (wide ? 0.56 : 0.4))); // a leaf's length: it must stay inside the gutter
+    const leaf = (len: number, tone: number) =>
+      `<path class="pvine-leaf" data-tone="${tone}" d="M0 0C${n(len * 0.28)} ${n(-len * 0.4)} ${n(len * 0.78)} ${n(-len * 0.3)} ${n(len)} 0C${n(len * 0.78)} ${n(len * 0.3)} ${n(len * 0.28)} ${n(len * 0.4)} 0 0Z"/>` +
+      `<path class="pvine-rib" d="M${n(len * 0.08)} 0L${n(len * 0.9)} 0"/>`;
+    const flower = (r: number, deep: boolean) => {
+      const c = r * 1.5; // on a short stalk off the stem
+      let out = `<path class="pvine-stalk" d="M0 0L${n(c)} 0"/><g transform="translate(${n(c)} 0) rotate(${n(rnd() * 72)})"${deep ? ' data-deep=""' : ''}>`;
+      for (let k = 0; k < 5; k++) out += `<ellipse class="pvine-petal" cx="${n(r * 0.58)}" rx="${n(r * 0.56)}" ry="${n(r * 0.4)}" transform="rotate(${k * 72})"/>`;
+      return `${out}<circle class="pvine-throat" r="${n(r * 0.3)}"/><circle class="pvine-eye" r="${n(r * 0.14)}"/></g>`;
+    };
+    const curl = (len: number) => {
+      const k = len / 16;
+      const c = (...v: number[]) => v.map((q) => n(q * k)).join(' ');
+      return `<path class="pvine-curl" d="M0 0C${c(5, -3, 13, -5, 16, 1)}C${c(18, 6, 12, 10, 9.5, 6)}C${c(8, 3, 11.5, 2, 12, 4.5)}"/>`;
+    };
+    let html = '';
+    const made: number[] = [];
+    let side = 1;
+    let k = 0;
+    for (let l = 24 + rnd() * 30; l < total - 30; l += (wide ? 58 : 46) + rnd() * 54, k++) {
+      const p = at(l);
+      side = -side;
+      const kind = k % 5 === 2 ? 'flower' : k % 7 === 5 ? 'curl' : 'leaf';
+      // Leaves and tendrils reach out and a little forward (down the page, the way it grows); a flower stands straight out.
+      const turn = kind === 'flower' ? 90 : 38 + rnd() * 34;
+      const body =
+        kind === 'flower' ? flower(S * (0.42 + rnd() * 0.12), k % 2 === 0) : kind === 'curl' ? curl(S * 0.8) : leaf(S * (0.72 + rnd() * 0.4), k % 3);
+      html += `<g transform="translate(${n(p.x)} ${n(p.y)}) rotate(${n(p.deg - side * turn)})"><g class="pvine-bud">${body}</g></g>`;
+      made.push(l + 10); // open once the tip is a little past
+    }
+    budsBox.innerHTML = html;
+    buds = [...budsBox.querySelectorAll('.pvine-bud')].map((el, i) => ({ el, l: made[i] }));
+    open = 0;
+    if (tipBox) tipBox.innerHTML = `<g transform="rotate(-28)">${leaf(S * 0.5, 1)}</g><g transform="rotate(28)">${leaf(S * 0.5, 0)}</g>`;
+  };
 
   const build = () => {
     const gutter = parseFloat(getComputedStyle(svg).scrollMarginLeft);
     const page = main.getBoundingClientRect();
     const wrap = main.querySelector('.px-gutter')!.getBoundingClientRect();
-    const x = { left: wrap.left - page.left + gutter / 2, right: wrap.right - page.left - gutter / 2 };
     const wide = matchMedia('(min-width: 64rem)').matches;
+    // On a phone the gutter is narrow and the copy starts right after it: the vine keeps to its outer third.
+    const x = { left: wrap.left - page.left + gutter * (wide ? 0.5 : 0.3), right: wrap.right - page.left - gutter / 2 };
     // The highest or lowest line of copy in a section, in page coordinates.
     const edge = (section: HTMLElement, side: 'top' | 'bottom') => {
       const ys = [...section.querySelectorAll(COPY)]
@@ -578,6 +688,9 @@ function mountThread(reduced: boolean): () => void {
     const sections = threaded.slice(threaded.findIndex((s) => s === craft) + 1);
     if (!sections.length) {
       path.removeAttribute('d');
+      light?.removeAttribute('d');
+      budsBox?.replaceChildren();
+      buds = [];
       marks = [];
       return draw();
     }
@@ -621,7 +734,7 @@ function mountThread(reduced: boolean): () => void {
     });
     let d = `M${pts[0][0]} ${pts[0][1]}`;
     total = 0;
-    marks = [{ y: pts[0][1], l: 0 }];
+    marks = [{ x: pts[0][0], y: pts[0][1], l: 0 }];
     for (let k = 1; k < pts.length; k++) {
       const [x0, y0] = pts[k - 1];
       const [x1, y1] = pts[k];
@@ -636,13 +749,16 @@ function mountThread(reduced: boolean): () => void {
         const bx = u * u * u * x0 + 3 * u * u * t * c0 + 3 * u * t * t * c1 + t * t * t * x1;
         total += Math.hypot(bx - lx, h / 12);
         lx = bx;
-        marks.push({ y: y0 + h * t, l: total });
+        marks.push({ x: bx, y: y0 + h * t, l: total });
       }
     }
-    path.setAttribute('d', d);
-    svg.querySelector('linearGradient')!.setAttribute('y2', String(page.height));
     // The chords come up a hair short of the true length: the long gap keeps that last sliver from showing as a dot.
-    path.style.strokeDasharray = `${total} ${total * 2}`;
+    [path, light].forEach((el) => {
+      el?.setAttribute('d', d);
+      if (el) el.style.strokeDasharray = `${total} ${total * 2}`;
+    });
+    svg.style.setProperty('--pvine-w', `${wide ? 5 : 3.5}px`);
+    grow(gutter, wide);
     draw();
   };
   const draw = () => {
@@ -657,13 +773,30 @@ function mountThread(reduced: boolean): () => void {
         seam.style.setProperty('--seam-box', `${Math.max(0, local + point.off)}px`);
       }
     }
-    if (reduced) return void (path.style.strokeDashoffset = '0'); // drawn in full: nothing animates
-    const tip = window.innerHeight * THREAD_TIP - main.getBoundingClientRect().top;
-    const i = marks.findIndex((m) => m.y >= tip);
-    const a = marks[i - 1];
-    const b = marks[i];
-    const drawn = i < 0 ? total : !a ? 0 : a.l + ((tip - a.y) / (b.y - a.y || 1)) * (b.l - a.l);
-    path.style.strokeDashoffset = String(total - drawn);
+    let drawn = total; // reduced motion: drawn in full, every bud open, nothing animates
+    if (!reduced) {
+      const tip = window.innerHeight * THREAD_TIP - main.getBoundingClientRect().top;
+      const i = marks.findIndex((m) => m.y >= tip);
+      const a = marks[i - 1];
+      const b = marks[i];
+      drawn = i < 0 ? total : !a ? 0 : a.l + ((tip - a.y) / (b.y - a.y || 1)) * (b.l - a.l);
+    }
+    const off = String(total - drawn);
+    path.style.strokeDashoffset = off;
+    if (light) light.style.strokeDashoffset = off;
+    // A round cap on nothing is a dot: no stem until there is some.
+    path.style.visibility = drawn > 1 ? '' : 'hidden';
+    if (light) light.style.visibility = path.style.visibility;
+    // Written only on change: one bud at a time as the tip passes it, or closes on the way back up.
+    while (open < buds.length && buds[open].l <= drawn) buds[open++].el.setAttribute('data-on', '');
+    while (open > 0 && buds[open - 1].l > drawn) buds[--open].el.removeAttribute('data-on');
+    if (tipBox) {
+      // The growing tip: a pair of young leaves riding the end of the stem.
+      const live = !reduced && drawn > 1 && drawn < total - 1;
+      const p = live ? at(drawn) : null;
+      tipBox.style.visibility = p ? '' : 'hidden';
+      if (p) tipBox.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${p.deg.toFixed(1)})`);
+    }
   };
 
   // onRefresh covers resize and late fonts; the film event arrives when the seed manifest gives the real exit point.
@@ -674,6 +807,9 @@ function mountThread(reduced: boolean): () => void {
     trigger.kill();
     window.removeEventListener('gieo:film', build);
     path.removeAttribute('d');
+    light?.removeAttribute('d');
+    budsBox?.replaceChildren();
+    tipBox?.replaceChildren();
     pathIn.removeAttribute('d');
     yarn?.style.removeProperty('--seam');
     seam?.style.removeProperty('--seam-box');

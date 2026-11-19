@@ -2,13 +2,15 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { KineticBand } from '@/components/home/KineticBand';
 import { VisionMission } from '@/components/home/VisionMission';
-import { PageHeader } from '@/components/layout/PageHeader';
+import { Involve } from '@/components/home/Involve';
+import { AboutHero } from '@/components/pages/AboutHero';
 import { ArtLife } from '@/components/pages/ArtLife';
 import { DepartmentList } from '@/components/pages/DepartmentList';
 import { DictionaryEntry } from '@/components/pages/DictionaryEntry';
 import { PartnerBlock } from '@/components/pages/PartnerBlock';
 import { art, still } from '@/components/pages/art';
-import { Container, Grid, Heading, PillarCard, Prose, Section, Todo } from '@/components/ui';
+import type { CSSProperties } from 'react';
+import { Container, Grid, Hairline, Heading, Prose, Section, Todo } from '@/components/ui';
 import { routing } from '@/i18n/routing';
 import { alternates } from '@/lib/seo';
 
@@ -40,10 +42,11 @@ export default async function AboutPage({ params }: Props) {
 
   return (
     <>
-      <PageHeader title={t('about.title')} intro={t('about.intro')} art={art('pages/about') ?? still('sprouts')} />
+      {/* Redone (Maxwell, 2026-11-19: "too weak"): the name itself is the first screen, on plum. */}
+      <AboutHero title={t('about.title')} name={t('home.hero.eyebrow')} intro={t('about.intro')} art={art('pages/about') ?? still('sprouts')} />
 
       {/* The word, set large, with what GIEO does beside it. */}
-      <Section tone="paper" from="cream" pad="none" id="story" labelledBy="story-title" className="pt-section-sm pb-section-sm">
+      <Section tone="paper" from="plum" pad="none" id="story" labelledBy="story-title" className="pt-section-sm pb-section-sm">
         <Container>
           <Grid className="items-start">
             <DictionaryEntry
@@ -68,26 +71,31 @@ export default async function AboutPage({ params }: Props) {
         </Container>
       </Section>
 
-      {/* Three wide cards beside the heading; the band below runs their titles sideways, as on the home page. */}
+      {/* The three pillars as three full-width rows: the title very large, sliding up from under its stitch
+          as the row is reached, its paragraph beside it. The band below runs the titles sideways. */}
       <Section tone="cream" from="paper" glow="blush" pad="none" id="about-pillars" labelledBy="about-pillars-title" className="pt-section-sm pb-6">
         <Container>
-          <Grid className="items-start">
-            <div className="col-span-full lg:col-end-6">
-              <Heading id="about-pillars-title" className="max-w-(--measure-heading)">
-                {tp('heading')}
-              </Heading>
-              {buds && (
-                <ArtLife art={buds} sizes="(min-width: 1024px) 22vw, 40vw" className="mt-2 ml-auto w-2/5 max-lg:hidden lg:mx-auto lg:mt-8 lg:w-1/2" />
-              )}
-            </div>
-            <ul role="list" className="col-span-full mt-6 flex flex-col gap-4 lg:col-start-6 lg:col-end-13 lg:mt-4 lg:gap-6">
-              {PILLARS.map((key) => (
-                <li key={key}>
-                  <PillarCard title={tp(`${key}.title`)} body={tp(`${key}.body`)} />
-                </li>
-              ))}
-            </ul>
+          <Grid className="items-end">
+            <Heading id="about-pillars-title" className="col-span-full lg:col-end-9">
+              {tp('heading')}
+            </Heading>
+            {buds && <ArtLife art={buds} sizes="(min-width: 1024px) 14vw, 30vw" className="col-span-full ml-auto w-1/4 max-lg:hidden lg:col-start-11 lg:col-end-13 lg:-mb-10 lg:w-auto" />}
           </Grid>
+          <ul role="list" className="mt-6 lg:mt-10">
+            {PILLARS.map((key, i) => (
+              <li key={key} data-enter className="slide-row">
+                <Hairline />
+                <Grid className="items-start py-6 lg:py-10">
+                  <h3 className="col-span-full font-serif text-[clamp(2.25rem,5.4vw,5.25rem)] leading-[1.02] tracking-(--ls-heading) text-balance italic text-fg-heading lg:col-end-7">
+                    <span className="slide-up" style={{ '--i': i } as CSSProperties}>
+                      <span>{tp(`${key}.title`)}</span>
+                    </span>
+                  </h3>
+                  <p className="col-span-full mt-4 text-lead font-light text-fg-strong lg:col-start-7 lg:col-end-13 lg:mt-3">{tp(`${key}.body`)}</p>
+                </Grid>
+              </li>
+            ))}
+          </ul>
         </Container>
       </Section>
       <KineticBand />
@@ -102,7 +110,9 @@ export default async function AboutPage({ params }: Props) {
         </Container>
       )}
 
-      <PartnerBlock heading={t('about.partnerHeading')} from="cream" />
+      {/* The three ways in, then the partner who makes the products. */}
+      <Involve />
+      <PartnerBlock heading={t('about.partnerHeading')} from="paper" />
     </>
   );
 }

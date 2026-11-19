@@ -76,7 +76,7 @@ export function Showroom({ name, body, credit, cloth, swatch, products, orderLab
   ) : undefined;
 
   return (
-    <Section tone="plum" from="cream" pad="none" id="hmong" labelledBy={titleId}>
+    <Section tone="plum" pad="none" id="hmong" labelledBy={titleId}>
       <div data-showroom-run data-scene-stage="showroom" className="showroom-run">
         <div className="showroom-pin">
           <ul role="list" data-showroom-track className="showroom-track">

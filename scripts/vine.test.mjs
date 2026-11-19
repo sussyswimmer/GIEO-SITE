@@ -17,15 +17,14 @@ test('the vine journeys round the letters first, at an even pace; the tree sprou
   assert.equal(stages(0.46).trunk, 0); // nothing of the tree before the vine has arrived
   const mid = stages(0.7);
   assert.ok(mid.trunk === 1 && mid.branches > 0.5 && mid.leaves > 0 && mid.blossoms === 0);
-  assert.equal(stages(0.86).swell, 1);
-  assert.equal(stages(0.86).fall, 0);
-  assert.equal(stages(0.975).fall, 1);
+  assert.equal(stages(0.84).swell, 1);
+  assert.equal(stages(0.84).fall, 0);
+  assert.equal(stages(0.94).fall, 1);
 });
 
-test('handoff: the backdrop fades only as the seed lands, and is gone when the film takes over', () => {
+test('handoff: the seed is down and at rest before the backdrop starts to fade (never two seeds)', () => {
   assert.equal(stages(0.95).fade, 0);
-  assert.ok(stages(0.955).fall > 0.6); // nearly down before the film's seed shows under it
-  assert.equal(stages(0.975).fall, 1);
+  for (let a = 0; a <= 1; a += 0.005) assert.ok(stages(a).fade === 0 || stages(a).fall === 1);
   assert.equal(stages(1).fade, 1);
 });
 

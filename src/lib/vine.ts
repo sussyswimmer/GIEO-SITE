@@ -26,6 +26,7 @@ export type Stages = {
   swell: number; // the seed grows on its branch tip
   fall: number; // and drops
   fade: number; // the painted backdrop gives way to the film under it
+  born: number; // the first sprout at load (VineScene runs it on the clock; 1 here)
 };
 
 /**
@@ -34,17 +35,19 @@ export type Stages = {
  * stalls); the trunk sprouts from its end; branches, leaves and blossoms follow; then the seed.
  */
 export function stages(a: number): Stages {
-  const t = step(a, 0.86, 0.975);
+  const t = step(a, 0.84, 0.94);
   return {
     vine: 0.14 + 0.86 * clamp01(a / 0.5), // on screen from the start: up and over the first letter
     trunk: step(a, 0.46, 0.62),
     branches: step(a, 0.56, 0.74),
     leaves: step(a, 0.6, 0.8),
     blossoms: step(a, 0.7, 0.82),
-    swell: step(a, 0.78, 0.86),
+    swell: step(a, 0.76, 0.84),
     fall: t * t, // gravity: slow off the branch, fast at the end
-    // only the painted backdrop fades (the plant stays): the film's seed appears under the 3D one as it lands
-    fade: step(a, 0.955, 1),
+    // One seed, never two (Maxwell, 2026-11-19): the seed has landed and is at rest on its mark before the
+    // backdrop starts to go; then the 3D seed dissolves into the film's own, on the same spot, as it does.
+    fade: step(a, 0.95, 1),
+    born: 1,
   };
 }
 

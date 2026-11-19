@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { PageHeader } from '@/components/layout/PageHeader';
+import { ItalicFaces } from '@/components/layout/PageHeader';
 import { PageBand } from '@/components/pages/PageBand';
+import { ParallaxHero } from '@/components/pages/ParallaxHero';
 import { Showroom } from '@/components/pages/Showroom';
 import { art, still } from '@/components/pages/art';
 import { routing } from '@/i18n/routing';
@@ -58,11 +59,8 @@ export default async function CollectionsPage({ params }: Props) {
 
   return (
     <>
-      <PageHeader
-        title={t('collections.title')}
-        intro={t('collections.intro')}
-        art={art('pages/collections') ?? still('cloth')}
-      />
+      <ItalicFaces />
+      <ParallaxHero title={t('collections.title')} intro={t('collections.intro')} />
       <Showroom
         name={t('collections.hmong.name')}
         body={t('collections.hmong.body')}

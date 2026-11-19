@@ -627,3 +627,18 @@ Maxwell asked for the loading bar to take the whole screen and fade into the her
 - `ScrollCue` (in the hero's first screen): a nodding down-arrow, no words; waits for the loader, leaves on the first scroll.
 
 Checked on the production build at 1440×900, 390×844 and with reduced motion: `~/.playwright-mcp/gieo/loader1/`. Note: the loader now covers the headline at first paint, so LCP will have moved; not measured.
+
+### Vine fixes, page vine, weave glide, Collections / About / Contact (2026-11-19)
+
+Maxwell's notes of the day, in order.
+- **Two seeds at the handoff.** The cover used to fade while the 3D seed was still falling, so the film's seed showed under it. Now the seed lands and rests first (`stages()`: fall done by 0.94, fade 0.95 to 1), comes to rest leaning like the film's seed and behind the plant (where the film's seed is), and dissolves into it on the same spot. Once the film leaves frame 0 the handoff is forced over (`useMotionStore.seed`), so a fast scroll never shows both.
+- **Vine floating on wide screens.** It is rooted: it comes up from under the foot of the screen (`by` in `buildTree`), then travels the word as before (`lead`, `vu`).
+- **More flowers.** Blossoms along the vine, each opening just after the tip passes; more on the twigs.
+- **The page line is the vine.** `Thread.tsx` and `mountThread`: a green stem with a lighter side, leaves, tendrils and blossoms that open as the growing tip passes (and close on the way back), a pair of young leaves riding the tip. SVG only, no new canvas. Reduced motion: drawn whole.
+- **Weave "super laggy".** Measured in a real Chrome window: the page held 120 fps; the film itself makes each product change in about 8 frames. So the stage now carries the change (`--glide-x`, `--glide-o`): the product glides out and fades, the film skips its wipe while hidden, the next glides in. Also new: `mountFrames` decodes frames directly with WebCodecs from `public/film/<scene>/<set>.h264` (+ `.h264.json` index, written by `node scripts/index-film.mjs`); browsers without it keep the mp4 seek. A motion-interpolated film was tried and rejected (ghosting).
+- **Hands "bland".** Name on two lines that slide against each other (`data-slide`), a bloom and a turning ring of running stitch behind the products (`data-spin`), petals and leaves floating past (`Flecks`, `data-float`).
+- **Collections first screen.** `ParallaxHero.tsx`: 21st.dev "Parallax Scrolling" by Osmo, adapted (no second Lenis; the title is the real h1). Three layers generated with Higgsfield (GPT Image 2.6, 8.25 credits) in `public/art/collections/`. The showroom's cream run-in is gone: the hero ends in plum.
+- **About, redone.** `AboutHero.tsx`: the full name on plum, one line per capital, initials in petal pink spelling GIEO down the edge; pillars as three large rows; departments as six tiles; the three ways in before the partner. No new copy.
+- **Contact.** Both pictures removed; links slide up from under their own line (`.slide-up`), in turn.
+
+Checked on the production build (`?tier=full`, port 3102), 1440×900, 2000×1140 and 390×844: hero handoff at 8 positions, weave run, Hands, Collections, About, Contact. `test:motion` 55/55, typecheck, lint (0 errors), `content:check` clean. Not checked: Safari and Firefox (WebCodecs path, `overflow: clip` per axis), a real phone, Lite/Still tiers, LCP on Collections and About. Not deployed: GitHub Pages still has the old build. The `.h264` files add about 22 MB to the repo.

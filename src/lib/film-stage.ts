@@ -6,8 +6,9 @@ import { useMotionStore } from './motion-store';
 /**
  * Film playback (docs/07-redesign.md §4). Each [data-film] stage reads public/film/<scene>/manifest.json
  * once it is within 1.5 screens, draws the key frame nearest the scroll position into a canvas (the
- * poster; never an <img>, so it cannot become the LCP element), then scrubs an all-intra mp4 with one
- * resident frame. Opaque films draw to a 2D canvas; alpha films go through a small WebGL compositor.
+ * poster; never an <img>, so it cannot become the LCP element), then scrubs the film with one resident
+ * frame: decoded straight from the raw stream where the browser has WebCodecs (mountFrames: any frame in a
+ * few ms), by seeking an all-intra mp4 where it has not (mountVideo). Opaque films draw to a 2D canvas; alpha films go through a small WebGL compositor.
  * Still tier (reduced motion, Save-Data, a video error or a 6 s stall) crossfades the key frames instead.
  * No manifest: the stage keeps its gradient and reports data-media="none".
  */
@@ -74,7 +75,7 @@ function painter(
   set: FilmSet,
   alpha: boolean,
   vista?: () => HTMLImageElement | null,
-): ((v: HTMLVideoElement, frame: number) => void) | null {
+): ((v: HTMLVideoElement | VideoFrame, frame: number) => void) | null {
   if (!alpha) {
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx || !vista) return ctx && ((v) => ctx.drawImage(v, 0, 0, set.w, set.h));
@@ -201,6 +202,149 @@ function mountVideo(
   };
 }
 
+/**
+ * Scrubs <scene>/<set>.h264 (scripts/index-film.mjs): every frame is a key frame, so the frame the scroll
+ * asks for is decoded on its own, in a few ms, with no seek. Seeking a <video> took 25 to 100 ms a frame,
+ * which showed as a film that stutters behind the scroll (Maxwell, 2026-11-19: "super laggy"). Anything
+ * missing or failing (no WebCodecs, no stream on the server, an unsupported codec) hands over to mountVideo.
+ */
+function mountFrames(
+  m: FilmManifest,
+  set: FilmSet,
+  stage: HTMLElement,
+  onShown: () => void,
+  fail: () => void,
+  vista?: () => HTMLImageElement | null,
+): Video | null {
+  const seekInstead = () => mountVideo(m, set, stage, onShown, fail, vista);
+  if (typeof VideoDecoder === 'undefined' || typeof EncodedVideoChunk === 'undefined') return seekInstead();
+
+  let dead = false;
+  let other: Video | null = null; // the mp4 player, once this one has given up
+  let canvas: HTMLCanvasElement | null = null;
+  let paint: ReturnType<typeof painter> = null;
+  let decoder: VideoDecoder | null = null;
+  let data: Uint8Array | null = null;
+  let offsets: number[] = [];
+  let target = 0;
+  let shown = -1;
+  let busy = false;
+  let got: VideoFrame | null = null; // what the decoder gave for the frame in flight
+  let held: VideoFrame | null = null; // the frame on screen, kept for a redraw
+
+  const giveUp = () => {
+    if (dead || other) return;
+    try {
+      if (decoder?.state !== 'closed') decoder?.close();
+    } catch {}
+    decoder = null;
+    got?.close();
+    held?.close();
+    got = held = null;
+    canvas?.getContext('webgl')?.getExtension('WEBGL_lose_context')?.loseContext();
+    canvas?.remove();
+    canvas = null;
+    other = seekInstead();
+    if (other) other.update(target);
+    else fail();
+  };
+
+  const show = async () => {
+    if (dead || other || busy || !decoder || !data || !paint || !canvas || target === shown) return;
+    busy = true;
+    const want = target;
+    try {
+      decoder.decode(new EncodedVideoChunk({ type: 'key', timestamp: want, data: data.subarray(offsets[want], offsets[want + 1]) }));
+      await decoder.flush(); // every frame stands alone: the decoder gives it now, not after the next
+    } catch {
+      return giveUp();
+    }
+    if (dead || other) return;
+    busy = false;
+    const frame = got;
+    got = null;
+    if (!frame) return giveUp();
+    paint(frame, want);
+    held?.close();
+    held = frame;
+    if (shown < 0) {
+      canvas.dataset.on = '';
+      onShown();
+    }
+    shown = want;
+    canvas.dataset.frame = String(shown);
+    void show(); // the scroll has moved on meanwhile: straight to where it is now
+  };
+
+  const base = `/film/${m.scene}/${set.id}.h264`;
+  const stall = setTimeout(() => shown < 0 && giveUp(), STALL_MS);
+  void (async () => {
+    try {
+      const index = await fetch(`${base}.json`);
+      if (!index.ok) {
+        void index.body?.cancel();
+        throw new Error(String(index.status));
+      }
+      const { codec, offsets: at } = (await index.json()) as { codec: string; offsets: number[] };
+      const config: VideoDecoderConfig = { codec, optimizeForLatency: true };
+      if (at.length !== m.frames + 1 || !(await VideoDecoder.isConfigSupported(config)).supported) throw new Error('unsupported');
+      const res = await fetch(base);
+      if (!res.ok) {
+        void res.body?.cancel();
+        throw new Error(String(res.status));
+      }
+      const bytes = new Uint8Array(await res.arrayBuffer());
+      if (dead || other) return;
+      if (bytes.length !== at[at.length - 1]) throw new Error('truncated');
+      canvas = document.createElement('canvas');
+      canvas.width = set.w;
+      canvas.height = set.h;
+      paint = painter(canvas, set, m.alpha, vista);
+      if (!paint) throw new Error('no compositor');
+      canvas.addEventListener('webglcontextlost', giveUp);
+      decoder = new VideoDecoder({
+        output: (frame) => {
+          got?.close();
+          got = frame;
+        },
+        error: giveUp,
+      });
+      decoder.configure(config);
+      offsets = at;
+      data = bytes;
+      stage.append(canvas);
+      void show();
+    } catch {
+      giveUp();
+    }
+  })();
+
+  return {
+    update(frame) {
+      target = frame;
+      if (other) other.update(frame);
+      else void show();
+    },
+    redraw() {
+      if (other) other.redraw();
+      else if (held && paint && !busy) paint(held, shown);
+    },
+    destroy() {
+      clearTimeout(stall);
+      other?.destroy();
+      if (other) return void (dead = true);
+      dead = true;
+      try {
+        if (decoder?.state !== 'closed') decoder?.close();
+      } catch {}
+      got?.close();
+      held?.close();
+      canvas?.getContext('webgl')?.getExtension('WEBGL_lose_context')?.loseContext();
+      canvas?.remove();
+    },
+  };
+}
+
 function mountStage(stage: HTMLElement) {
   const scene = stage.dataset.film as SceneName;
   let m: FilmManifest | null = null;
@@ -272,7 +416,7 @@ function mountStage(stage: HTMLElement) {
   const startVideo = () => {
     const t = tier();
     if (!m || video || still || !near || (t !== 'full' && t !== 'lite')) return;
-    video = mountVideo(
+    video = mountFrames(
       m,
       pickSet(m.sets, stage.clientWidth, stage.clientHeight, t === 'lite'), // the tier is only known here
       stage,

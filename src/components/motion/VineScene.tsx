@@ -26,6 +26,7 @@ import {
 } from 'three';
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { useMotionStore } from '@/lib/motion-store';
 import { approach } from '@/lib/showroom';
 import { act1, fallPoint, SEED_AT, stages, type Stages } from '@/lib/vine';
 import { token } from './weave-materials';
@@ -62,6 +63,7 @@ const CAP_BOTTOM = -0.97;
 const CY = (CAP_TOP + CAP_BOTTOM) / 2;
 const RY = (CAP_TOP - CAP_BOTTOM) / 2 + 0.06;
 const VINE_R0 = 0.017;
+const SEED_LEAN = 0.14; // rad: the film's seed in its frame 0 leans this far to the right
 
 // ---------------------------------------------------------------------------------------------------------
 // Stems: tubes that grow along their length, with bark.
@@ -262,7 +264,7 @@ function seedGeometry() {
     const y = pos.getY(i);
     const t = (y + 1) / 2;
     const th = Math.atan2(pos.getZ(i), pos.getX(i));
-    const r = (profile(t) / widest) * 0.272 * (1 + 0.05 * Math.cos(th * 11) * Math.sin(Math.PI * t));
+    const r = (profile(t) / widest) * 0.272 * (1 + 0.065 * Math.cos(th * 11) * Math.sin(Math.PI * t));
     pos.setXYZ(i, r * Math.cos(th), y * 0.5, r * Math.sin(th));
   }
   g.computeVertexNormals();
@@ -279,7 +281,7 @@ type Bud = { p: Vector3; rot: [number, number, number]; size: number; pop: (s: S
  * The vine and the tree for the word's letters (each [left, right] in word units), with the film's seed
  * mark at (mx, my) (word units, y up). Seeded, so the same screen always grows the same plant.
  */
-function buildTree(letters: [number, number][], mx: number, my: number) {
+function buildTree(letters: [number, number][], mx: number, my: number, by: number) {
   let s = 11;
   const rnd = () => ((s = (s * 16807) % 2147483647) - 1) / 2147483646;
   const group = new Group();
@@ -319,7 +321,12 @@ function buildTree(letters: [number, number][], mx: number, my: number) {
   // The vine's journey: from a small tip left of the first letter it weaves over the first letter, down
   // through the gap, under the next, up through the next gap, over the next, wraps once round the last
   // (the O) and climbs into the gap over the seed mark, where the trunk sprouts from it.
-  const pts: Vector3[] = [v3(letters[0][0] - 0.3, CAP_BOTTOM + 0.02), v3(letters[0][0] - 0.12, CY)];
+  // It is rooted: it comes up from under the foot of the screen (`by`, word units), so on a wide screen its
+  // start is never a cut end hanging in the air (Maxwell, 2026-11-19: "the vine is just floating").
+  const L = letters[0][0];
+  const foot = Math.min(by, CAP_BOTTOM - 0.3) - 0.25;
+  const START = v3(L - 0.3, CAP_BOTTOM + 0.02);
+  const pts: Vector3[] = [v3(L - 0.14, foot), v3(L - 0.44, (foot + CAP_BOTTOM) / 2), START, v3(L - 0.12, CY)];
   const arc = (x0: number, x1: number, from: number, to: number, stepBy: number) => {
     const cx = (x0 + x1) / 2;
     const rx = (x1 - x0) / 2 + 0.06;
@@ -336,10 +343,19 @@ function buildTree(letters: [number, number][], mx: number, my: number) {
   });
   pts.push(v3(mx + 0.06, CAP_TOP - 0.02), v3(mx, CAP_TOP + 0.06));
   const vineCurve = new CatmullRomCurve3(pts);
-  const vine = add(vineCurve, VINE_R0, twig, (st) => st.vine, { segs: 460, taper: 0.8, bark: 0.7, tip: twig });
-  for (let u = 0.015; u < 0.975; u += 0.02 + rnd() * 0.025) leafOn(vine, u, 0.15 + rnd() * 0.09, 0, true);
+  // `lead`: the share of the vine that is the way up from the foot of the screen. The journey round the
+  // word (stages().vine) is the rest; `vu` puts a share of the journey on the whole curve.
+  let lead = 0;
+  for (let i = 0, best = Infinity; i <= 400; i++) {
+    const d = vineCurve.getPointAt(i / 400).distanceToSquared(START);
+    if (d < best) [best, lead] = [d, i / 400];
+  }
+  const vu = (u: number) => lead + (1 - lead) * u;
+  const vineGrow = (st: Stages) => st.born * vu(st.vine);
+  const vine = add(vineCurve, VINE_R0, twig, vineGrow, { segs: 600, taper: 0.8, bark: 0.7, tip: twig });
+  for (let u = 0.015; u < vu(0.975); u += (0.02 + rnd() * 0.025) * (1 - lead)) leafOn(vine, u, 0.15 + rnd() * 0.09, 0, true);
   // Tendrils: thin green coils off the vine, each uncurling as the tip passes.
-  for (let u = 0.06; u < 0.95; u += 0.1 + rnd() * 0.06) {
+  for (let u = 0.04; u < vu(0.95); u += (0.1 + rnd() * 0.06) * (1 - lead)) {
     const o = vineCurve.getPointAt(u);
     const tan = vineCurve.getTangentAt(u);
     const out = v3(-tan.y, tan.x).multiplyScalar(rnd() < 0.5 ? 1 : -1);
@@ -350,7 +366,7 @@ function buildTree(letters: [number, number][], mx: number, my: number) {
       coil.push(o.clone().addScaledVector(out, 0.03 + 0.13 * t).add(v3(Math.cos(a) * r, Math.sin(a) * r, 0.03 * Math.sin(a))));
     }
     const at = u;
-    add(new CatmullRomCurve3(coil), 0.0045, fresh, (st) => sstep(st.vine, at + 0.01, at + 0.1), { segs: 48, taper: 0.5 });
+    add(new CatmullRomCurve3(coil), 0.0045, fresh, (st) => sstep(vineGrow(st), at + 0.01, at + 0.08), { segs: 48, taper: 0.5 });
   }
 
   // The trunk IS the vine, grown woody: it starts back along the vine's own last stretch, on the same path
@@ -362,7 +378,7 @@ function buildTree(letters: [number, number][], mx: number, my: number) {
   const lift = v3(0, 0, 0.012); // just in front of the vine it grows over
   const trunk = add(
     new CatmullRomCurve3([
-      ...[0.9, 0.93, 0.96, 0.985].map((u) => vineCurve.getPointAt(u).add(lift)),
+      ...[0.9, 0.93, 0.96, 0.985].map((u) => vineCurve.getPointAt(vu(u)).add(lift)),
       v3(mx, CAP_TOP + 0.06, 0.012),
       v3(mx - 0.035, CAP_TOP + 0.14),
       v3(mx + 0.025, CAP_TOP + 0.22),
@@ -378,15 +394,25 @@ function buildTree(letters: [number, number][], mx: number, my: number) {
   const span = letters[letters.length - 1][1] - letters[0][0];
   const reachScale = Math.max(0.6, span / 3.6);
   const boughs: number[] = [];
-  const bloom = (p: Vector3, size: number) => {
+  const bloom = (p: Vector3, size: number, pop?: Bud['pop']) => {
     const o2 = rnd();
     blossoms.push({
       p: p.clone().add(v3(0, 0, 0.06)),
       rot: [(rnd() - 0.5) * 0.7, (rnd() - 0.5) * 0.7, rnd() * Math.PI],
       size,
-      pop: (st) => sstep(st.blossoms, o2 * 0.6, o2 * 0.6 + 0.4),
+      pop: pop ?? ((st) => sstep(st.blossoms, o2 * 0.6, o2 * 0.6 + 0.4)),
     });
   };
+  // The vine flowers as it goes (Maxwell, 2026-11-19: more flowers sprouting from it): a blossom every
+  // little way, just off the stem on one side or the other, opening a moment after the tip has passed.
+  for (let u = 0.03; u < vu(0.9); u += (0.045 + rnd() * 0.04) * (1 - lead)) {
+    const tan = vineCurve.getTangentAt(u);
+    const side = rnd() < 0.5 ? 1 : -1;
+    const at = u;
+    bloom(vineCurve.getPointAt(u).addScaledVector(v3(-tan.y, tan.x), side * (0.03 + rnd() * 0.03)), 0.055 + rnd() * 0.035, (st) =>
+      sstep(vineGrow(st), at + 0.012, at + 0.07),
+    );
+  }
   for (let i = 0; i < 9; i++) {
     const o = tubes[trunk].curve.getPointAt(0.6 + rnd() * 0.4); // on the trunk proper, above where it leaves the vine
     const sideways = i % 2 ? 1 : -1;
@@ -410,7 +436,7 @@ function buildTree(letters: [number, number][], mx: number, my: number) {
       tip: green,
     });
     for (const u of [0.35, 0.6, 0.82, 1]) leafOn(id, u, 0.11 + rnd() * 0.07, rnd(), false);
-    if (j % 3 === 0) bloom(end, 0.045 + rnd() * 0.02);
+    if (j % 2 === 0) bloom(end, 0.045 + rnd() * 0.02);
   }
 
   // Leaves in three natural greens (one a touch yellow); blossoms white-pink or deeper pink.
@@ -452,13 +478,14 @@ function Vine() {
   const root = useRef<Group>(null);
   const shown = useRef<number | null>(null);
   const born = useRef<number | null>(null);
+  const faded = useRef<number | null>(null); // the handoff, eased: 0 the 3D seed over the cover, 1 the film's own
   const tree = useRef<{ key: string; t: Tree } | null>(null);
   const dummy = useMemo(() => new Object3D(), []);
 
   // The seed (height 1 before scaling), in the film seed's own dark brown, with a soft sheen.
   const seed = useMemo(() => {
     // Darker than the film's pixels read: the lights here are strong, and it must land on rgb(88, 71, 66).
-    const mat = new MeshPhysicalMaterial({ color: mix('--ink', '--peach-glow', 0.065), roughness: 0.7, metalness: 0, sheen: 0.2, sheenRoughness: 0.6, envMapIntensity: 0.5 });
+    const mat = new MeshPhysicalMaterial({ color: mix('--ink', '--peach-glow', 0.065), roughness: 0.7, metalness: 0, sheen: 0.2, sheenRoughness: 0.6, envMapIntensity: 0.5, transparent: true });
     mat.sheenColor.set(token('--peach-glow'));
     const mesh = new Mesh(seedGeometry(), mat);
     const holder = new Group();
@@ -528,23 +555,28 @@ function Vine() {
     // the plant is laid out in that box). The page never returns to a bare logo.
     const wordOpacity = wordEl ? parseFloat(getComputedStyle(wordEl).opacity) : 0;
     // The cover (VineStage paints it: the film's backdrop, hiding the film's seed) fades at the handoff.
+    // One clock for it: once the film has left its first frame the handoff is over, whatever the easing here
+    // still says (a fast scroll, or the way back up), so the film's seed and this one are never both in the air.
+    const fadeTo = useMotionStore.getState().seed > 0.001 ? 1 : st.fade;
+    faded.current = faded.current === null ? fadeTo : approach(faded.current, fadeTo, 0.22);
+    st.fade = faded.current;
     const cover = document.querySelector<HTMLElement>('#hero .vine-cover');
     if (cover) cover.style.opacity = String(1 - st.fade);
     gl.domElement.style.opacity = String(wordOpacity);
     g.visible = wordOpacity > 0.01;
     // Still easing toward the scroll (a fast scroll can leave the word gone before the cover has faded):
     // keep drawing until it has caught up, or the cover would be left over the film.
-    if (shown.current !== target) invalidate();
+    if (shown.current !== target || faded.current !== fadeTo) invalidate();
     gl.domElement.style.visibility = g.visible ? 'visible' : 'hidden'; // no layer to composite while there is nothing on it
     if (!g.visible) {
-      asleep.current = shown.current === target && target >= 1;
+      asleep.current = shown.current === target && faded.current === fadeTo && target >= 1;
       return;
     }
     // The first time it is seen, the vine sprouts in by itself over a second and a half: something is
     // alive on the first screen before the reader has scrolled at all.
     const now = clock.getElapsedTime();
     born.current ??= now;
-    st.vine *= sstep((now - born.current) / 1.5, 0, 1);
+    st.born = sstep((now - born.current) / 1.5, 0, 1);
 
     // Screen px to world, against this canvas's own box.
     const c = gl.domElement.getBoundingClientRect();
@@ -580,7 +612,8 @@ function Vine() {
       }
     }
     if (!letters.length) letters.push([0, word.width / wu]);
-    const key = `${letters.map(([a, b]) => `${a.toFixed(2)},${b.toFixed(2)}`).join(';')}:${mx.toFixed(2)}:${my.toFixed(2)}`;
+    const by = -(box.bottom - word.top) / wu; // the foot of the screen: the vine comes up from under it
+    const key = `${letters.map(([a, b]) => `${a.toFixed(2)},${b.toFixed(2)}`).join(';')}:${mx.toFixed(2)}:${my.toFixed(2)}:${by.toFixed(1)}`;
     // Rebuilt only during Act 1: after it the word shrinks, and the seed mark (which no longer matters)
     // moves against it; the plant must stay as it was grown.
     if (!tree.current || (target < 1 && tree.current.key !== key)) {
@@ -588,7 +621,7 @@ function Vine() {
         g.remove(tree.current.t.group);
         disposeTree(tree.current.t);
       }
-      tree.current = { key, t: buildTree(letters, mx, my) };
+      tree.current = { key, t: buildTree(letters, mx, my, by) };
       tree.current.t.group.add(seed.holder);
       g.add(tree.current.t.group);
       if (!document.documentElement.dataset.vineReady) {
@@ -634,9 +667,13 @@ function Vine() {
       const from: [number, number] = [t.hang.x, t.hang.y - (full * small) / 2];
       const [sx, sy] = fallPoint(from, [t.mark.x, t.mark.y], st.fall);
       const tumble = Math.sin(Math.PI * st.fall); // 0 on the branch and on the mark: it lands upright
-      holder.position.set(sx, sy + (st.fall === 0 ? 0.006 * Math.sin(time * 1.4) : 0), 0.25);
+      // It drops in front of the plant and comes to rest behind it, where the film's seed is (the film is
+      // under this whole canvas): the dissolve from one to the other then changes nothing in front of it.
+      holder.position.set(sx, sy + (st.fall === 0 ? 0.006 * Math.sin(time * 1.4) : 0), 0.25 - 0.75 * sstep(st.fall, 0.55, 1));
       holder.scale.setScalar(scale);
-      holder.rotation.set(0.2 * tumble, 1.2 * tumble, 0.3 * tumble);
+      // It comes to rest leaning as the film's seed leans in its first frame, and dissolves into it there.
+      holder.rotation.set(0.2 * tumble, 1.2 * tumble, 0.3 * tumble - SEED_LEAN * st.fall);
+      seed.mat.opacity = 1 - st.fade;
     }
 
     invalidate(); // the sway, and the easing toward the scroll, keep going while Act 1 is on screen

@@ -183,7 +183,8 @@
     --s: calc((var(--stage-phone-weave) - var(--nav-offset)) / 0.955);
     position: absolute; bottom: 0; left: 48.5%; translate: -50% 0; width: var(--s); aspect-ratio: 1;
     --sway-r: 0deg; --sway-y: 0px; /* explicit start values for the tween */
-    rotate: var(--sway-r); transform: translateY(var(--sway-y)); /* the rest-time sway (motion-runtime) */
+    /* the rest-time sway, and the glide that carries one product out and the next in (motion-runtime) */
+    rotate: var(--sway-r); transform: translate(var(--glide-x, 0%), var(--sway-y)); opacity: var(--glide-o, 1);
     /* The seam (docs/08 H1): the top never cuts. The yarn hangs from the top of the canvas at 53.5 % of its
        width; above --seam (px down the canvas, set by the page thread's runtime, which ends the thread
        there) nothing shows, from it the yarn widens out of a point, and 30 % further down the whole canvas
@@ -394,6 +395,95 @@
      and without it, the film shows as usual). */
   html[data-roots="on"] #craft .weave-stage > canvas[data-on] { opacity: var(--film-in, 1); transition: none; }
 
+  /* The page vine (Thread.tsx; motion-runtime's mountThread builds and draws it). Its greens are the hero
+     vine's: the mint deepened with ink. A bud is closed until the growing tip has passed it. */
+  .pvine {
+    --pvine-stem: color-mix(in srgb, var(--stem-mint) 52%, var(--ink-soft));
+    --pvine-leaf: color-mix(in srgb, var(--stem-mint) 74%, var(--ink));
+    --pvine-w: 5px;
+  }
+  .pvine-stem { stroke: var(--pvine-stem); stroke-width: var(--pvine-w); }
+  .pvine-light { stroke: color-mix(in srgb, var(--stem-mint) 45%, var(--cream)); stroke-width: calc(var(--pvine-w) * 0.3); opacity: 0.7; }
+  .pvine-leaf { fill: var(--pvine-leaf); }
+  .pvine-leaf[data-tone="1"] { fill: color-mix(in srgb, var(--stem-mint) 62%, var(--ink)); }
+  .pvine-leaf[data-tone="2"] { fill: color-mix(in srgb, var(--stem-mint) 80%, var(--ink-soft)); }
+  .pvine-rib { fill: none; stroke: color-mix(in srgb, var(--stem-mint) 55%, var(--cream)); stroke-width: 1; stroke-linecap: round; opacity: 0.8; }
+  .pvine-stalk, .pvine-curl { fill: none; stroke: var(--pvine-stem); stroke-width: 1.5; stroke-linecap: round; }
+  .pvine-petal { fill: var(--petal-soft); }
+  [data-deep] > .pvine-petal { fill: color-mix(in srgb, var(--petal-soft) 60%, var(--lotus-pink)); }
+  .pvine-throat { fill: var(--cream); }
+  .pvine-eye { fill: var(--peach-glow); }
+  .pvine-bud { scale: 0; transform-origin: 0 0; transition: scale 700ms var(--curve-out); }
+  .pvine-bud[data-on] { scale: 1; }
+  @media (prefers-reduced-motion: reduce) { .pvine-bud { transition: none; } }
+
+  /* Loose petals and young leaves (Hands.tsx: Flecks). An anchor marks the place; the fleck floats past it
+     (the runtime moves it by data-float). One shape, pointed at one end, like the cursor's petal. */
+  .fleck-anchor { position: absolute; width: 0; height: 0; }
+  .fleck {
+    position: absolute; width: var(--fleck); height: calc(var(--fleck) * 0.72); margin: calc(var(--fleck) * -0.36) 0 0 calc(var(--fleck) * -0.5);
+    border-radius: 85% 0 85% 0; rotate: var(--turn);
+    background-image: linear-gradient(135deg, var(--cream) -10%, var(--petal-soft) 55%);
+    box-shadow: 0 0.35rem 0.6rem -0.3rem color-mix(in srgb, var(--plum-ink) 28%, transparent);
+  }
+  .fleck[data-kind="deep"] { background-image: linear-gradient(135deg, var(--petal-soft), color-mix(in srgb, var(--petal-soft) 45%, var(--lotus-pink))); }
+  .fleck[data-kind="cream"] { background-image: linear-gradient(135deg, #fff, var(--peach-glow)); }
+  .fleck[data-kind="leaf"] {
+    border-radius: 90% 0 90% 0;
+    background-image: linear-gradient(135deg, color-mix(in srgb, var(--stem-mint) 80%, var(--cream)), color-mix(in srgb, var(--stem-mint) 70%, var(--ink)));
+  }
+  /* The ring of running stitch behind the products (Hands.tsx): two circles the runtime turns against each other. */
+  .stitch-ring { position: absolute; inset: 2% 6% auto; width: 88%; aspect-ratio: 1; overflow: visible; }
+  .stitch-ring circle { fill: none; stroke: var(--blush-line); stroke-width: 1.25; stroke-dasharray: 5 7; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .stitch-ring circle + circle { stroke: color-mix(in srgb, var(--stem-mint) 65%, var(--paper)); stroke-dasharray: 2 9; }
+
+  /* The About page's first screen (AboutHero.tsx): GIEO's full name, one line to each capital, as large as
+     the screen's width and height both allow, so the four lines always fit one screen. */
+  .about-name { font-size: clamp(2.5rem, min(9.3vw, 14.2svh), 10rem); line-height: 0.99; letter-spacing: -0.015em; }
+  .about-initial { color: var(--petal-soft); }
+  .about-joiner { color: color-mix(in srgb, var(--cream) 62%, var(--plum-ink)); }
+  .about-bloom {
+    position: absolute; inset: -22%;
+    background-image: radial-gradient(closest-side, color-mix(in srgb, var(--petal-soft) 34%, transparent), color-mix(in srgb, var(--peach-glow) 12%, transparent) 55%, transparent);
+  }
+
+  /* Links that slide up (ContactLinks.tsx): a line rises from behind the foot of its own box. The box clips
+     top and bottom only, with room for the italic's tails, so a swash still runs out to the side. A row on
+     the first screen plays on load, in turn (--i); a row the runtime is holding (data-enter="pending")
+     waits under its line and plays when it is let in. The row's own unveil (a wipe) is not used here. */
+  @keyframes slide-up { from { translate: 0 118%; } }
+  .slide-row[data-enter] { clip-path: none; }
+  /* an underline does not reach into an inline-block by itself: both boxes take the link's own */
+  .slide-up, .slide-up > span { text-decoration: inherit; }
+  .slide-up { display: block; overflow-x: visible; overflow-y: clip; padding-block: 0.08em 0.24em; margin-block: -0.08em -0.24em; }
+  .slide-up > span { display: inline-block; animation: slide-up 1000ms var(--curve-out) calc(var(--i, 0) * 110ms + 250ms) both; }
+  .slide-row[data-enter="pending"] .slide-up > span { animation: none; translate: 0 118%; }
+  .slide-row[data-enter="in"] .slide-up > span { animation-delay: calc(var(--i, 0) * 40ms); }
+
+  /* The Collections first screen (ParallaxHero.tsx, after 21st.dev's Parallax Scrolling by Osmo): four layers
+     stacked in one screen, each moved down by the component as the screen scrolls away, the far ones most.
+     The sky covers the screen; the hills and the foreground are 16:9 cut-outs hung from the foot of it, as
+     wide as the screen or wider on a tall one. The fade at the foot runs into the showroom's plum. */
+  .parallax { position: relative; height: 100svh; min-height: 34rem; overflow: clip; background-color: var(--cream); }
+  .parallax__layers { position: absolute; inset: 0; }
+  .parallax__sky { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; }
+  .parallax__ground {
+    position: absolute; bottom: -1px; left: 50%; translate: -50% 0;
+    width: max(100%, 150svh); max-width: none; height: auto; aspect-ratio: 2688 / 1520;
+  }
+  /* On a tall screen the foreground keeps its left corner (the cloths and their vine), not its empty middle. */
+  @media (max-aspect-ratio: 1/1) { .parallax__front { left: -6%; translate: none; width: max(100%, 104svh); } }
+  .parallax__copy {
+    position: absolute; inset: calc(var(--nav-offset) + var(--space-6)) 0 auto; padding-inline: var(--gutter);
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+  }
+  .parallax__title { font-size: clamp(3.75rem, 15.5vw, 15rem); line-height: 0.95; letter-spacing: -0.01em; }
+  .parallax__intro { max-width: 34ch; margin-top: var(--space-4); text-wrap: balance; }
+  .parallax__fade {
+    position: absolute; inset: auto 0 0; height: 22%; pointer-events: none;
+    background-image: linear-gradient(to top, var(--plum-ink) 0%, color-mix(in srgb, var(--plum-ink) 55%, transparent) 38%, transparent);
+  }
+
   /* The vine's cover (VineStage): the film's backdrop over the film, so the film's seed is not seen until the
      tree drops it. It appears at once when painted; it only ever fades out. */
   .vine-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
@@ -539,6 +629,7 @@
   .load-hairline { display: none; }
   .draw-on path { animation: none; stroke-dashoffset: 0; }
   .word-in, .hero-band { animation: none; }
+  .slide-up > span { animation: none !important; translate: none !important; }
 }
 /* A pending line reveal holds its heading at opacity 0; paper never scrolls to fire it. */
 @media print {
