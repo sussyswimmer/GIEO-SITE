@@ -21,7 +21,7 @@ const DEPARTMENTS: { key: string; teams?: string }[] = [
  */
 export async function DepartmentList() {
   const t = await getTranslations('about');
-  const credit = (await getTranslations('collections.hmong'))('credit');
+  const credit = (await getTranslations('collections.noinep'))('credit');
   const spools = still('spools');
 
   return (

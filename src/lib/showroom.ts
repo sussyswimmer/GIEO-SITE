@@ -1,5 +1,5 @@
 /**
- * The Collections gallery track: one row (intro, tote, mug, coaster, order) slides left while the reader
+ * The Collections gallery track: one row (intro, bag, lipstick holder, order) slides left while the reader
  * scrolls down. Each product hangs in the air in the middle, turning slowly, then glides out as the next
  * glides in (Maxwell, 2026-11-17). Pure math shared by the row's driver (ShowroomDriver), the 3D
  * (ShowroomScene) and the tests. No React, no three.js.
@@ -9,8 +9,9 @@
  * at his request; scroll is never blocked.
  */
 
-export type ProductKey = 'tote' | 'mug' | 'coaster';
-export const PRODUCT_KEYS: readonly ProductKey[] = ['tote', 'mug', 'coaster'];
+/** GIEO's products, the Nối Nếp collection: the Nối Bag and the Nếp Keychain (a lipstick holder). */
+export type ProductKey = 'bag' | 'lipstick';
+export const PRODUCT_KEYS: readonly ProductKey[] = ['bag', 'lipstick'];
 
 export const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
 /** Hermite step between a and b, like GLSL smoothstep. */
@@ -19,6 +20,17 @@ export const step = (x: number, a: number, b: number) => {
   return t * t * (3 - 2 * t);
 };
 export const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+/**
+ * The pinned run's length (svh) for a row of `products`, phone and desktop (64rem up), so each product gets
+ * the same scroll however many there are. The row first held three, on 300svh and 260svh; globals.css now
+ * sets runLength(2), checked by scripts/showroom.test.mjs. The run scales with the row's travel, in vw: intro + order + end padding + gutter - one screen (69 phone, -5
+ * desktop) plus one product slot each (100vw phone, 76vw desktop).
+ */
+export function runLength(products: number) {
+  const scale = (base: number, rest: number, slot: number) => Math.round((base * (rest + slot * products)) / (rest + slot * 3));
+  return { phone: scale(300, 69, 100), desktop: scale(260, -5, 76) };
+}
 
 /** How far through the pinned run: 0 when the run's top meets the screen's top, 1 when the pin lets go. */
 export const trackProgress = (top: number, height: number, vh: number) => clamp01(-top / Math.max(1, height - vh));

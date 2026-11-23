@@ -6,8 +6,9 @@
 //   hero       pinned first screen: the three beats of copy lie inside the film's textSafe box (also at 375x667)
 //   strip      11 screenshots down the hero's run (every 10 %): the headline, the dictionary entry and the
 //              initiative line are each whole and alone on screen in at least two shots in a row
-//   weave      screenshots at film frames 45, 120, 140, 169; the canvas bleeds off screen, the products do not,
-//              and from frame 120 the one partner credit is on screen, lit, below the product
+//   weave      screenshots at film frames 45, 120, 149 (warps, the Nối Bag, the Nếp Keychain at rest); the
+//              canvas bleeds off screen, the products do not, and from frame 120 the one partner credit is on
+//              screen, lit, below the product
 //   deck       pillar cards at 1440: while a card lies under the next, its whole title still shows
 //   trace     10 s wheel scroll: no long task over 50 ms, no frame over 33 ms; repeated at 4× CPU (reported only)
 //
@@ -220,7 +221,7 @@ for (const route of ROUTES) {
 {
   const sharp = (await import('sharp')).default;
   const boxes = {}; // frame -> left, top, right, bottom of that product, as shares of the canvas
-  for (const [frame, key] of [[120, 's-0129'], [140, 's-0149'], [169, 's-0169']]) {
+  for (const [frame, key] of [[120, 's-0129'], [149, 's-0149']]) {
     const box = (boxes[frame] = [1, 1, 0, 0]);
     const { data, info } = await sharp(path.resolve(films || 'public/film', 'weave/keys', `${key}.webp`)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
     for (let i = 3, n = 0; i < data.length; i += 4, n++) {
@@ -245,7 +246,7 @@ for (const route of ROUTES) {
       return [r.top + scrollY - innerHeight, r.bottom + scrollY];
     });
     const bad = [];
-    for (const target of [45, 120, 140, 169]) {
+    for (const target of [45, 120, 149]) {
       let [lo, hi] = span;
       while (hi - lo > 4) {
         const mid = (lo + hi) / 2;
@@ -287,7 +288,7 @@ for (const route of ROUTES) {
     check(
       `weave ${route} ${size[0]}`,
       bad.length === 0,
-      bad.join('; ') || 'frames 45, 120, 140, 169 shot; canvas bleeds off screen, each product inside it; one credit on screen under each product',
+      bad.join('; ') || 'frames 45, 120, 149 shot; canvas bleeds off screen, each product inside it; one credit on screen under each product',
     );
     await page.context().close();
   }

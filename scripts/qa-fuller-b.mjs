@@ -1,7 +1,7 @@
 // Checks for docs/08-fuller.md H2 and H3 (the weave's pacing and the home page from the weave down),
 // against a running production server.
-//   pace      the scroll, in svh, for which each of tote, mug and coaster rests on the stage (its last
-//             frame, the stage pinned), the scroll each change takes, and the three-product total
+//   pace      the scroll, in svh, for which each product (the Nối Bag, the Nếp Keychain) rests on the stage
+//             (its last frame, the stage pinned), the scroll each change takes, and the products' total
 //   walk      screenshots from the weave section to the footer in 0.75-screen steps; per shot the ink
 //             coverage and the tallest empty band (qa-density's measure, decoration hidden), and per page
 //             the smallest font size of any p, li or small in <main>
@@ -54,9 +54,12 @@ const filmsReady = () =>
 
 // ── pace ──────────────────────────────────────────────────────────────────────────────────────────
 async function pace() {
+  // each product's last frame, where it rests (a Still key), and its name in this report
+  const FRAMES = [129, 149];
+  const names = { 129: 'bag', 149: 'lipstick' };
   // each product's box in its key frame (left, top, right, bottom as shares of the canvas), as qa-redesign reads it
   const boxes = {};
-  for (const f of [129, 149, 169]) {
+  for (const f of FRAMES) {
     const box = (boxes[f] = [1, 1, 0, 0]);
     const { data, info } = await sharp(path.resolve('public/film/weave/keys', `s-0${f}.webp`)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
     for (let i = 3, n = 0; i < data.length; i += 4, n++) {
@@ -68,7 +71,7 @@ async function pace() {
   }
   for (const size of [[1280, 720], [1366, 768], [1536, 864], DESKTOP, [1920, 1080], [1024, 768], PHONE]) {
     const [w, h] = size;
-    const floor = w >= 1024 ? 210 : 150;
+    const each = w >= 1024 ? 70 : 50; // a product's share of the brief's 210 / 150svh for three
     const page = await open('/en?tier=full', size); // ?tier exposes the QA hook; full is what this PC picks anyway
     const span = await page.evaluate(() => {
       const r = document.querySelector('#craft').getBoundingClientRect();
@@ -88,17 +91,21 @@ async function pace() {
           const film = document.querySelector('#craft [data-film]');
           const box = film.parentElement.getBoundingClientRect();
           // the canvas where it is drawn (translate and the sway's shift included), without the sway's rotation:
-          // under a degree about its centre, but a rotated box reports a larger rectangle
+          // under a degree about its centre, but a rotated box reports a larger rectangle. Nor the glide's shift:
+          // a change carries the next product in from the side while it fades in (motion-runtime, by design);
+          // what is held to the screen is the place it glides to.
           const c = film.getBoundingClientRect();
           const [fw, fh] = [film.offsetWidth, film.offsetHeight];
+          const glide = ((parseFloat(film.style.getPropertyValue('--glide-x')) || 0) / 100) * fw;
           return {
-            film: [c.left + (c.width - fw) / 2, c.top + (c.height - fh) / 2, fw, fh],
+            film: [c.left + (c.width - fw) / 2 - glide, c.top + (c.height - fh) / 2, fw, fh],
             nav: document.querySelector('header nav, header')?.getBoundingClientRect().bottom ?? 0,
             y: yy,
             frame: Math.round(timeOf('weave', store.getState()) * (TRACKS.weave.frames - 1)),
             top: Math.round(box.top),
             onScreen: box.top >= -1 && box.bottom <= innerHeight + 1,
-            lit: [...document.querySelectorAll('#craft ul[role="list"] > li')].map((li) => (li.dataset.active ? li.textContent : '')).join(''),
+            // the name only: each item also carries what the product is, in caption type
+            lit: [...document.querySelectorAll('#craft ul[role="list"] > li')].map((li) => (li.dataset.active ? li.firstElementChild?.textContent ?? li.textContent : '')).join(''),
           };
         }, y),
       );
@@ -108,7 +115,6 @@ async function pace() {
     const rest = (frame) => rows.filter((r, i) => r.frame === frame && r.onScreen && rows[i - 1]?.top === r.top);
     const run = (rs) => (rs.length ? rs.at(-1).y - rs[0].y + step : 0);
     const between = (a, b) => run(rows.filter((r) => r.frame > a && r.frame < b)) + step;
-    const names = { 129: 'tote', 149: 'mug', 169: 'coaster' };
     // the product is whole on screen (under the nav pill below 1280, where the stage does not bleed off the top)
     const whole = (r, f) => {
       const [l, t, cw, ch] = r.film;
@@ -117,9 +123,9 @@ async function pace() {
     };
     const span3 = (r, f) => `${Math.round(r.film[1] + boxes[f][1] * r.film[3])} to ${Math.round(r.film[1] + boxes[f][3] * r.film[3])} of ${h}`;
     console.log(`\npace ${w}x${h} (1svh = ${step}px, #craft is ${svh(span[1] - span[0] - h)}svh tall)`);
-    const holds = [129, 149, 169].map((f) => rest(f));
+    const holds = FRAMES.map((f) => rest(f));
     holds.forEach((rs, i) => {
-      const f = [129, 149, 169][i];
+      const f = FRAMES[i];
       const lit = [...new Set(rs.map((r) => r.lit))].join('|');
       check(svh(run(rs)) >= 45, `${names[f].padEnd(8)} at rest on frame ${f} for ${svh(run(rs))}svh (floor 45), name lit: "${lit}"`);
       // whole for all of its rest, and whenever its name is lit (which starts half-way through the change before)
@@ -128,11 +134,19 @@ async function pace() {
       const cut = shown.filter((r) => !whole(r, f));
       check(cut.length === 0, `${names[f].padEnd(8)} whole on screen at all ${shown.length} held positions where it rests or its name is lit${cut.length ? `: cut at ${cut.length}, e.g. y=${Math.round(cut[0].y)} product ${span3(cut[0], f)}` : ` (mid-rest: y ${span3(rs[Math.floor(rs.length / 2)] ?? shown[0], f)})`}`);
     });
-    check(svh(between(109, 129)) <= 30, `cloth → tote takes ${svh(between(109, 129))}svh (ceiling 30)`);
-    check(svh(between(129, 149)) <= 30, `tote → mug takes ${svh(between(129, 149))}svh (ceiling 30)`);
-    check(svh(between(149, 169)) <= 30, `mug → coaster takes ${svh(between(149, 169))}svh (ceiling 30)`);
-    const total = holds[2].at(-1).y - holds[0][0].y + step;
-    check(svh(total) >= floor, `three products span ${svh(total)}svh, tote's first rest to the coaster's last (floor ${floor})`);
+    check(svh(between(109, 129)) <= 30, `cloth → bag takes ${svh(between(109, 129))}svh (ceiling 30)`);
+    check(svh(between(129, 149)) <= 30, `bag → lipstick takes ${svh(between(129, 149))}svh (ceiling 30)`);
+    // Each product owns the change that brings it on and its rest (scripts/timeline.test.mjs), so the span runs
+    // from the cloth's change into the bag to the keychain's last rest; the rests alone (first to last) are
+    // printed beside it.
+    const into = rows.find((r) => r.frame > 109);
+    const last = holds.at(-1).at(-1);
+    const total = into && last ? last.y - into.y + step : 0;
+    const rests = last && holds[0][0] ? last.y - holds[0][0].y + step : 0;
+    check(
+      svh(total) >= each * FRAMES.length,
+      `${FRAMES.length} products span ${svh(total)}svh, the change into the bag to the keychain's last rest (floor ${each * FRAMES.length}); first rest to last ${svh(rests)}svh`,
+    );
 
     // and what the canvas really draws mid-rest, in real time (scrub and seek left to settle)
     for (const [i, rs] of holds.entries()) {
@@ -141,7 +155,7 @@ async function pace() {
       await page.waitForFunction(filmsReady, null, { timeout: 8000 }).catch(() => {});
       await page.waitForTimeout(1600);
       const drawn = await page.evaluate(() => Number(document.querySelector('[data-film="weave"] canvas[data-frame]')?.dataset.frame));
-      const f = [129, 149, 169][i];
+      const f = FRAMES[i];
       const file = `pace-w${w}x${h}-${names[f]}.png`;
       await page.screenshot({ path: path.join(out, file) });
       const now = await page.evaluate(() => {

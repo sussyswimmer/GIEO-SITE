@@ -4,6 +4,8 @@ Build each section exactly as written here. The visual rules (colours, type, sta
 
 ## 0. How to read this file
 
+- **Products (November 2026).** Where this plan names a tote, a mug, a coaster or `collections.hmong.*`, read `docs/09-feedback.md`: GIEO's products are the Nối Bag (`bag`) and the Nếp Keychain (`lipstick`), keys `home.craft.products.<id>.{name,kind}` and `collections.noinep.*`.
+
 - **Widths.** Every layout gives four columns: **375** (Tailwind base), **768** (`md:`), **1280** (`lg:`, applies from 1024 up), **1920** (`3xl:`, written only where it differs from 1280; otherwise "= 1280").
 - **"cols a–b"** means `col-start-{a} col-end-{b+1}` on the page `Grid` (4 / 8 / 12 columns). "row n" means `row-start-{n}`.
 - **Spacing** is written as Tailwind steps that equal the tokens (`mt-12` = `--space-12` = 48 px). Allowed steps: 1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 40, plus `py-section`, `py-section-sm`, `px-gutter`, `gap-x-gap`, `pt-nav`.

@@ -51,20 +51,25 @@ The three animations are one continuous story: **a seed is sown → its stem bec
 |---|---|
 | 0 to 25% | The green thread enters from top. 5 to 7 more threads (colors sampled from real brocade photos, `--thread-n`) slide in from the edges. Beat 1 copy scrolls past on the left. |
 | 25 to 55% | Threads weave over-under into a square panel; the real brocade pattern reveals across it like a loom filling in, row by row. Pull quote ("Every single thread...") passes. |
-| 55 to 100% | The panel drapes onto a **tote bag**, then the camera arcs (25° each) to a **mug** wrapped with the pattern, then a **coaster**. Each product turns slowly while its name appears in HTML. Beat 3 copy + CTA. |
+| 55 to 100% | The panel drops into the **Nối Bag**, which rests; then the stage glides across to the **Nếp Keychain** (a lipstick holder), which rests. Each product's name and kind light in HTML while it rests. Beat 3 copy + CTA. (Was a tote, a mug and a coaster; GIEO makes only the bag and the lipstick holder, `09-feedback.md` F2.) |
 
 **Build (cheap and smooth):**
 - The weave is **a shader on a plane**, not thousands of thread meshes: brocade texture × procedural over-under weave mask × a row-by-row reveal driven by `uProgress`. Threads entering are 6 to 8 instanced tube meshes that fade out as the shader panel takes over.
 - Products are **modeled procedurally in Blender** (clean topology, proper UVs) so the brocade texture maps correctly. AI-generated meshes have messy UVs and will smear the pattern; use ArtCraft for references and lookdev only (see `04-asset-pipeline.md`).
-- The drape is a short baked cloth sim clip from Blender (panel → tote) exported as morph targets, or a vertex-shader bend if the sim GLB exceeds budget.
+- The drape is a short baked cloth sim clip from Blender (panel → bag) exported as morph targets, or a vertex-shader bend if the sim GLB exceeds budget.
 
-**Budget:** all three products + panel ≤ 1.2 MB total, textures 2K KTX2 max, ≤ 40k triangles.
+**Budget:** both products + panel ≤ 1.2 MB total, textures 2K KTX2 max, ≤ 40k triangles.
 
 **As built (Phase 5), deviations from the text above:**
 - The cloth texture is a WebP (`public/models/weave-cloth.webp`), not KTX2: `toktx` is not installed and a Basis transcoder would cost more bytes than it saves. 1K at most, within the 2K limit.
 - The entering threads are camera-facing ribbons in one merged mesh, not instanced tubes: thin tubes stair-step with `antialias: false`.
 - The drape is a closed-form pose baked to eight morph targets, not a cloth sim: a sim needs a modifier, and the exporter drops shape keys when it applies modifiers.
 - The "camera arcs" are a rotation of a carousel empty about a far axis: the shared camera never moves.
+
+**As built now (`07-redesign.md`, `08-fuller.md`, `09-feedback.md`):** the home page plays this animation as a Blender film scrubbed by scroll (`public/film/weave/`, built by `blender/film/weave.py`), not as the real-time scene above, which no page mounts.
+- 150 frames. Beats: thread 0-30, warps 30-50, weave 50-89, drape 89-109, bag 109-129, lipstick 129-149. Key frames: 0, 50, 89, 129, 149. The products are modelled after GIEO's photos in the film's plain weave.
+- The run rests once per product with one change between (`weaveRun`, `WEAVE_PACE` in `src/lib/fallback-timeline.ts`); the change glides the stage out and in and skips the film's frames 129 to 140 while it is faded.
+- The real-time models (`blender/scripts/weave.py` → `public/models/weave.glb`) now serve the Collections showroom (`ShowroomScene.tsx`): the Nối Bag and the Nếp Keychain, 25k triangles, 187 KB.
 
 ## 4. Animation 3: "The lotus of three". Pillars section, ~150vh
 

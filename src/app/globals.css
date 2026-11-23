@@ -177,8 +177,9 @@
      the band it shows in and never reads as a square: on phones it runs off both sides, its top tucked
      under the nav pill; from 1280 it runs off the top, bottom and right of the pinned screen and fades
      out on the left, towards the copy. In between it is a square that fits its column.
-     The offsets come from the film: the tote spans 5 to 87 % of the canvas height, and the mug, as it
-     turns, reaches 94.5 % of its width, so the canvas sits a little left of where it would be centred. */
+     The offsets came from an earlier film, whose widest product reached 94.5 % of the canvas width; they are kept so
+     the stage sits where it did. The Nối Bag and the Nếp Keychain at rest both stay within 17 to 83 % of the
+     canvas, either way (film/weave/keys/s-0129, s-0149). */
   .weave-stage {
     --s: calc((var(--stage-phone-weave) - var(--nav-offset)) / 0.955);
     position: absolute; bottom: 0; left: 48.5%; translate: -50% 0; width: var(--s); aspect-ratio: 1;
@@ -218,10 +219,12 @@
   [data-credit] { transition: opacity var(--dur-fade) var(--curve-out); }
   html[data-motion="on"] [data-credit]:not([data-on]) { opacity: 0; }
 
-  /* The weave's product run (docs/08 H2, Weave.tsx). In flow it is a list of three large names. With the
-     runtime up, on a screen tall enough to pin, the names stick beside the stage (below it under 1024) for
-     --weave-run, which the runtime sets from WEAVE_PACE, and only the product resting on the stage is lit:
-     the others are drawn in outline, like the second run of a kinetic band. */
+  /* The weave's product run (docs/08 H2, Weave.tsx). In flow it is a list of two large names, each with
+     what it is under it in caption type. With the runtime up, on a screen tall enough to pin, the names
+     stick beside the stage (below it under 1024) for --weave-run, which the runtime sets from WEAVE_PACE,
+     and only the product resting on the stage is lit: the others are drawn in outline, like the second run
+     of a kinetic band. The divisor below keeps the block (label, names and captions, button) under the
+     phone stage. */
   .weave-names {
     font-size: min(var(--fs-h2), (100svh - var(--stage-phone-weave)) / 4.6);
     line-height: var(--lh-h2); letter-spacing: var(--ls-display);
@@ -247,6 +250,11 @@
     color: transparent; -webkit-text-stroke-color: color-mix(in srgb, var(--cream) 60%, transparent);
   }
   html[data-motion="on"] .weave-names > li[data-active] { translate: 0.12em 0; }
+  /* What each product is, under its name: caption type, always solid and readable, never in outline. The
+     name's descenders clear it, and the next name's stacked Vietnamese marks (Nếp) clear it from below. */
+  .weave-names .weave-kind { -webkit-text-stroke-width: 0; }
+  .weave-names .weave-name { padding-bottom: 0.12em; }
+  .weave-names > li + li { margin-top: 0.38em; }
 
   /* The running stitch (docs/07 §3): every hairline on the site. .stitch-y is the vertical one. */
   .stitch, .stitch-y { display: block; border: 0; flex: none; }
@@ -569,7 +577,9 @@
   .showroom-cloth { aspect-ratio: 1600 / 1338; width: min(100%, 24rem); }
   .showroom-credit { display: none; }
 
-  html[data-track="on"] .showroom-run { --run: 300svh; height: calc(100svh + var(--run)); padding: 0; }
+  /* --run is runLength(2) in src/lib/showroom.ts: the Nối Bag and the Nếp Keychain each keep the scroll a
+     product had in the three-product row (300svh phone, 260svh desktop). */
+  html[data-track="on"] .showroom-run { --run: 219svh; height: calc(100svh + var(--run)); padding: 0; }
   html[data-track="on"] .showroom-pin {
     position: sticky; top: 0; height: 100svh; overflow: hidden; display: flex; align-items: center;
   }
@@ -600,7 +610,7 @@
   html[data-track="on"] .showroom-credit { display: block; position: absolute; right: var(--gutter); bottom: 1rem; }
   html[data-track="on"] .showroom-cloth { width: min(100%, 22rem); }
   @media (min-width: 64rem) {
-    html[data-track="on"] .showroom-run { --run: 260svh; }
+    html[data-track="on"] .showroom-run { --run: 171svh; }
     html[data-track="on"] .showroom-intro { width: min(44vw, 38rem); margin-right: 4vw; padding-top: 0; }
     html[data-track="on"] .showroom-title { font-size: clamp(3rem, 6vw, var(--fs-mega)); }
     html[data-track="on"] .showroom-name { font-size: clamp(2.75rem, 5.6vw, 6.5rem); }
@@ -634,4 +644,41 @@
 /* A pending line reveal holds its heading at opacity 0; paper never scrolls to fire it. */
 @media print {
   main h2 > span { opacity: 1 !important; transform: none !important; }
+}
+
+/* photo prints */
+/* GIEO's photographs as small printed photographs lying on the page (PhotoPrint.tsx): a thin cream mat, a
+   soft shadow, a slight tilt (--tilt), an optional petal glow behind. Entering view, a print settles: it
+   fades in, rises a little and turns to its tilt (the runtime's data-enter, here without the still-lifes'
+   wipe, which would clip the shadow). The picture drifts in its window (data-drift). */
+@layer components {
+  .print { position: relative; isolation: isolate; }
+  .print-glow {
+    position: absolute; inset: -24%; z-index: -1; pointer-events: none;
+    background-image: var(--still-bloom); opacity: 0.85;
+  }
+  .print[data-tone="plum"] .print-glow { background-image: var(--still-loom); opacity: 1; }
+  .print-sheet {
+    rotate: var(--tilt, 0deg);
+    padding: clamp(0.3125rem, 3.4%, 0.875rem);
+    border-radius: var(--round-print);
+    background-color: var(--print-mat);
+    box-shadow: var(--elev-print);
+  }
+  .print[data-tone="plum"] .print-sheet { box-shadow: var(--elev-print-plum); }
+  .print-window {
+    position: relative; overflow: hidden;
+    border-radius: calc(var(--round-print) * 0.45);
+    background-color: var(--paper);
+  }
+  .print-sheet[data-enter] {
+    clip-path: none;
+    transition: opacity var(--dur-sew) var(--curve-out), translate var(--dur-sew) var(--curve-out),
+      rotate var(--dur-sew) var(--curve-out);
+  }
+  .print-sheet[data-enter="pending"] { opacity: 0; translate: 0 1.25rem; rotate: calc(var(--tilt, 0deg) * 2.5); }
+  .print-cap { margin-top: 0.875rem; }
+  /* A short sideways strip of prints for narrow screens: scrolls by touch, never snaps, no bar. */
+  .print-strip { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
+  .print-strip::-webkit-scrollbar { display: none; }
 }

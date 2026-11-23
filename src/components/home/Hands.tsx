@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import { getTranslations } from 'next-intl/server';
-import { Container, Grid, Prose, ScrubClip, Section } from '@/components/ui';
+import { Container, Grid, PhotoPrint, Prose, ScrubClip, Section } from '@/components/ui';
+import { photo } from '@/lib/photos';
 import { HOME_STILLS, listStills } from '@/lib/stills';
 import { StillLife } from './StillLife';
 
@@ -19,6 +20,9 @@ import { StillLife } from './StillLife';
  * bloom of light inside a slowly turning ring of running stitch; petals and young leaves drift up past both
  * pictures at their own speeds. All of it is decoration (aria-hidden, still under reduced motion) and none
  * of it says anything: the copy is GIEO's, unchanged.
+ *
+ * GIEO's photographs (November 2026): one print, cloth on a loom, lies under the partner paragraph beside the
+ * products, as if laid on the table next to them. It shows no product, so it carries no credit.
  */
 
 // Loose petals and leaves: where each hangs in its box (%), its size (rem), turn (deg), kind, and how far it
@@ -55,7 +59,8 @@ export function Flecks({ items }: { items: Fleck[] }) {
 export async function Hands() {
   const t = await getTranslations('home.partner');
   const n = await getTranslations('home.nextGen');
-  const credit = (await getTranslations('collections.hmong'))('credit');
+  const credit = (await getTranslations('collections.noinep'))('credit');
+  const loom = photo('loom-cloth', await getTranslations());
   const [products, cloth] = listStills(HOME_STILLS);
   const next = n('body');
   const cut = next.indexOf('. ') + 1; // 0 when the paragraph is one sentence: then all of it is the lead column
@@ -64,7 +69,7 @@ export async function Hands() {
   const lines = words.length > 3 ? [words.slice(0, 2).join(' '), words.slice(2).join(' ')] : [t('name')];
 
   return (
-    <Section tone="paper" pad="none" id="partner" labelledBy="partner-title" thread="right" className="pt-section-sm pb-section-sm">
+    <Section tone="paper" pad="none" id="partner" labelledBy="partner-title" thread="right" className="overflow-x-clip pt-section-sm pb-section-sm">
       <Container>
         <Grid className="items-start">
           <h2
@@ -92,9 +97,20 @@ export async function Hands() {
               <StillLife still={products} credit={credit} sizes="(min-width: 1024px) 50vw, 92vw" className="relative" creditClassName="mt-2 ml-[10%]" />
             </div>
           )}
-          <Prose variant="lead" className="relative z-1 col-span-full mt-6 lg:col-start-1 lg:col-end-7 lg:row-start-2 lg:mt-8">
-            {t('body')}
-          </Prose>
+          <div className="relative z-1 col-span-full mt-6 lg:col-start-1 lg:col-end-7 lg:row-start-2 lg:mt-8">
+            <Prose variant="lead">{t('body')}</Prose>
+            {loom && (
+              <PhotoPrint
+                photo={loom}
+                ratio="4 / 5"
+                focus="50% 55%"
+                tilt={-2.5}
+                glow
+                sizes="(min-width: 1024px) 16vw, 40vw"
+                className="mt-10 mr-[4%] ml-auto w-[44%] lg:mt-10 lg:-mr-[5%] lg:w-[33%]"
+              />
+            )}
+          </div>
           <ScrubClip
             name="thread"
             w={1280}

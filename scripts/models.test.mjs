@@ -108,10 +108,14 @@ test('seed: meshopt compression used', () => {
   assert.ok(seed.gltf.extensionsUsed.includes('EXT_meshopt_compression'));
 });
 
-// ---- weave (animation 2) ----
+// ---- weave: the threads and panel (legacy WeaveScene) and GIEO's two products (the Collections showroom) ----
 const weave = load('weave');
 const wn = weave.gltf.nodes;
-const wMesh = (name) => weave.gltf.meshes[wn.find((x) => x.name === name).mesh];
+const wNode = (name) => wn.find((x) => x.name === name);
+const wMesh = (name) => weave.gltf.meshes[wNode(name).mesh];
+const childNames = (name) => (wNode(name).children ?? []).map((i) => wn[i].name).sort();
+const BAG = ['NoiBody', 'NoiBand', 'NoiHandle'];
+const LIP = ['LipBody', 'LipFront', 'LipFlap', 'LipButton', 'LipLoop', 'LipClasp'];
 
 test('weave: size budget', () => {
   assert.ok(statSync(weave.file).size <= 1.2 * 1024 * 1024);
@@ -127,10 +131,47 @@ test('weave: triangle budget', () => {
   assert.ok(tris <= 40000, `${tris} triangles`);
 });
 
-test('weave: contract nodes exist', () => {
-  const names = ['WeaveScene', 'Threads', 'Carousel', 'StationTote', 'StationMug', 'StationCoaster', 'TurnTote', 'TurnMug', 'TurnCoaster',
-    'Panel', 'ToteBody', 'HandlePivot_F', 'HandlePivot_B', 'Handle_F', 'Handle_B', 'MugBody', 'MugBand', 'CoasterBody', 'CoasterTop'];
-  for (const n of names) assert.ok(wn.some((x) => x.name === n), n);
+test('weave: contract nodes exist, and nothing of the old tote, mug or coaster', () => {
+  const names = ['WeaveScene', 'Threads', 'Carousel', 'StationBag', 'StationLipstick', 'TurnBag', 'TurnLipstick', 'Panel',
+    'NoiHandlePivot', 'LipClaspPivot', ...BAG, ...LIP];
+  for (const n of names) assert.ok(wNode(n), n);
+  for (const n of [...BAG, ...LIP, 'Threads', 'Panel']) assert.ok(wNode(n).mesh !== undefined, `${n} is a mesh`);
+  assert.deepEqual(childNames('Carousel'), ['StationBag', 'StationLipstick']);
+  assert.ok(!wn.some((x) => /tote|mug|coaster/i.test(x.name)), 'no node of a product GIEO does not make');
+});
+
+test('weave: each product hangs from its own turn node; the handle and the clasp from their pivots', () => {
+  assert.deepEqual(childNames('TurnBag'), ['NoiBand', 'NoiBody', 'NoiHandlePivot']);
+  assert.deepEqual(childNames('NoiHandlePivot'), ['NoiHandle']);
+  assert.deepEqual(childNames('TurnLipstick'), ['LipBody', 'LipButton', 'LipClaspPivot', 'LipFlap', 'LipFront', 'LipLoop']);
+  assert.deepEqual(childNames('LipClaspPivot'), ['LipClasp']);
+  assert.ok(childNames('StationBag').includes('Panel'), 'the panel stays off the showroom bag');
+});
+
+test('weave: the bag is wider than tall, the holder about twice as tall as wide', () => {
+  const box = (names) => {
+    const lo = [Infinity, Infinity, Infinity];
+    const hi = [-Infinity, -Infinity, -Infinity];
+    for (const n of names) {
+      const acc = weave.gltf.accessors[wMesh(n).primitives[0].attributes.POSITION];
+      // meshopt quantises positions to normalised shorts; the node's scale and translation carry the rest
+      const node = wNode(n);
+      const q = acc.normalized && acc.componentType === 5122 ? 1 / 32767 : 1;
+      const sc = node.scale ?? [1, 1, 1];
+      const tr = node.translation ?? [0, 0, 0];
+      for (let k = 0; k < 3; k++) {
+        const a = acc.min[k] * q * sc[k] + tr[k];
+        const b = acc.max[k] * q * sc[k] + tr[k];
+        lo[k] = Math.min(lo[k], a, b);
+        hi[k] = Math.max(hi[k], a, b);
+      }
+    }
+    return hi.map((h, k) => h - lo[k]);
+  };
+  const [bw, bh] = box(['NoiBody', 'NoiBand']);
+  assert.ok(bw / bh > 1.45 && bw / bh < 1.75, `bag ${bw}:${bh}`);
+  const [lw, lh] = box(['LipBody']);
+  assert.ok(lh / lw > 1.8 && lh / lw < 2.2, `holder ${lw}:${lh}`);
 });
 
 test('weave: Panel has exactly 8 morph targets', () => {
@@ -145,8 +186,8 @@ test('weave: every primitive has COLOR_0', () => {
   for (const m of weave.gltf.meshes) for (const p of m.primitives) assert.ok('COLOR_0' in p.attributes, m.name);
 });
 
-test('weave: TEXCOORD_0 on the printed surfaces and the threads', () => {
-  for (const n of ['Panel', 'MugBand', 'CoasterTop', 'Threads']) assert.ok('TEXCOORD_0' in wMesh(n).primitives[0].attributes, n);
+test('weave: TEXCOORD_0 on the cloth surfaces (the brocade, the panel) and the threads', () => {
+  for (const n of ['Panel', 'Threads', 'NoiBand', 'NoiHandle', 'LipFront']) assert.ok('TEXCOORD_0' in wMesh(n).primitives[0].attributes, n);
 });
 
 test('weave: meshopt compression used', () => {

@@ -2,7 +2,7 @@
  * The seam between the hero and the weave (Maxwell, 2026-11-17, third and chosen version): the sprout's
  * roots grow down out of the soil, fan out, straighten into the cloth's warp threads, more warps fill in
  * between them, and the weft weaves across row by row. The finished cloth is the weave film's own at its
- * frame 89, where the film takes over and drapes it into the tote. Pure math shared by RootsScene, the
+ * frame 89, where the film takes over and drapes it into the Nối Bag. Pure math shared by RootsScene, the
  * runtime and the tests. No imports: the tests load this file straight into node.
  */
 

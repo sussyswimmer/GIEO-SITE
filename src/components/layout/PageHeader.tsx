@@ -30,7 +30,7 @@ type PageHeaderProps = {
   intro?: string;
   /** The page's still-life (public/art/pages). The header lays out without it. */
   art?: Art;
-  /** `collections.hmong.credit`, shown under art that has products in it. */
+  /** `collections.noinep.credit`, shown under art that has products in it. */
   credit?: string;
   /** Actions under the intro. */
   children?: ReactNode;

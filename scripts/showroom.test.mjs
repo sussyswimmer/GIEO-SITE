@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert';
-import { approach, focus, hover, momentum, PRODUCT_KEYS, productPose, slotOffset, trackProgress, wrap } from '../src/lib/showroom.ts';
+import fs from 'node:fs';
+import { approach, focus, hover, momentum, PRODUCT_KEYS, productPose, runLength, slotOffset, trackProgress, wrap } from '../src/lib/showroom.ts';
 
 test('it glides in from the lower right and out toward the upper left', () => {
   assert.ok(productPose(1).y < 0);
@@ -21,8 +22,20 @@ test('wrap keeps the yarn inside its field', () => {
   assert.equal(wrap(0.5, -2, 2), 0.5);
 });
 
-test('three products, in the order the home page makes them', () => {
-  assert.deepEqual([...PRODUCT_KEYS], ['tote', 'mug', 'coaster']);
+test("GIEO's two products, the bag then the lipstick holder, and nothing GIEO does not make", () => {
+  assert.deepEqual([...PRODUCT_KEYS], ['bag', 'lipstick']);
+});
+
+test('the run keeps each product its scroll: three took 300/260svh, two take 219/171svh', () => {
+  assert.deepEqual(runLength(3), { phone: 300, desktop: 260 });
+  assert.deepEqual(runLength(2), { phone: 219, desktop: 171 });
+  assert.deepEqual(runLength(PRODUCT_KEYS.length), runLength(2));
+  for (let n = 1; n <= 6; n++) assert.ok(runLength(n).phone >= runLength(n).desktop, `${n} products`);
+  // globals.css sets the run: the phone value, then the desktop one from 64rem
+  const css = fs.readFileSync(new URL('../src/app/globals.css', import.meta.url), 'utf8');
+  const runs = [...css.matchAll(/\.showroom-run \{ --run: (\d+)svh/g)].map((m) => Number(m[1]));
+  const { phone, desktop } = runLength(PRODUCT_KEYS.length);
+  assert.deepEqual(runs, [phone, desktop]);
 });
 
 test('track progress: 0 at the pin, 1 when it lets go, clamped', () => {

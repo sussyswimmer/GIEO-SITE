@@ -17,8 +17,6 @@ import {
   SRGBColorSpace,
   TextureLoader,
   type Material,
-  type MeshPhysicalMaterial,
-  type Vector3,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
@@ -27,12 +25,15 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import { makeBody, makeBrocade, token } from './weave-materials';
 
 /**
- * The Collections gallery (src/lib/showroom.ts has the math). Each product from the weave models hangs in
- * its box ([data-showroom-stage="<key>"], which the track slides left): turning, bobbing over a soft
- * shadow, in a petal glow; it rises in from the lower right and leaves toward the upper left, leaning into
- * the scroll and spinning faster the faster the reader scrolls. While it is in the middle its parts keep a
- * life of their own (the tote's handles sway, the mug's band turns, the coaster's top hovers). Loose yarn
- * loops drift through the pin at many depths, the near ones passing faster than the products.
+ * The Collections gallery (src/lib/showroom.ts has the math). GIEO's two products from the weave models
+ * (blender/scripts/weave.py, after GIEO's photos), the Nối Bag and the Nếp Keychain, each hang in their box
+ * ([data-showroom-stage="<key>"], which the track slides left): turning, bobbing over a soft shadow, in a
+ * petal glow; each rises in from the lower right and leaves toward the upper left, leaning into the scroll
+ * and turning faster the faster the reader scrolls. While it is in the middle its parts keep a life of their
+ * own: the bag's strap sways on its band, the holder's clasp swings (and swings further when the scroll
+ * pushes it). The holder is small in life but hangs here as large as the bag, and rocks rather than spins:
+ * edge-on it would read as a sliver. Flower petals drift through the pin at many depths, the near ones
+ * passing faster than the products.
  * frameloop is "demand": while the section is on screen the scene asks for the next frame; off screen it
  * draws nothing and asks for nothing.
  */
@@ -41,12 +42,14 @@ const FOV = 35;
 const DIST = 10;
 const GLB = '/models/weave.glb';
 const CLOTH = '/models/weave-cloth.webp';
-const COASTER_TILT = (62 * Math.PI) / 180;
-// Each product's size in its box (box units: one is the box's shorter side), so the three read alike.
-const SIZE: Record<ProductKey, number> = { tote: 1.32, mug: 1.5, coaster: 1.38 }; // closer in (Maxwell, 2026-11-17)
-// Where the shadow lies under each (box units, before SIZE), and its phase in the float.
-const FLOOR: Record<ProductKey, number> = { tote: -0.36, mug: -0.3, coaster: -0.3 };
-const PHASE: Record<ProductKey, number> = { tote: 0, mug: 2.1, coaster: 4.2 };
+// Each product's size in its box (box units: one is the box's shorter side), so the two read alike: the
+// holder, a few centimetres in life, hangs as large as the bag: it is the hero of its slot.
+const SIZE: Record<ProductKey, number> = { bag: 1.06, lipstick: 0.93 };
+// The model height (weave.py units) hung at the box's centre, so each sits in its box as the old tote did; where
+// its shadow lies (its foot, a little below); its phase in the float.
+const CENTRE: Record<ProductKey, number> = { bag: 0.1, lipstick: 0.04 };
+const FLOOR: Record<ProductKey, number> = { bag: -0.32, lipstick: -0.48 };
+const PHASE: Record<ProductKey, number> = { bag: 0, lipstick: 2.6 };
 const MOTES = 46;
 
 useLoader.preload(GLTFLoader, GLB, (l) => l.setMeshoptDecoder(MeshoptDecoder));
@@ -81,11 +84,7 @@ function radial(color: string, strength: number, w: number, h: number) {
   return new Mesh(new PlaneGeometry(w, h), mat);
 }
 
-type Part = { obj: Object3D; base: Vector3 };
-const part = (root: Object3D, name: string): Part => {
-  const obj = root.getObjectByName(name) as Object3D;
-  return { obj, base: obj.position.clone() };
-};
+const part = (root: Object3D, name: string) => root.getObjectByName(name) as Object3D;
 
 type Product = {
   holder: Group; // placed at its box, scaled to it
@@ -93,7 +92,7 @@ type Product = {
   turn: Object3D; // the model's own Turn node
   glow: Mesh;
   shadow: Mesh;
-  mats: MeshPhysicalMaterial[];
+  mats: Material[];
 };
 
 /** A fixed scatter (seeded, so every visit and every screenshot is the same). */
@@ -130,53 +129,45 @@ export default function ShowroomScene() {
     cloth.anisotropy = 4;
     cloth.wrapS = cloth.wrapT = ClampToEdgeWrapping;
 
+    // Lifts sit well under 1: the studio light adds to the canvas's own lights, and at 1 every surface clips.
+    // The brocade's UVs are in cloth units (weave.py: a diamond on the bag, a larger unit on the holder, whose
+    // front shows a few more, smaller diamonds as in GIEO's photos); `yarns` is per unit.
     const mats = {
-      // Lifts sit well under 1 now: the studio light adds to the canvas's own lights, and at the old values
-      // every surface clipped to white.
-      panel: makeBrocade(cloth, 64, 0.74),
-      band: makeBrocade(cloth, 120, 0.74, 0.5),
-      top: makeBrocade(cloth, 74, 0.7, 0.5),
-      tote: makeBody([0.66, 0.84, 0.82], 'canvas'),
-      mug: makeBody([0.7, 0.9, 0.88], 'ceramic'),
-      coaster: makeBody([0.62, 0.72, 0.75], 'canvas'),
+      brocade: makeBrocade(cloth, 12, 0.74, { lattice: 1, shade: true }),
+      front: makeBrocade(cloth, 15, 0.74, { lattice: 1.25, shade: true }),
+      bag: makeBody([0.7, 0.86, 0.86], 'canvas', 260),
+      lip: makeBody([0.7, 0.86, 0.86], 'canvas', 260),
+      wood: new MeshStandardMaterial({ vertexColors: true, roughness: 0.62, metalness: 0, transparent: true }),
+      brass: new MeshStandardMaterial({ vertexColors: true, roughness: 0.3, metalness: 0.9, envMapIntensity: 3, transparent: true }),
     };
+    mats.wood.color.setRGB(0.95, 0.86, 0.8);
+    mats.brass.color.setRGB(1, 0.78, 0.46); // the soft brass: the peach in the model, warmed
     const assign: Record<string, [Material, number]> = {
-      Panel: [mats.panel, 2],
-      ToteBody: [mats.tote, 0],
-      Handle_F: [mats.tote, 0],
-      Handle_B: [mats.tote, 0],
-      MugBody: [mats.mug, 0],
-      MugBand: [mats.band, 1],
-      CoasterBody: [mats.coaster, 0],
-      CoasterTop: [mats.top, 1],
+      NoiBody: [mats.bag, 0],
+      NoiBand: [mats.brocade, 1],
+      NoiHandle: [mats.brocade, 1],
+      LipBody: [mats.lip, 0],
+      LipFlap: [mats.lip, 0],
+      LipLoop: [mats.lip, 0],
+      LipFront: [mats.front, 1],
+      LipButton: [mats.wood, 0],
+      LipClasp: [mats.brass, 0],
     };
     root.traverse((o) => {
       const hit = assign[o.name];
       if (!hit || !(o as Mesh).isMesh) return;
-      const mesh = o as Mesh;
-      [mesh.material, mesh.renderOrder] = hit;
-      if (o.name === 'Panel') {
-        mesh.frustumCulled = false; // its morphs reach outside the base bounds
-        const inf = mesh.morphTargetInfluences;
-        if (inf) {
-          inf.fill(0);
-          inf[inf.length - 1] = 1; // the last drape key: the panel sewn on the bag
-        }
-      }
+      [(o as Mesh).material, (o as Mesh).renderOrder] = hit;
     });
 
     // The parts that move on their own, found while they are still under root.
     const parts = {
-      handleF: part(root, 'HandlePivot_F'),
-      handleB: part(root, 'HandlePivot_B'),
-      mugBand: part(root, 'MugBand'),
-      coasterTop: part(root, 'CoasterTop'),
+      handle: part(root, 'NoiHandlePivot'),
+      clasp: part(root, 'LipClaspPivot'),
     };
 
-    const byKey: Record<ProductKey, MeshPhysicalMaterial[]> = {
-      tote: [mats.panel, mats.tote],
-      mug: [mats.band, mats.mug],
-      coaster: [mats.top, mats.coaster],
+    const byKey: Record<ProductKey, Material[]> = {
+      bag: [mats.brocade, mats.bag],
+      lipstick: [mats.front, mats.lip, mats.wood, mats.brass],
     };
     const products = {} as Record<ProductKey, Product>;
     for (const key of PRODUCT_KEYS) {
@@ -186,13 +177,12 @@ export default function ShowroomScene() {
       const glow = radial(token('--petal-soft'), 0.26, 1.7, 1.7);
       glow.position.z = -0.6;
       glow.renderOrder = -2;
-      const shadow = radial(token('--ink'), 0.55, 0.62, 0.62);
+      const shadow = radial(token('--ink'), 0.55, key === 'bag' ? 0.8 : 0.5, key === 'bag' ? 0.8 : 0.5);
       shadow.rotation.x = -Math.PI / 2;
-      shadow.position.y = FLOOR[key];
+      shadow.position.y = FLOOR[key] - CENTRE[key];
       shadow.renderOrder = -1;
       float.add(turn); // re-parenting drops the home carousel's station transform
-      // The coaster tilts toward us first, then rocks about the vertical.
-      if (key === 'coaster') turn.rotation.order = 'YXZ';
+      turn.position.set(0, -CENTRE[key], 0);
       holder.add(glow, shadow, float);
       products[key] = { holder, float, turn, glow, shadow, mats: byKey[key] };
     }
@@ -322,22 +312,18 @@ export default function ShowroomScene() {
       float.position.y = f.y;
       float.rotation.set(0.12 * m.vel, 0, f.tilt - 0.22 * m.vel);
       const yaw = pose.yaw + f.spin + m.boost;
-      if (key === 'coaster') turn.rotation.set(COASTER_TILT + 0.12 * Math.sin(yaw), 0.5 * Math.sin(yaw), 0);
+      // The flat holder rocks round a three-quarter view; the bag turns all the way round.
+      if (key === 'lipstick') turn.rotation.set(0.04, -0.2 + 0.62 * Math.sin(yaw + 0.3), 0);
       else turn.rotation.set(0.06, yaw, 0);
 
-      // Its parts' own life, strongest in the middle.
+      // Its parts' own life, strongest in the middle: the strap sways forward and back on its band; the clasp
+      // swings like a pendulum, pushed further by the scroll.
       const live = focus(d);
-      if (key === 'tote') {
-        rig.parts.handleF.obj.rotation.x = 0.16 * Math.sin(t * 1.7) * live;
-        rig.parts.handleB.obj.rotation.x = -0.16 * Math.sin(t * 1.7 + 0.6) * live;
-      } else if (key === 'mug') {
-        const { obj, base } = rig.parts.mugBand;
-        obj.rotation.y = t * 0.5;
-        obj.position.y = base.y + 0.035 * (0.5 + 0.5 * Math.sin(t * 1.3)) * live;
-      } else {
-        const { obj, base } = rig.parts.coasterTop;
-        obj.position.y = base.y + 0.06 * (0.5 + 0.5 * Math.sin(t * 1.2)) * live;
-        obj.rotation.y = 0.25 * Math.sin(t * 0.8) * live;
+      if (key === 'bag') rig.parts.handle.rotation.x = 0.16 * Math.sin(t * 1.5) * live;
+      else {
+        const clasp = rig.parts.clasp;
+        clasp.rotation.z = (0.16 * Math.sin(t * 1.9) + 0.35 * m.vel) * live;
+        clasp.rotation.x = 0.12 * Math.sin(t * 1.3 + 0.5) * live;
       }
 
       // The shadow tightens as it bobs down, spreads and pales as it rises.

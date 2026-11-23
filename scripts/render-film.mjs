@@ -4,7 +4,7 @@
 // (and public/art/products/, public/art/seam/ when the `art` scene is asked for).
 // Usage: node scripts/render-film.mjs [--scenes seed,weave,lotus,stills] [--quality final|draft] [--resume]
 //          [--scratch D:/claude-scratch/gieo/film] [--no-encode]
-//        node scripts/render-film.mjs --scenes art   (blender/film/art.py: the three product portraits and the seam
+//        node scripts/render-film.mjs --scenes art   (blender/film/art.py: the two product portraits and the seam
 //          piece, into public/art/products/ and public/art/seam/; about a minute)
 //   --resume keeps frames that are already on disk (after an interrupted run); without it every frame is rendered again.
 // A full final-quality run is about 45 minutes on an RTX 3070. Logs: <scratch>/logs/<scene>.log.

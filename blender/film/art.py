@@ -1,11 +1,12 @@
-"""Page art (docs/08-fuller.md): four stills on transparent. One PNG each at <out>/art/<name>/f0000.png;
+"""Page art (docs/08-fuller.md): three stills on transparent. One PNG each at <out>/art/<name>/f0000.png;
 scripts/encode-film.mjs --scenes art turns them into public/art/products/*.webp and public/art/seam/roots.webp.
-  tote, mug, coaster   one product each: the weave film's models, materials and plain weave (no motif), three-quarter
-                       view, lit and framed like the still-lifes in stills.py
+  bag, lipstick        one product each, GIEO's Nối Nếp collection (the Nối Bag, the Nếp Keychain): the weave film's
+                       models, materials and plain weave (no motif), lit and framed like the still-lifes in stills.py;
+                       the bag in three-quarter view, the keychain lying on its back seen from above
   roots                the seam under the hero film, 2400 x 900: the seed film's earth turning over a lip into a cut
                        face that crumbles away into loose crumbs, with a few pale roots hanging into empty space
 
-  blender -b --factory-startup -P blender/film/art.py -- --quality draft|final [--set tote,mug,coaster,roots]
+  blender -b --factory-startup -P blender/film/art.py -- --quality draft|final [--set bag,lipstick,roots]
 """
 import math
 import sys
@@ -20,7 +21,7 @@ import stills  # noqa: E402  (blender/scripts has no stills.py, so this is the o
 from rig import T, lin, mix, ss  # noqa: E402
 
 weave, seedfilm = stills.weave, stills.seedfilm
-SETS = ("tote", "mug", "coaster", "roots")
+SETS = ("bag", "lipstick", "roots")
 CLOSE = dict(K=18, ply=(3, 0.09))  # yarn as the film models it for its close-ups: 18-sided, the plies in the geometry
 
 
@@ -30,34 +31,18 @@ def portrait(a, name, cam, **view):
     stills.shoot(a, name, cam, scene="art", **view)
 
 
-def tote(a):
-    at = (0.0, -0.05, 0.42)
+def bag(a):
+    at = (0.0, -0.05, 0.35)
     cam = stills.stage(a, at, 1.0)
-    weave.tote()
-    # the film's panel as it ends up sewn to the bag (weave.py from frame 109), with the same rings and yarn
-    W = weave
-    panel = rig.Cloth("Panel", W.NW, W.NF, W.P, W.R, rig.yarn_mat("Yarn", plies=3, r=W.R), W.WARP_COL, W.WEFT_COL, rings=(300, 250),
-                      accents={W.MINT: T["stem-mint"]}, **CLOSE)
-    place, s = W.panel_place(1.0)
-    half, blunt = W.SIZE / 2 + 0.004, 0.6 * W.R
-    sw = np.tile(np.clip(np.linspace(-W.FRINGE, W.TAIL, 300), -W.FRINGE, W.FRINGE), (W.NW, 1))
-    sf = np.tile(np.linspace(-half, half, 250), (W.NF, 1))
-    panel.update(sw, sf, place, rw=ss(0, blunt, W.FRINGE - np.abs(sw)), rf=ss(0, blunt, half - np.abs(sf)), scale=s)  # both ends domed: this view sees the picks end on
-    portrait(a, "tote", cam, target=at, height=1.0, pitch=10, yaw=28, fstop=11)
+    weave.noi_bag(rig.yarn_mat("YarnFine", plies=3, r=weave.RF), **CLOSE)
+    portrait(a, "bag", cam, target=at, height=1.0, pitch=10, yaw=28, fstop=11)
 
 
-def mug(a):
-    at = (0.03, 0.0, 0.14)
+def lipstick(a):
+    at = (0.0, 0.03, 0.01)
     cam = stills.stage(a, at, 0.4)
-    weave.mug(rig.yarn_mat("YarnFine", plies=3, r=weave.RF), at=(0.0, 0.0), **CLOSE)
-    portrait(a, "mug", cam, target=at, height=0.44, pitch=20, yaw=28, fstop=16)
-
-
-def coaster(a):
-    at = (0.0, 0.0, 0.012)
-    cam = stills.stage(a, at, 0.36)
-    weave.coaster(rig.yarn_mat("YarnFine", plies=3, r=weave.RF), at=(0.0, 0.0), **CLOSE)
-    portrait(a, "coaster", cam, target=at, height=0.40, pitch=36, yaw=24, fstop=16)
+    weave.lipstick_holder(rig.yarn_mat("YarnFine", plies=3, r=weave.RF), at=(0.0, 0.0), turn=-0.42, **CLOSE)
+    portrait(a, "lipstick", cam, target=at, height=0.42, pitch=52, yaw=16, fstop=16)
 
 
 # ---- the seam: earth in section, with roots ------------------------------------------------------
@@ -191,7 +176,7 @@ def roots(a):
 def main():
     a = rig.parse(SETS)
     for name in a.set.split(","):
-        {"tote": tote, "mug": mug, "coaster": coaster, "roots": roots}[name](a)
+        {"bag": bag, "lipstick": lipstick, "roots": roots}[name](a)
 
 
 if __name__ == "__main__":

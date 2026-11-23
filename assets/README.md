@@ -5,7 +5,7 @@ assets/
   logo/                 GIEO logo. SVG preferred (TODO(logo-svg)); PNG ok for now
   brand/                Canva pitch deck exported as PDF + PNG pages; brand guidelines if they exist
   photos/
-    products/           tote, mug, coaster: plain background, several angles each
+    products/           the Nối Bag and the Nếp Keychain: plain background, several angles each (stall photos today)
     brocade/            flat, straight-on scans/photos of each brocade pattern (for 3D textures)
     journal/            season recap photos with consent (team, trips, workshops, community)
     artisans/           artisans at work (hands and looms are ideal)

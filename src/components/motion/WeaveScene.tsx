@@ -21,6 +21,13 @@ import { SCENE_FADE } from '@/lib/motion';
 import { useMotionStore } from '@/lib/motion-store';
 import { type ClothUniforms, makeBody, makeCloth, setDrape, token } from './weave-materials';
 
+/**
+ * Legacy: the home page's live weave (threads, a woven panel that drapes, then the products on a carousel),
+ * unmounted since the redesign (nothing sets `near.weave`); the home page plays the weave as a film. Kept
+ * compiling against today's weave.glb: the panel drapes toward the Nối Bag and gives way to it, the carousel
+ * then turns to the Nếp Keychain. The products wear their Blender vertex colours here (the showroom's brocade
+ * shader is not used). The store's `bag` beat turns the bag; `lipstick` turns the carousel and the keychain.
+ */
 const FOV = 35;
 const DIST = 10;
 const GLB = '/models/weave.glb';
@@ -38,12 +45,10 @@ const HERO_Y = 0.36; // where the hero thread meets the panel's top edge
 const RADIUS = 1.3; // carousel
 const CAROUSEL_Z = -1.3;
 // Start values, tune by eye.
-const COASTER_TILT = deg(62);
 const ARC = deg(25);
 const STATIONS = [
-  { name: 'StationTote', angle: 0, hw: 0.3 },
-  { name: 'StationMug', angle: ARC, hw: 0.3 },
-  { name: 'StationCoaster', angle: 2 * ARC, hw: 0.29 },
+  { name: 'StationBag', angle: 0, hw: 0.42 },
+  { name: 'StationLipstick', angle: ARC, hw: 0.2 },
 ] as const;
 
 // Both preloaded so the GLB and the texture travel in parallel instead of one after the other.
@@ -68,14 +73,8 @@ export default function WeaveScene() {
     const headCol = new Color(token('--cream')); // mint over peach reads as mud
     // The shared lights tint the cloth; these multipliers invert them at each surface's hero normal.
     const panel = makeCloth(cloth, 64, 1, [1.1, 1.42, 1.38], headCol);
-    const band = makeCloth(cloth, 164, 0, [1.1, 1.42, 1.38], headCol);
-    // No yarn on the coaster: its tilt and turn shear the grid into a rhomb lattice, which reads as a pattern.
-    const top = makeCloth(cloth, 74, 0, [1.01, 1.17, 1.21], headCol);
-
-    const tote = makeBody();
-    const mug = makeBody();
-    const coaster = makeBody();
-    coaster.color.setRGB(1.01, 1.17, 1.21); // tilted to the light, so the camera-facing lift would clip
+    const bag = makeBody();
+    const lipstick = makeBody();
 
     const ribbon = new MeshBasicMaterial({ vertexColors: true, transparent: true, depthWrite: false, side: DoubleSide });
     ribbon.forceSinglePass = true;
@@ -117,13 +116,15 @@ diffuseColor.a *= (1. - smoothstep(vH - .012, vH, vS)) * (1. - smoothstep(uClipY
 
     const mats: Record<string, [Material, number]> = {
       Panel: [panel, 2],
-      ToteBody: [tote, 0],
-      Handle_F: [tote, 0],
-      Handle_B: [tote, 0],
-      MugBody: [mug, 0],
-      MugBand: [band, 1],
-      CoasterBody: [coaster, 0],
-      CoasterTop: [top, 1],
+      NoiBody: [bag, 0],
+      NoiBand: [bag, 0],
+      NoiHandle: [bag, 0],
+      LipBody: [lipstick, 0],
+      LipFront: [lipstick, 0],
+      LipFlap: [lipstick, 0],
+      LipButton: [lipstick, 0],
+      LipLoop: [lipstick, 0],
+      LipClasp: [lipstick, 0],
       Threads: [ribbon, 1],
     };
     let panelMesh: Mesh | null = null;
@@ -140,20 +141,16 @@ diffuseColor.a *= (1. - smoothstep(vH - .012, vH, vS)) * (1. - smoothstep(uClipY
     return {
       root,
       panel,
-      band,
-      top,
-      tote,
-      mug,
-      coaster,
+      bag,
+      lipstick,
       ribbon,
       ru,
       panelMesh: panelMesh as Mesh | null,
       carousel: byName('Carousel'),
       stations: STATIONS.map((s) => byName(s.name)),
-      turnTote: byName('TurnTote'),
-      turnMug: byName('TurnMug'),
-      turnCoaster: byName('TurnCoaster'),
-      pivots: [byName('HandlePivot_F'), byName('HandlePivot_B')],
+      turnBag: byName('TurnBag'),
+      turnLipstick: byName('TurnLipstick'),
+      handle: byName('NoiHandlePivot'),
       threads: byName('Threads'),
     };
   }, [gltf, cloth]);
@@ -182,7 +179,7 @@ diffuseColor.a *= (1. - smoothstep(vH - .012, vH, vS)) * (1. - smoothstep(uClipY
 
   useEffect(
     () => () => {
-      [rig.panel, rig.band, rig.top, rig.tote, rig.mug, rig.coaster, rig.ribbon].forEach((m) => m.dispose());
+      [rig.panel, rig.bag, rig.lipstick, rig.ribbon].forEach((m) => m.dispose());
     },
     [rig],
   );
@@ -227,28 +224,28 @@ diffuseColor.a *= (1. - smoothstep(vH - .012, vH, vS)) * (1. - smoothstep(uClipY
     rig.panel.color.setRGB(1.1 * (1 - 0.1 * lean), 1.42 * (1 - 0.15 * lean), 1.38 * (1 - 0.12 * lean));
 
     setDrape(rig.panelMesh, w.drape);
-    const handles = -1.35 * (1 - smooth(w.drape, 0.55, 1));
-    rig.pivots.forEach((pv) => (pv.rotation.x = handles));
+    rig.handle.rotation.x = -1.35 * (1 - smooth(w.drape, 0.55, 1)); // the strap lifts as the bag arrives
 
     // Products: the carousel turns about a far axis, in place of a camera arc.
-    const rot = ARC * easeInOut(w.mug) + ARC * easeInOut(w.coaster);
+    const rot = ARC * easeInOut(w.lipstick);
     rig.carousel.position.set(0, 0, CAROUSEL_Z);
     rig.carousel.rotation.y = -rot;
-    const groups = [[rig.panel, rig.tote], [rig.band, rig.mug], [rig.top, rig.coaster]];
     STATIONS.forEach((s, k) => {
       // Faded by the product's edge, not its centre; a station at zero opacity is not drawn.
       const op = (1 - smooth(Math.abs(RADIUS * Math.sin(s.angle - rot)) + s.hw, 0.5, 0.7)) * exit;
       rig.stations[k].visible = op > 0.003;
-      groups[k][0].opacity = op;
-      groups[k][1].opacity = op * (k === 0 ? smooth(w.drape, 0.3, 0.8) : 1);
-      groups[k][1].visible = groups[k][1].opacity > 0.003; // at opacity 0 it would still write depth and punch through the cloth
+      if (k === 0) {
+        // The draped panel gives way to the bag. At opacity 0 a material still writes depth, so hide it.
+        rig.panel.opacity = op * (1 - smooth(w.drape, 0.6, 1));
+        rig.bag.opacity = op * smooth(w.drape, 0.3, 0.8);
+        rig.bag.visible = rig.bag.opacity > 0.003;
+      } else rig.lipstick.opacity = op;
     });
 
     // Each product turns to its hero pose on its own beat.
-    const et = easeInOut(w.tote);
-    rig.turnTote.rotation.set(lerp(0.1, 0.06, et), lerp(-0.16, -deg(12), et), 0);
-    rig.turnMug.rotation.set(0, lerp(-deg(14), deg(12), easeInOut(w.mug)), 0);
-    rig.turnCoaster.rotation.set(COASTER_TILT, lerp(0, deg(18), easeInOut(w.coaster)), 0);
+    const et = easeInOut(w.bag);
+    rig.turnBag.rotation.set(lerp(0.1, 0.06, et), lerp(-0.16, -deg(12), et), 0);
+    rig.turnLipstick.rotation.set(0, lerp(-deg(14), deg(12), easeInOut(w.lipstick)), 0);
   });
 
   return (

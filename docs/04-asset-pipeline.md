@@ -7,8 +7,11 @@ blender/
   scripts/            Python that builds each scene from scratch (re-runnable, no hand-only steps)
     common.py         palette (from tokens), render settings, bake helpers, GLB export helper
     seed.py           Animation 1 scene
-    weave.py          Animation 2 scene (panel, threads, tote, mug, coaster)
+    weave.py          Animation 2 models (panel, threads, the Nối Bag and the Nếp Keychain); the Collections
+                      showroom hangs the products from public/models/weave.glb
     lotus.py          Animation 3 scene
+  film/               Python that builds what ships as film: the three films, the stills and the art (07-redesign.md §4)
+    weave.py          the weave film: 150 frames, thread to cloth to the Nối Bag, then the Nếp Keychain
   scenes/             .blend outputs (gitignored if large; keep scripts as source of truth)
   renders/            stills + video plates for fallbacks and the launch video
 public/models/        optimized .glb (meshopt + KTX2) used by the site
@@ -36,7 +39,7 @@ public/posters/       Still-tier key frames
 
 **Scene notes:**
 - `seed.py`: seed = deformed UV sphere with a crease, warm brown gradient. Soil mound = displaced disc, stylized, not realistic dirt. Sprout = curve with bevel + two leaf meshes with shape keys (closed → open). Stem extends to a long thin curve ending in a glowing thread.
-- `weave.py`: tote (rectangular box + handles via curve bevel, slight cloth sag via short cloth sim baked), mug (lathe/screw profile + handle torus segment), coaster (rounded cylinder). UV-unwrap each so a single brocade texture maps without stretching on the printed/woven area. Brocade panel = subdivided plane; drape = cloth sim onto tote baked to shape keys (≤ 30 frames).
+- `weave.py` (both `blender/scripts/weave.py` and the film's `blender/film/weave.py`): GIEO's two products, modelled after their stall photos (`09-feedback.md` F2). The Nối Bag: a pleated canvas body gathered under a straight brocade band that forms the opening, a rounded foot, one brocade handle. The Nếp Keychain: a flat sleeve, brocade front, canvas flap with a rounded lower edge, wooden four-hole button, canvas loop tab with a brass lobster clasp. Brocade parts carry UVs in cloth units (one UV unit is one diamond of the lattice) so the pattern never stretches; self-checks hold the proportions to the photos. Brocade panel = subdivided plane; drape = closed-form pose baked to shape keys. No mug, no coaster, no wallet.
 - `lotus.py`: 3 rings of petals (outer 3 = pillar petals, slightly larger), each petal a sculpted plane with solidify, origin at base, keyed rotation closed → open. Vertex colors `--petal-soft` at base → `--lotus-pink` at tip. Stem in `--stem-mint`.
 
 **Optimize after export:**
@@ -81,6 +84,9 @@ Claude Code can script AE with ExtendScript (`.jsx`): write the script to `ae/`,
 
 ## 4. Photos
 
-- Originals go in `assets/photos/{products,journal,artisans,team}/` untouched.
-- `scripts/process-images.mjs` (sharp) outputs AVIF + WebP at 640/1024/1600/2400 widths into `public/img/`, strips EXIF (location data!), and writes a manifest with dimensions and blur placeholders.
+- Source photos go in `assets/photos/{products,journal,artisans,team,brocade}/`. Today there are thirteen, chosen from the 663 frames GIEO shared in November 2026; `assets/photos/SOURCES.md` lists the album, the original and the crop of each.
+- **The rule (`09-feedback.md` F3):** a real GIEO photo may be used when no person in it can be recognised. Hands and a back view are fine. No face of a child or a teenager, ever, without GIEO's consent for that photo; the team are minors too. A frame that fails this does not enter the repo.
+- **Every photo needs a `yes` row in `assets/consent.csv`**, products and cloth included. A missing row, or anything other than `yes`, counts as no.
+- `scripts/process-images.mjs` (sharp, `npm run images`) outputs AVIF + WebP at 640/1024/1600/2400 widths into `public/img/`, strips all metadata (location data!), and writes `src/lib/photos-manifest.json` with dimensions and blur placeholders.
+- Pages look a photo up by its id (`photo(id, t)` in `src/lib/photos.ts`), never by a file-name prefix. Its alt text is `photos.<id>.alt` in both content files; without it the photo is not shown. It is shown as a print (`PhotoPrint`).
 - Every photo entry in the manifest has `consent: true|false`. Components refuse to render `false` in production.

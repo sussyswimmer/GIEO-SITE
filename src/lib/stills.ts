@@ -38,7 +38,7 @@ export function listStills(first: readonly string[] = []): Still[] {
         w,
         h,
         // A still that shows products carries the partner credit (docs/07 §1).
-        products: /product|tote|mug|coaster/i.test(name),
+        products: /product|bag|lipstick/i.test(name),
       };
     })
     .sort((a, b) => rank(a) - rank(b));

@@ -1,4 +1,5 @@
 // Rebuild public/models/{lotus,seed,weave}.glb and weave-cloth.webp from blender/scripts/*.py (run: npm run models).
+// Name models to rebuild only those: npm run models -- weave
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, statSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -17,7 +18,11 @@ function run(cmd, args) {
   }
 }
 
-for (const name of ['lotus', 'seed', 'weave']) {
+const ALL = ['lotus', 'seed', 'weave'];
+const only = process.argv.slice(2);
+for (const name of only) if (!ALL.includes(name)) throw new Error(`unknown model ${name}: one of ${ALL.join(', ')}`);
+
+for (const name of only.length ? only : ALL) {
   const raw = join(root, 'blender', 'out', `${name}.glb`);
   const final = join(root, 'public', 'models', `${name}.glb`);
   mkdirSync(dirname(raw), { recursive: true });
@@ -33,6 +38,6 @@ for (const name of ['lotus', 'seed', 'weave']) {
   console.log(`${name}.glb raw ${statSync(raw).size} B -> final ${statSync(final).size} B`);
 }
 
-// The cloth is a flat 64x64 tone: no upscale, lossless so the tone stays exact. TODO(products): replaced by GIEO's real scan.
-await sharp(join(root, 'blender', 'out', 'weave-cloth.png')).webp({ lossless: true, effort: 6 }).toFile(join(root, 'public', 'models', 'weave-cloth.webp'));
+// The cloth is a flat 64x64 tone (the showroom colours its brocade in the shader): no upscale, lossless so the tone stays exact.
+if (!only.length || only.includes('weave')) await sharp(join(root, 'blender', 'out', 'weave-cloth.png')).webp({ lossless: true, effort: 6 }).toFile(join(root, 'public', 'models', 'weave-cloth.webp'));
 console.log('weave-cloth.webp', statSync(join(root, 'public', 'models', 'weave-cloth.webp')).size, 'B');

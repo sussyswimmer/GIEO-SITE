@@ -4,7 +4,8 @@ import { ButtonLink, Container, FilmStage, Grid, Prose, Section } from '@/compon
 import { BandLine } from './KineticBand';
 
 const BEAT = 'mt-10 motion-safe:lg:mt-[12svh]';
-const PRODUCTS = ['tote', 'mug', 'coaster'] as const;
+// The Nối Nếp collection, in the film's order (WEAVE_PRODUCTS in fallback-timeline.ts): the Nối Bag, the Nếp Keychain.
+const PRODUCTS = ['bag', 'lipstick'] as const;
 
 /**
  * S1 Weave: thread, cloth, product. The one dark section; every colour inside comes from the
@@ -13,13 +14,14 @@ const PRODUCTS = ['tote', 'mug', 'coaster'] as const;
  * its plum backdrop. The stage's size and bleed are the .weave-stage rule in globals.css: the canvas is
  * larger than the band it shows in, and every product stays inside the screen.
  * The quote is split on spaces for the scroll reveal; it stays one sentence for screen readers.
- * The section ends on the product run: the three names, large, each lit while its product rests on the stage
- * (docs/08 H2; the pacing is WEAVE_PACE in fallback-timeline.ts), then a band of the names running sideways.
+ * The section ends on the product run: the two names, large, each lit while its product rests on the stage
+ * (docs/08 H2; the pacing is WEAVE_PACE in fallback-timeline.ts), each with what it is in small type under it,
+ * then a band of the names running sideways.
  * No visible heading: there is no key for one (PLAN.md §6).
  */
 export async function Weave() {
   const t = await getTranslations('home.craft');
-  const tCollection = await getTranslations('collections.hmong');
+  const tCollection = await getTranslations('collections.noinep');
   const words = t('quote').split(' ');
 
   return (
@@ -74,16 +76,23 @@ export async function Weave() {
               {t('beat3')}
             </Prose>
 
-            {/* The product run (docs/08 H2). In flow this is a list of three names. With the runtime up, on a
+            {/* The product run (docs/08 H2). In flow this is a list of the two names. With the runtime up, on a
                 screen tall enough, the names stick beside (below, on a phone) the stage for the length the
-                runtime gives the run, and each is lit while its product rests on the stage. */}
+                runtime gives the run, and each is lit while its product rests on the stage. The names are
+                Vietnamese on every page (lang="vi"); what each product is sits under it in caption type,
+                outside the outline effect (.weave-kind, globals.css). */}
             <div data-weave-run className={BEAT}>
               <div data-weave-names className="flex flex-col justify-center pb-section-sm lg:pt-(--nav-offset)">
                 <p className="text-body font-medium text-fg-body">{tCollection('name')}</p>
                 <ul role="list" className="weave-names mt-2 font-serif italic text-fg-heading lg:mt-4">
-                  <li>{t('products.tote')}</li>
-                  <li>{t('products.mug')}</li>
-                  <li>{t('products.coaster')}</li>
+                  {PRODUCTS.map((id) => (
+                    <li key={id}>
+                      <span lang="vi" className="weave-name block">
+                        {t(`products.${id}.name`)}
+                      </span>
+                      <span className="weave-kind block font-sans text-caption not-italic text-fg-body">{t(`products.${id}.kind`)}</span>
+                    </li>
+                  ))}
                 </ul>
                 <ButtonLink variant="primary" href="/collections" className="mt-6 self-start lg:mt-10">
                   {t('cta')}
@@ -93,11 +102,13 @@ export async function Weave() {
           </div>
         </Grid>
       </Container>
-      {/* The second sideways band (docs/08 H2): the three products, running against the pillar band below. */}
-      <BandLine reverse className="pt-2 pb-6 text-fg-heading lg:pb-10" outline="var(--cream)">
-        {PRODUCTS.map((key) => (
-          <Fragment key={key}>
-            {t(`products.${key}`)}
+      {/* The second sideways band (docs/08 H2): the products, running against the pillar band below. Two
+          names are a short line, so they run twice: the band stays wider than the screen all through its slide.
+          The top padding is the stacked marks' room (Nối), clear of the partner credit above. */}
+      <BandLine reverse className="pt-[0.2em] pb-6 text-fg-heading lg:pb-10" outline="var(--cream)">
+        {[...PRODUCTS, ...PRODUCTS].map((id, i) => (
+          <Fragment key={i}>
+            <span lang="vi">{t(`products.${id}.name`)}</span>
             <span className="mx-[0.35em] not-italic text-lotus-pink">·</span>
           </Fragment>
         ))}

@@ -37,9 +37,14 @@
       "beat3": "Thay vì chỉ đơn thuần bán các sản phẩm thủ công, GIEO phát triển những sản phẩm đương đại nhưng vẫn sử dụng họa tiết và kỹ thuật dệt thổ cẩm truyền thống của người H'Mông, giúp các giá trị thủ công truyền thống trở nên gần gũi và phù hợp hơn với người tiêu dùng trẻ ngày nay. Mỗi sản phẩm được bán ra không chỉ góp phần duy trì nghề dệt truyền thống mà còn trực tiếp hỗ trợ những nữ nghệ nhân đang gìn giữ di sản văn hóa này.",
       "cta": "Xem bộ sưu tập",
       "products": {
-        "tote": "Túi tote",
-        "mug": "Cốc sứ",
-        "coaster": "Lót ly"
+        "bag": {
+          "name": "Túi Nối",
+          "kind": "Túi xách vải thủ công"
+        },
+        "lipstick": {
+          "name": "Móc Nếp",
+          "kind": "Móc đựng son dưỡng"
+        }
       }
     },
     "partner": {
@@ -91,10 +96,52 @@
   "collections": {
     "title": "Bộ sưu tập",
     "intro": "Mỗi bộ sưu tập sử dụng họa tiết của một dân tộc; lợi nhuận từ đó quay trở lại với dân tộc ấy.",
-    "hmong": {
-      "name": "Thổ cẩm H'Mông",
-      "body": "Túi tote, cốc sứ và lót ly lấy cảm hứng từ thổ cẩm truyền thống của người H'Mông.",
+    "noinep": {
+      "name": "Nối Nếp",
+      "tagline": "Nối nghề. Nối người. Nối tương lai.",
+      "body": "Những sản phẩm được tạo nên từ vải canvas và vải dệt thủ công.",
       "credit": "Sản phẩm được thực hiện cùng Chie Dù Pù Dù Pà"
+    }
+  },
+  "photos": {
+    "bag-pink": {
+      "alt": "Một chiếc túi vải màu hồng có viền dệt hoa văn trên bàn phủ khăn đen, bên cạnh những chiếc túi nhỏ bằng vải hoa văn."
+    },
+    "bag-rows": {
+      "alt": "Những hàng túi vải màu xanh đậm, đỏ và hồng, mỗi chiếc có một dải dệt hoa văn quanh miệng túi."
+    },
+    "lipstick-on-bag": {
+      "alt": "Những chiếc móc vải nhỏ màu xanh đậm có khóa đồng, cúc gỗ và mặt dệt hoa văn trên bàn phủ khăn đen, phía sau là một chiếc túi vải màu hồng."
+    },
+    "lipstick-rows": {
+      "alt": "Những hàng móc vải nhỏ màu đỏ và xanh đậm có khóa màu vàng, trên bàn phủ khăn đen."
+    },
+    "01-loom-weaver": {
+      "alt": "Một người thợ dệt nhìn từ phía sau, đang làm việc bên khung cửi gỗ."
+    },
+    "02-stilt-house": {
+      "alt": "Một ngôi nhà sàn mái lá trên bãi cỏ xanh, phía sau là những ngọn đồi phủ cây."
+    },
+    "03-heddles": {
+      "alt": "Những sợi dây go màu kem phía trên các sợi dọc màu xanh trên khung cửi."
+    },
+    "04-sewing-hands": {
+      "alt": "Đôi tay đưa một mảnh vải dưới kim máy may."
+    },
+    "05-cloth-on-loom": {
+      "alt": "Tấm vải kẻ sọc có một dải hoa văn màu cam, trên khung cửi."
+    },
+    "06-valley": {
+      "alt": "Một cánh đồng xanh và những ngọn đồi phủ cây dưới bầu trời nhiều mây."
+    },
+    "loom-cloth": {
+      "alt": "Tấm vải kẻ sọc có các dải hoa văn, căng trên khung cửi gỗ."
+    },
+    "sewing-cloth": {
+      "alt": "Đôi tay đưa tấm vải kẻ ca rô dưới kim máy may."
+    },
+    "nep-cloth": {
+      "alt": "Tấm vải hoa văn xanh trắng có tua rua, trên khung cửi gỗ."
     }
   },
   "about": {

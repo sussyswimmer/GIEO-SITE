@@ -14,7 +14,7 @@ import {
   SCRUB,
   THREAD_TIP,
 } from './motion';
-import { beatsAt, timeOf, TRACKS, WEAVE_PACE, weaveRun } from './fallback-timeline';
+import { beatsAt, timeOf, TRACKS, WEAVE_PACE, WEAVE_PRODUCTS, weaveRun } from './fallback-timeline';
 import { coverPoint, type FilmManifest, type FilmSet } from './film';
 import { useMotionStore, type WeaveBeat } from './motion-store';
 import { mountClips } from './scrub-clip';
@@ -388,15 +388,17 @@ function mountSow(reduced: boolean): () => void {
 }
 
 /**
- * S1. The film runs thread → cloth against the copy's scroll, then tote → mug → coaster against the product
- * run (docs/08 H2). Scroll maps to the film piecewise, the film itself is not re-timed: each product is made
- * over `change` svh and then rests on its last frame for `hold` svh (WEAVE_PACE) while its name is lit and
- * the stage sways a little, so a rest is never dead. Where nothing pins (reduced motion, a short screen)
- * the three share the list's passage through the screen instead.
+ * S1. The film runs thread → cloth against the copy's scroll, then through the products (WEAVE_PRODUCTS: the
+ * Nối Bag, then the Nếp Keychain) against the product run (docs/08 H2). Scroll maps to the film piecewise,
+ * the film itself is not re-timed: each product is made over `change` svh and then rests on its last frame
+ * for `hold` svh (WEAVE_PACE) while its name is lit and the stage sways a little, so a rest is never dead.
+ * Where nothing pins (reduced motion, a short screen) the products share the list's passage through the
+ * screen instead.
  */
 function mountWeave(reduced: boolean): () => void {
   const { beats, weights } = TRACKS.weave;
   const made = weights.slice(0, 4).reduce((a, b) => a + b, 0); // thread, warps, weave, drape
+  const n = WEAVE_PRODUCTS.length;
   const total = weights.reduce((a, b) => a + b, 0);
   const craft = document.querySelector<HTMLElement>('#craft')!;
   const run = craft.querySelector<HTMLElement>('[data-weave-run]') ?? craft;
@@ -411,21 +413,32 @@ function mountWeave(reduced: boolean): () => void {
   // live, and the film waits on its finished cloth (frame 89) until that run is over (FILM_START).
   const roots = document.documentElement.dataset.roots === 'on';
   const start = (weights[0] + weights[1] + (roots ? weights[2] : 0)) / made;
-  const v = { cloth: start, p0: 0, p1: 0, p2: 0 };
-  // One product gives way to the next by gliding (Maxwell, 2026-11-19: "super laggy"). The film makes each
-  // change in about eight frames (a wipe), which scrubbed over a quarter of a screen is eight jumps. So the
-  // stage itself carries the change, at the screen's own rate: the product at rest glides out and fades, the
-  // film skips its wipe while nothing shows (`WIPE` frames of each 20-frame beat), and the next glides in.
+  // the cloth's scrub, and one scrub per product: p0 makes the first (the cloth becomes the bag), p1 the next
+  const v: Record<string, number> = { cloth: start, ...Object.fromEntries(WEAVE_PRODUCTS.map((_, i) => [`p${i}`, 0])) };
+  // One product gives way to the next by gliding (Maxwell, 2026-11-19: "super laggy"). A change scrubbed
+  // frame by frame over a quarter of a screen reads as jumps. So the stage itself carries the change, at the
+  // screen's own rate: the product at rest glides out and fades, the film skips the frames that move from one
+  // product to the next while nothing shows (`WIPE`, a share of the product's 20-frame beat), and the next
+  // glides in. The first product is not glided: the cloth becomes it in place.
   const glideStage = reduced ? null : craft.querySelector<HTMLElement>('[data-film]');
-  const WIPE = [9 / 20, 5 / 20]; // mug, coaster: where each beat's wipe ends and the product stands whole
+  // lipstick: the camera's travel from the bag to the keychain ends on frame 140 (CAM in blender/film/weave.py),
+  // 11 of the beat's 20 frames; the keychain settles under it from there to 149
+  const WIPE: Partial<Record<WeaveBeat, number>> = { lipstick: 11 / 20 };
   let glided = '';
   const push = () => {
-    const pose = (p: number, wipe: number) => (!glideStage ? p : p < 0.5 ? 0 : wipe + (p - 0.5) * 2 * (1 - wipe));
-    const now = [...beatsAt('weave', (made * v.cloth) / total).slice(0, 4), v.p0, pose(v.p1, WIPE[0]), pose(v.p2, WIPE[1])];
+    const ps = WEAVE_PRODUCTS.map((_, i) => v[`p${i}`]);
+    const pose = (p: number, i: number) => {
+      if (!glideStage || i === 0) return p;
+      const wipe = WIPE[WEAVE_PRODUCTS[i]] ?? 0;
+      return p < 0.5 ? 0 : wipe + (p - 0.5) * 2 * (1 - wipe);
+    };
+    const now = [...beatsAt('weave', (made * v.cloth) / total).slice(0, 4), ...ps.map(pose)];
     useMotionStore.setState({ weave: Object.fromEntries(beats.map((b, i) => [b, now[i]])) as Record<WeaveBeat, number> });
     if (glideStage) {
-      // The change in flight, if any: out to the left over its first half, in from the right over its second.
-      const p = v.p2 > 0 && v.p2 < 1 ? v.p2 : v.p1 > 0 && v.p1 < 1 ? v.p1 : 0;
+      // The change in flight, if any (the latest one): out to the left over its first half, in from the right
+      // over its second.
+      let p = 0;
+      for (let i = n - 1; i > 0 && !p; i--) if (ps[i] > 0 && ps[i] < 1) p = ps[i];
       const k = p < 0.5 ? p * 2 : (1 - p) * 2; // 0 at rest, 1 where the film changes product
       const x = (p < 0.5 ? -1 : 1) * 16 * k * k;
       const next = `${x.toFixed(2)}%,${(1 - k * k * (3 - 2 * k)).toFixed(3)}`;
@@ -435,12 +448,11 @@ function mountWeave(reduced: boolean): () => void {
         glideStage.style.setProperty('--glide-o', next.split(',')[1]);
       }
     }
-    now[5] = v.p1; // the names below follow the scroll, not the film's frames
-    now[6] = v.p2;
     credit?.toggleAttribute('data-on', now[3] > 0); // from the drape: the cloth is becoming a product
     tiles.forEach((li, i) => {
-      // A name is lit from the moment its product is more in than out, until the next one is.
-      const on = now[4 + i] >= 0.5 && (now[5 + i] ?? 0) < 0.5;
+      // A name is lit from the moment its product is more in than out, until the next one is. The names
+      // follow the scroll (ps), not the film's frames.
+      const on = (ps[i] ?? 0) >= 0.5 && (ps[i + 1] ?? 0) < 0.5;
       if ((li.dataset.active === 'true') === on) return; // written only on change
       if (on) li.dataset.active = 'true';
       else delete li.dataset.active;
@@ -463,27 +475,24 @@ function mountWeave(reduced: boolean): () => void {
   // Product i is made between mark(i, 0) and mark(i, 1), and rests from there to mark(i + 1, 0).
   const mark = (i: number, done: 0 | 1) => () => {
     const { hold, change } = pace();
-    return point(i * (hold + change) - (done ? 0 : change), (i + done) / 3);
+    return point(i * (hold + change) - (done ? 0 : change), (i + done) / n);
   };
   const scrub = (vars: gsap.TweenVars, scrollTrigger: ScrollTrigger.Vars) =>
     gsap.to(v, { ...vars, ease: 'none', scrollTrigger: { scrub: SCRUB, ...scrollTrigger }, onUpdate: push });
   push(); // the stage shows the laid warps before any scroll reaches it, never frame 0
   scrub({ cloth: 1 }, { id: 'weave', trigger: craft, start: roots ? FILM_START : 'top 80%', end: mark(0, 0) });
-  [0, 1, 2].forEach((i) => scrub({ [`p${i}`]: 1 }, { trigger: run, start: mark(i, 0), end: mark(i, 1) }));
+  WEAVE_PRODUCTS.forEach((_, i) => scrub({ [`p${i}`]: 1 }, { trigger: run, start: mark(i, 0), end: mark(i, 1) }));
 
   const stage = craft.querySelector<HTMLElement>('[data-film]');
   if (!reduced && stage) {
-    // While a product rests the stage still answers the scroll: a slow sway, 6 px and under a degree each way.
-    // Custom properties, not rotation/y: GSAP would fold the stage's CSS `translate` into an inline transform.
-    gsap
-      .timeline({
-        defaults: { ease: 'sine.inOut' },
-        scrollTrigger: { trigger: run, start: mark(0, 1), end: () => point(weaveRun(pace()), 1), scrub: SCRUB },
-      })
-      // down first: the tote rests first, and from 1280 its handles stand 6 px under the top of the screen
-      .to(stage, { '--sway-r': '0.9deg', '--sway-y': '6px' })
-      .to(stage, { '--sway-r': '-0.9deg', '--sway-y': '-6px' })
-      .to(stage, { '--sway-r': '0.9deg', '--sway-y': '6px' });
+    // While a product rests the stage still answers the scroll: a slow sway, 6 px and under a degree each way,
+    // one swing per product, down first. Custom properties, not rotation/y: GSAP would fold the stage's CSS
+    // `translate` into an inline transform.
+    const sway = gsap.timeline({
+      defaults: { ease: 'sine.inOut' },
+      scrollTrigger: { trigger: run, start: mark(0, 1), end: () => point(weaveRun(pace()), 1), scrub: SCRUB },
+    });
+    WEAVE_PRODUCTS.forEach((_, i) => sway.to(stage, i % 2 ? { '--sway-r': '-0.9deg', '--sway-y': '-6px' } : { '--sway-r': '0.9deg', '--sway-y': '6px' }));
   }
   // The quote arrives word by word. Split on spaces in the markup; it is still one sentence to a screen reader.
   const quote = document.querySelector('#craft blockquote');

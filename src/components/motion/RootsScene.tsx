@@ -29,7 +29,7 @@ import { token } from './weave-materials';
  * the warp threads of the cloth, which is fitted to the weave film's finished cloth (its frame 89) in the
  * sticky weave stage; more warps run down between them; the weft weaves across from the top. Then this
  * canvas fades as the film's cloth fades in on the same spot (--film-in on the stage), and the film
- * drapes it into the tote. Draws only while the run is on screen; redraws on scroll, not on a timer.
+ * drapes it into the Nối Bag. Draws only while the run is on screen; redraws on scroll, not on a timer.
  */
 
 const FOV = 35;

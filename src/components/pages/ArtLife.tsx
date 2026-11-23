@@ -3,7 +3,7 @@ import type { Art } from './art';
 
 type ArtLifeProps = {
   art: Art;
-  /** `collections.hmong.credit`: shown under a picture that has products in it. */
+  /** `collections.noinep.credit`: shown under a picture that has products in it. */
   credit?: string;
   sizes: string;
   /** On the first screen: fetched at once instead of lazily. */
