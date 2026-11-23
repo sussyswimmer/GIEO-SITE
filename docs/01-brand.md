@@ -83,7 +83,7 @@ Scale (fluid, `clamp`, from a 375 px to a 1440 px screen), as of `09-feedback.md
 - **Soft blurred glows** (peach to blush radial gradients) as atmosphere, like the "sun" in the 20/10 post.
 - **Three motifs, one story:** the seed/sprout (GIEO opens every post with a sprout), the thread/brocade (the craft), the lotus (the logo; the girls' future in bloom).
 - **3D style = the 20/10 lotus made real:** soft, matte, airbrushed gradients, gentle rim light, pastel. Think "illustration with depth", not chrome, not photoreal, not neon. No black backgrounds.
-- **Photos:** warm, natural light, real hands at work. Never staged poverty. A real GIEO photo may be used when no person in it can be recognised (§7.1). Frames are calm: `--round-frame` corners, no shadow heavier than the site already uses, at most 60vw wide.
+- **Photos:** warm, natural light, real hands at work. Never staged poverty. A real GIEO photo may be used when no person in it can be recognised (§7.1). Frames are calm: `--round-frame` corners, no shadow heavier than the site already uses, at most 60vw wide from 1024 (under that they take the text column).
 - **Brocade:** only real cloth from GIEO / Chie Dù Pù Dù Pà photos or scans. Credit it. The 3D films show plain weave only, never an invented pattern.
 
 ## 6. Voice
@@ -98,7 +98,7 @@ Scale (fluid, `clamp`, from a 375 px to a 1440 px screen), as of `09-feedback.md
 
 ## 7. Ethics guardrails (non-negotiable)
 
-1. **Minors.** Many of the girls are children, and the GIEO team are minors too. The rule (`09-feedback.md` F3, which replaces `08-fuller.md`'s "no photos of people"): a real GIEO photo may be used when no person in it can be recognised. Hands and a back view are fine. No face of a child or a teenager, ever, without GIEO's consent for that photo. Never pair a child's face with her full name, village or school. Every photo in the repo has a row in `assets/consent.csv` and a source in `assets/photos/SOURCES.md`; a frame that fails the rule does not enter the repo. Alt text says what is visible and nothing else: no place names, no ethnic group, no "our artisans". Product photos carry the partner credit; there are no other captions.
+1. **Minors.** Many of the girls are children, and the GIEO team are minors too. The rule (`09-feedback.md` F3, which replaces `08-fuller.md`'s "no photos of people"): a real GIEO photo may be used when no person in it can be recognised. Hands and a back view are fine. No face of a child or a teenager, ever, without GIEO's consent for that photo. Never pair a child's face with her full name, village or school. Every photo in the repo has a row in `assets/consent.csv` and a source in `assets/photos/SOURCES.md`; a frame that fails the rule does not enter the repo. Alt text says what is visible and nothing else: no place names, no ethnic group, no "our artisans". A product photo carries its product's name and kind and one partner credit line; no other photo has a caption.
 2. **No invented numbers.** No "500 girls supported" unless GIEO provides it. Use `TODO(stat)` placeholders that render nothing in production.
 3. **Cultural accuracy.** Say "inspired by traditional H'mong brocade" (GIEO's phrasing) only where GIEO's own copy says it. For the Nối Nếp products name no ethnic group until GIEO answers `00-open-questions.md` #13. Do not claim patterns mean things unless GIEO or the artisans say so.
 4. **IB.** Mention "IB Global Youth Action Fund" in text. Do not use the IB logo unless GIEO confirms permission.

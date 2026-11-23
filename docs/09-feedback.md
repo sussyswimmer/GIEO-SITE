@@ -127,13 +127,13 @@ Where they go:
 | About, story | `sewing-cloth` | Replaces the lotus-seeds still |
 | About, partner block | `bag-rows` | Replaces `products.webp`, with the credit |
 
-Frames are calm: `--round-frame` corners, no shadow heavier than the site already uses, at most 60vw wide.
+Frames are calm: `--round-frame` corners, no shadow heavier than the site already uses, at most 60vw wide from 1024 (under that they take the text column).
 Get involved and Contact take no photo: a trip picture beside "what we're building" would read as a result.
 
 ## Checks
 
 - `npm run typecheck`, `lint`, `content:check`, `test:motion`, `test:images`, `build` clean.
-- No "mug", "coaster", "ceramic", "cốc", "lót ly" in `src/`, `public/film/weave/manifest.json` or the built HTML.
+- No "mug", "coaster", "ceramic", "cốc", "lót ly" in `src/` (except `src/components/motion/WeaveScene.tsx`, the unmounted R3F scene), `public/film/weave/manifest.json` or the built HTML.
 - Screenshots at 375 and 1440 of every route, both languages; the weave stage at each beat end.
 - Vietnamese diacritics intact on "Nối Nếp", "Túi Nối", "Móc Nếp", "Móc đựng son dưỡng" at every size.
 - No horizontal overflow at 320, 375, 390, 768, 1024, 1440.

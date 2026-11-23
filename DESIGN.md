@@ -434,7 +434,7 @@ Inline links in copy: plum text, underline always on, `text-decoration-color: va
 - **If `photo?.consent !== true`, it renders `null` in production.** In dev it renders the empty frame in `--petal-soft-a24` with `<Todo tag="photos">`.
 - Frame: `<figure>` → a `div` with `position:relative; overflow:hidden; aspect-ratio: ratio; border-radius: var(--round-frame); background: var(--paper)` → next/image `fill`, `object-cover`. The frame holds **no text** (it clips). Optional `<figcaption>` below: `text-caption` `--fg-body`, `mt-3`. A caption must never pair a child's name with her face, village or school.
 - EXIF is stripped in the image pipeline before files reach `public/`. Phase 2: the inner image layer is scaled 1.12 and translated 6–10% for parallax (transform only).
-- **Which photos** (docs/09 F3, which replaces docs/08's "no photos of people"): a real GIEO photo may be used when no person in it can be recognised. Hands and a back view are fine. No face of a child or a teenager, ever, without GIEO's consent for that photo; the team are minors too. Every photo has a `yes` row in `assets/consent.csv` and a source in `assets/photos/SOURCES.md`. Alt text says what is visible and nothing else. The only caption is the partner credit under a product photo. §11 lists the slots.
+- **Which photos** (docs/09 F3, which replaces docs/08's "no photos of people"): a real GIEO photo may be used when no person in it can be recognised. Hands and a back view are fine. No face of a child or a teenager, ever, without GIEO's consent for that photo; the team are minors too. Every photo has a `yes` row in `assets/consent.csv` and a source in `assets/photos/SOURCES.md`. Alt text says what is visible and nothing else. A product photo carries its product's name and kind and one partner credit line; no other photo has a caption. §11 lists the slots.
 
 ### SceneStage (`src/components/ui/SceneStage.tsx`)
 - `<div data-scene-stage="seed|weave|lotus" aria-hidden="true">` with the size and position given in PLAN.md. The still is painted on `.scene-stage::before` from an inline `--still` custom property (no `backgroundImage`). No children, no text, no drawing.
@@ -623,13 +623,13 @@ The bag and the lipstick holder are the only products. The collection is **Nối
 
 **The rule** (replaces docs/08's "no photos of people"): a real GIEO photo may be used when no person in it can be recognised. Hands and a back view are fine. No face of a child or a teenager, ever, without GIEO's consent for that photo; the team are minors too. Thirteen frames, chosen from 663, are in `assets/photos/`, each with a row in `assets/consent.csv` and a source in `assets/photos/SOURCES.md`. `npm run images` writes them to `public/img/` with all metadata stripped. Pages look a photo up by its id.
 
-**Frames are calm:** `--round-frame` corners, no shadow heavier than the site already uses, at most 60vw wide.
+**Frames are calm:** `--round-frame` corners, no shadow heavier than the site already uses, at most 60vw wide from 1024 (under that they take the text column).
 
 **Words:** alt text (`photos.<id>.alt`, both languages) says what is visible and nothing else. No place names, no ethnic group, no "our artisans": we do not know who is in each frame. Product photos carry the partner credit. No other captions.
 
 | Slot | Photo id | Notes |
 |---|---|---|
-| Home, Journal grid | `01-loom-weaver` to `06-valley` | The six-slot grid `Journal.tsx` already has; it replaces the rail of stills. Under 1024 the six stand two to a row |
+| Home, Journal grid | `01-loom-weaver` to `06-valley` | The six-slot grid in `Journal.tsx`; it replaces the rail of stills. Two to a row under 768, three from 768, two loose rows of three from 1024 |
 | Home, Hands, beside the partner name | `bag-pink`, with `lipstick-on-bag` as a smaller second frame | Replaces the products still. Each frame is labelled with the product name and kind; one credit line |
 | Home, Hands, lower | `loom-cloth` | Replaces the cloth still |
 | Collections, Nối Nếp swatch | `nep-cloth` | The 16/9 slot that was empty |
@@ -641,4 +641,4 @@ Get involved and Contact take no photo: a trip picture beside "what we're buildi
 
 ### Checks
 
-`npm run typecheck`, `lint`, `content:check`, `test:motion`, `test:images` and `build` clean. None of the five banned product words listed under Checks in `docs/09-feedback.md` in `src/`, in `public/film/weave/manifest.json` or in the built HTML. Screenshots at 375 and 1440 of every route in both languages, and of the weave stage at each beat end. Vietnamese diacritics intact on "Nối Nếp", "Túi Nối", "Móc Nếp" and "Móc đựng son dưỡng" at every size. No horizontal overflow at 320, 375, 390, 768, 1024 or 1440.
+`npm run typecheck`, `lint`, `content:check`, `test:motion`, `test:images` and `build` clean. None of the five banned product words listed under Checks in `docs/09-feedback.md` in `src/` (except `src/components/motion/WeaveScene.tsx`, the unmounted R3F scene), in `public/film/weave/manifest.json` or in the built HTML. Screenshots at 375 and 1440 of every route in both languages, and of the weave stage at each beat end. Vietnamese diacritics intact on "Nối Nếp", "Túi Nối", "Móc Nếp" and "Móc đựng son dưỡng" at every size. No horizontal overflow at 320, 375, 390, 768, 1024 or 1440.

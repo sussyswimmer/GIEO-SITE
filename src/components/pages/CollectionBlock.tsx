@@ -51,7 +51,7 @@ function ProductSlab({ product, credit, flip }: { product: Product; credit: stri
         </div>
       )}
       <div className="flex flex-col justify-center p-6 md:p-10 lg:p-16">
-        <h3 className="font-serif text-h2 text-fg-heading">{name}</h3>
+        <h3 lang="vi" className="font-serif text-h2 text-fg-heading">{name}</h3>
         <p className="mt-2 text-lead text-fg-body">{kind}</p>
         <small className="mt-4 block text-balance text-caption text-fg-body lg:mt-6">{credit}</small>
       </div>
@@ -68,6 +68,7 @@ export function CollectionBlock({ id, tone, from, name, tagline, body, credit, s
         <Grid className="items-center">
           <h2
             id={titleId}
+            lang="vi"
             className="relative z-1 col-span-full font-serif text-mega italic text-fg-heading"
             style={{ fontSize: fit(name, 0.5, '3rem', 'var(--fs-mega)') }}
           >

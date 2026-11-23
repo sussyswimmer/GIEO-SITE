@@ -63,7 +63,8 @@ export async function Bloom() {
               // above the stage, which is wider than its column: the open lotus passes under the cards
               'lg:relative lg:z-(--z-content) lg:col-start-6 lg:col-end-13 lg:row-start-1 lg:row-end-3 lg:gap-6 lg:pt-section-sm lg:[--deck-top:calc(var(--nav-offset)+var(--space-4))]',
               // a stacked card keeps its padding and title line showing: taller from 768, and again from 1024
-              'md:[--deck-peek:5.5rem] lg:[--deck-peek:6.5rem]',
+              // the peek follows the pillar title's size: 88 px at 1024, 104 px at 1440 (PillarCard.tsx)
+              'md:[--deck-peek:5.5rem] lg:[--deck-peek:clamp(5.5rem,3.04rem_+_3.846vw,6.5rem)]',
             ].join(' ')}
           >
             {PILLARS.map((key, i) => (

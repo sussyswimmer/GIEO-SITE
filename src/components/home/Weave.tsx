@@ -82,11 +82,11 @@ export async function Weave() {
                 for the length the runtime gives the run, and the names are lit while the bag rests there. */}
             <div data-weave-run className={BEAT}>
               <div data-weave-names className="flex flex-col justify-center pb-section-sm lg:pt-(--nav-offset)">
-                <p className="text-body font-medium text-fg-body">{tCollection('name')}</p>
+                <p lang="vi" className="text-body font-medium text-fg-body">{tCollection('name')}</p>
                 <ul role="list" className="weave-names mt-2 font-serif italic text-fg-heading lg:mt-4">
                   {PRODUCTS.map((key) => (
                     <li key={key}>
-                      <span className="weave-name block">{t(`products.${key}.name`)}</span>
+                      <span lang="vi" className="weave-name block">{t(`products.${key}.name`)}</span>
                       <span className="block font-sans text-body not-italic tracking-normal text-fg-body">{t(`products.${key}.kind`)}</span>
                     </li>
                   ))}
@@ -99,11 +99,12 @@ export async function Weave() {
           </div>
         </Grid>
       </Container>
-      {/* The second sideways band (docs/08 H2): the product names, running against the pillar band below. */}
+      {/* The second sideways band (docs/08 H2): the product names, running against the pillar band below.
+          Two short names are said twice, so the line stays wider than the screen through its whole slide. */}
       <BandLine reverse className="pt-2 pb-6 text-fg-heading lg:pb-10" outline="var(--cream)">
-        {PRODUCTS.map((key) => (
-          <Fragment key={key}>
-            {t(`products.${key}.name`)}
+        {[...PRODUCTS, ...PRODUCTS].map((key, i) => (
+          <Fragment key={`${key}-${i}`}>
+            <span lang="vi">{t(`products.${key}.name`)}</span>
             <span className="mx-[0.35em] not-italic text-lotus-pink">·</span>
           </Fragment>
         ))}

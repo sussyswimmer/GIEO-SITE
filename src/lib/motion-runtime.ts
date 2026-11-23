@@ -399,13 +399,27 @@ function mountWeave(reduced: boolean): () => void {
   if (!reduced && stage) {
     // While the bag rests the stage still answers the scroll: a slow sway, 6 px and under a degree, and back.
     // Custom properties, not rotation/y: GSAP would fold the stage's CSS `translate` into an inline transform.
+    // Where the names do not pin (a screen under 37.5rem tall) the bag is finished at the top of the climb
+    // and there is no rest: the sway would have no scroll length and play as a twitch, so there it has no
+    // amplitude. The trigger stays enabled (a disabled one is never refreshed again), so a resize back to a
+    // tall screen brings the sway back: each refresh re-reads the length and re-evaluates the values.
+    let sway = true;
     gsap
       .timeline({
         defaults: { ease: 'sine.inOut' },
-        scrollTrigger: { trigger: run, start: mark(1), end: () => point(weaveRun(pace()), 1), scrub: SCRUB },
+        scrollTrigger: {
+          trigger: run,
+          start: mark(1),
+          end: () => point(weaveRun(pace()), 1),
+          scrub: SCRUB,
+          onRefresh: (st) => {
+            sway = st.end - st.start >= 1;
+            st.animation?.invalidate();
+          },
+        },
       })
       // down only: from 1280 the bag's handles stand 6 px under the top of the screen
-      .to(stage, { '--sway-r': '0.9deg', '--sway-y': '6px' })
+      .to(stage, { '--sway-r': () => (sway ? '0.9deg' : '0deg'), '--sway-y': () => (sway ? '6px' : '0px') })
       .to(stage, { '--sway-r': '0deg', '--sway-y': '0px' });
   }
   // The quote arrives word by word. Split on spaces in the markup; it is still one sentence to a screen reader.
