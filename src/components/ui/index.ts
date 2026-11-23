@@ -7,7 +7,7 @@ export { Glow, type GlowKind } from './Glow';
 export { InvolveCard } from './InvolveCard';
 export { Logo } from './Logo';
 export { PhotoFrame, type FramePhoto } from './PhotoFrame';
-export { PhotoPrint, type PrintCrop } from './PhotoPrint';
+export { PhotoPrint } from './PhotoPrint';
 export { PillarCard } from './PillarCard';
 export { ProductTile, type ProductPhoto } from './ProductTile';
 export { PullQuote } from './PullQuote';

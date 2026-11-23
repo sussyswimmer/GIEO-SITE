@@ -5,9 +5,9 @@
       "collection": "products",
       "src": "/img/products/bag-pink-1600.webp",
       "width": 1600,
-      "height": 889,
+      "height": 907,
       "consent": true,
-      "blurDataURL": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAADQAQCdASoQAAkAA4BaJaACdACZ+IZecAD2Q/J0JTLO3aaAjoVqBC+dXYQMrJDtaurQCrgdswD7tD2APiT2BGLOvt2S5OQcfX6AqcoAZk3WDsBgK3UtgRgj7ExgAA==",
+      "blurDataURL": "data:image/webp;base64,UklGRmwAAABXRUJQVlA4IGAAAAAQAgCdASoQAAkAA4BaJbACdAEfkA+Hr6ygAP6qX86tCacYjckBoqiJ4cGlcCLiVS0jvpqsk6D5OBgmZ61m1Pa3W5x/AkUVGNhmdzIjhAaHy8PQP11pAI7kMOeUyqF0AAA=",
       "variants": [
         {
           "w": 640,
@@ -32,44 +32,13 @@
       ]
     },
     {
-      "id": "bag-rows",
-      "collection": "products",
-      "src": "/img/products/bag-rows-1600.webp",
-      "width": 1600,
-      "height": 875,
-      "consent": true,
-      "blurDataURL": "data:image/webp;base64,UklGRmwAAABXRUJQVlA4IGAAAABQAgCdASoQAAkAA4BaJbACdAYsP20hlCOPKAAA/qxsymX2na998pTn94DiFyFssbXuls35cYWVZBtWx9S9UyOtg6P2fGlmXSuJtH1YSBdPbjwWdRJY95XMPIJpdtlR4AA=",
-      "variants": [
-        {
-          "w": 640,
-          "avif": "/img/products/bag-rows-640.avif",
-          "webp": "/img/products/bag-rows-640.webp"
-        },
-        {
-          "w": 1024,
-          "avif": "/img/products/bag-rows-1024.avif",
-          "webp": "/img/products/bag-rows-1024.webp"
-        },
-        {
-          "w": 1600,
-          "avif": "/img/products/bag-rows-1600.avif",
-          "webp": "/img/products/bag-rows-1600.webp"
-        },
-        {
-          "w": 2400,
-          "avif": "/img/products/bag-rows-2400.avif",
-          "webp": "/img/products/bag-rows-2400.webp"
-        }
-      ]
-    },
-    {
       "id": "lipstick-on-bag",
       "collection": "products",
-      "src": "/img/products/lipstick-on-bag-1600.webp",
-      "width": 1600,
-      "height": 1026,
+      "src": "/img/products/lipstick-on-bag-913.webp",
+      "width": 913,
+      "height": 551,
       "consent": true,
-      "blurDataURL": "data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAAAQAgCdASoQAAoAA4BaJbACdAEfoUbPxWwAAPa8RqrG41naKDMd4Q4cbvaBdnvFepjNce8d2tYQRKij2LLyQoH/3czZZ7UdyWv01jPHqESM4GoQSy7ZqRE0BydmKKbS/sSVAAAA",
+      "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADwAQCdASoQAAoAA4BaJYgCdAD2N5wbmAAA/vRdpyitMXc6aIzdbzJwVv5W0f8HQFEM2L/g+ej9kUzIzdH7G6s96X3jE5W2qDCHJZOAAAA=",
       "variants": [
         {
           "w": 640,
@@ -77,49 +46,18 @@
           "webp": "/img/products/lipstick-on-bag-640.webp"
         },
         {
-          "w": 1024,
-          "avif": "/img/products/lipstick-on-bag-1024.avif",
-          "webp": "/img/products/lipstick-on-bag-1024.webp"
-        },
-        {
-          "w": 1600,
-          "avif": "/img/products/lipstick-on-bag-1600.avif",
-          "webp": "/img/products/lipstick-on-bag-1600.webp"
-        }
-      ]
-    },
-    {
-      "id": "lipstick-rows",
-      "collection": "products",
-      "src": "/img/products/lipstick-rows-1600.webp",
-      "width": 1600,
-      "height": 960,
-      "consent": true,
-      "blurDataURL": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAADwAQCdASoQAAoAA4BaJQBOgB0l6rijXgAA/vasKtaNLhvS1pKdEqHLWa1R59uaA75lppHx//mBs6Pgqnd6JcnO1jFOl0OUeoAAAA==",
-      "variants": [
-        {
-          "w": 640,
-          "avif": "/img/products/lipstick-rows-640.avif",
-          "webp": "/img/products/lipstick-rows-640.webp"
-        },
-        {
-          "w": 1024,
-          "avif": "/img/products/lipstick-rows-1024.avif",
-          "webp": "/img/products/lipstick-rows-1024.webp"
-        },
-        {
-          "w": 1600,
-          "avif": "/img/products/lipstick-rows-1600.avif",
-          "webp": "/img/products/lipstick-rows-1600.webp"
+          "w": 913,
+          "avif": "/img/products/lipstick-on-bag-913.avif",
+          "webp": "/img/products/lipstick-on-bag-913.webp"
         }
       ]
     },
     {
       "id": "01-loom-weaver",
       "collection": "journal",
-      "src": "/img/journal/01-loom-weaver-1024.webp",
-      "width": 1024,
-      "height": 2095,
+      "src": "/img/journal/01-loom-weaver-1584.webp",
+      "width": 1584,
+      "height": 3240,
       "consent": true,
       "blurDataURL": "data:image/webp;base64,UklGRsoAAABXRUJQVlA4IL4AAABQBQCdASoQACEAPt1Yo02opSMiNUgBEBuJYwDCgdwBWWbGVffqjZQJknyWy9xZ8ZI6yQAA/DoFiarvKoZwnUYyaG8+PbnncIfAhMySU3XFgSKuohQxT0jc4OfYZ1YJ8vuCMtrtOFHhP0Zp2/DMkX7cJKxOPFoRWteuNTbF0JhpDCKRS0xJKgacveCoBg+p98l7fY4IzCnFzlm7LnF27g6aQ2VwisKfDYlK241QfHIP4VpUwMfrspSD5Em6RVwA",
       "variants": [
@@ -132,6 +70,11 @@
           "w": 1024,
           "avif": "/img/journal/01-loom-weaver-1024.avif",
           "webp": "/img/journal/01-loom-weaver-1024.webp"
+        },
+        {
+          "w": 1584,
+          "avif": "/img/journal/01-loom-weaver-1584.avif",
+          "webp": "/img/journal/01-loom-weaver-1584.webp"
         }
       ]
     },
@@ -375,6 +318,11 @@
           "w": 1600,
           "avif": "/img/brocade/nep-cloth-1600.avif",
           "webp": "/img/brocade/nep-cloth-1600.webp"
+        },
+        {
+          "w": 1680,
+          "avif": "/img/brocade/nep-cloth-1680.avif",
+          "webp": "/img/brocade/nep-cloth-1680.webp"
         }
       ]
     }

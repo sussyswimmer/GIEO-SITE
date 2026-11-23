@@ -55,7 +55,8 @@ collection is **Nối Nếp**, made with Chie Dù Pù Dù Pà:
 - Tagline, VI verbatim: "Nối nghề. Nối người. Nối tương lai." EN `DRAFT`: "Connecting craft. Connecting people.
   Connecting futures."
 - The leaflet also lists a zip wallet, a fold wallet and prices. None of them is shown, modelled or left in a
-  photo's crop.
+  published photo: the product photos are cut to the product in the file itself (`assets/photos/SOURCES.md`),
+  never hidden with CSS, because the browser always receives the whole file.
 - Content keys (both locales, all in `_meta.json` `draftKeys`): `home.craft.products.{bag,lipstick}.{name,kind}`,
   `collections.noinep.{name,tagline,body,credit}`, `photos.<id>.alt`. Removed: `home.craft.products.tote|mug|coaster`
   and `collections.hmong.*`. The credit string is unchanged.
@@ -92,7 +93,7 @@ collection is **Nối Nếp**, made with Chie Dù Pù Dù Pà:
 
 ## F3 · Real photographs, as prints
 
-Thirteen frames, chosen from 663, are in `assets/photos/` with `assets/consent.csv` and
+Eleven frames, chosen from 663, are in `assets/photos/` with `assets/consent.csv` and
 `assets/photos/SOURCES.md`. `npm run images` writes them to `public/img/` with all metadata stripped. Pages look
 them up by id (`photo(id, t)` in `src/lib/photos.ts`).
 
@@ -107,17 +108,18 @@ and one partner credit. No other captions.
 
 **The print** (`src/components/ui/PhotoPrint.tsx`): a thin cream mat (`--print-mat`), `--round-print` corners,
 a soft contact shadow (`--elev-print`, `--elev-print-plum` on plum), a slight tilt, an optional petal glow. It
-fades, rises and turns to its tilt as it enters; the picture drifts a little inside its window.
+fades, rises and turns to its tilt as it enters; the picture drifts a little inside its window. It has no crop:
+`ratio` and `focus` only frame a photo, and anything that must not be published is cut out of the file.
 
 | Where | Photo id |
 |---|---|
 | Home, Journal | `01-loom-weaver` … `06-valley`: a loose two-row cluster beside the heading from 1024 px, two loose rows of three under the paragraph below that (all in view: a sideways strip could not be moved by keyboard or mouse). The still-life rail stays |
 | Home, Hands | `loom-cloth`, under the partner paragraph |
-| Collections, "As made" (`AsMade.tsx`, on plum after the gallery) | `bag-pink` and `lipstick-on-bag`, cropped to the products with no wallet in frame, each labelled with name and kind; `nep-cloth` between them from 1024 px; the credit once |
+| Collections, "As made" (`AsMade.tsx`, on plum after the gallery) | `bag-pink` and `lipstick-on-bag`, whose files are cut to the products (no wallet, leaflet or printed sheet in them), each in its own proportions and labelled with name and kind; `nep-cloth` between them from 1024 px; the credit once |
 | About, partner block | `02-stilt-house` |
 
-`bag-rows`, `lipstick-rows` and `sewing-cloth` have consent and alt text but are not placed. Get involved and
-Contact take no photo.
+`sewing-cloth` has consent and alt text but is not placed. Two unplaced stall frames that also held wallets and
+a leaflet were removed from the repo (23/11/2026). Get involved and Contact take no photo.
 
 ## Open, for GIEO: H'mong or Thái
 

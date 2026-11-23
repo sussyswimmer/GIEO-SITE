@@ -58,8 +58,8 @@ test('pipeline strips metadata, never upscales, and filters consent in productio
     const byId = Object.fromEntries(photos.map((p) => [p.id, p]));
     assert.deepEqual(Object.keys(byId).sort(), ['consented', 'nocsv', 'private', 'tiny']);
 
-    // Widths: 1200 px original gets 640 and 1024 only (no 1600 or 2400); 300 px gets 300 only.
-    assert.deepEqual(byId.consented.variants.map((v) => v.w), [640, 1024]);
+    // Widths: 1200 px original gets 640, 1024 and its own 1200 (no 1600 or 2400); 300 px gets 300 only.
+    assert.deepEqual(byId.consented.variants.map((v) => v.w), [640, 1024, 1200]);
     assert.deepEqual(byId.tiny.variants.map((v) => v.w), [300]);
 
     // Every written file: no EXIF/XMP/IPTC (so no GPS), and width never above the original.

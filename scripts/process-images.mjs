@@ -10,6 +10,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import sharp from 'sharp';
+import { REDACTIONS, redact } from './redact-photos.mjs';
 
 export const COLLECTIONS = ['products', 'journal', 'artisans', 'team', 'brocade'];
 export const WIDTHS = [640, 1024, 1600, 2400];
@@ -90,9 +91,10 @@ async function processOne({ root, entry, consent }) {
 
   const outDir = path.join(root, 'public/img', collection);
   await fs.mkdir(outDir, { recursive: true });
-  // Never upscale: keep every target width up to the original, or the original if it is smaller.
+  // Never upscale: keep every target width up to the original, plus the original width itself when
+  // it is below the largest target, so a small original is still served at its full size.
   const widths = WIDTHS.filter((w) => w <= W);
-  if (widths.length === 0) widths.push(W);
+  if (W < WIDTHS[WIDTHS.length - 1] && !widths.includes(W)) widths.push(W);
   for (const w of widths) {
     const name = `${id}-${w}`;
     const pipeline = () => sharp(base).resize({ width: w, withoutEnlargement: true });
@@ -138,6 +140,14 @@ export async function run({ root }) {
     for (const rel of await walk(dir)) entries.push({ collection, rel, key: `${collection}/${rel}` });
   }
   const tree = entries.map((e) => e.key);
+  // A file with redaction boxes (sign text, number plates) must already be blurred in assets/, so an
+  // original copied back over it can never reach public/.
+  const listed = Object.fromEntries(Object.entries(REDACTIONS).filter(([k]) => tree.includes(k)));
+  for (const r of await redact({ root, check: true, redactions: listed })) {
+    if (r.open.length) {
+      throw new Error(`${r.file} is not redacted (${r.open.join('; ')}). Run: node scripts/redact-photos.mjs`);
+    }
+  }
   for (const k of consentParsed.rows.keys()) {
     if (!tree.some((t) => t === k || path.posix.basename(t) === k)) {
       warnings.push(`consent.csv row "${k}" matches no file`);

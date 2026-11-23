@@ -423,7 +423,7 @@ Inline links in copy: plum text, underline always on, `text-decoration-color: va
 
 ### PhotoPrint (`src/components/ui/PhotoPrint.tsx`), consent-gated
 - How GIEO's photos sit on the page since `docs/09-feedback.md` F3: a print laid down by hand, in the still-lifes' manner. Same consent and alt-text gate as PhotoFrame (it takes the same `photo`).
-- A thin cream mat (`--print-mat`), `--round-print` corners, `--elev-print` (or `--elev-print-plum` on plum), a tilt of -3 to 3 degrees (`--tilt`), an optional petal glow behind. An optional `crop` shows only part of the photo (used to keep wallets out of the product photos); the print takes the crop's proportions.
+- A thin cream mat (`--print-mat`), `--round-print` corners, `--elev-print` (or `--elev-print-plum` on plum), a tilt of -3 to 3 degrees (`--tilt`), an optional petal glow behind. It has no crop: `ratio` and `focus` only frame a photo; anything that must not be published is cut out of the file itself (assets/photos/SOURCES.md).
 - Motion: it fades, rises and turns to its tilt as it enters view (`data-enter`); the picture drifts inside its window (`data-drift`). Static under reduced motion.
 - Caption, upright under the print, only for products: the name, the kind, or the partner credit. No other photo has a caption.
 

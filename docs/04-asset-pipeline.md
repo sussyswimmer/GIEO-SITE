@@ -84,9 +84,10 @@ Claude Code can script AE with ExtendScript (`.jsx`): write the script to `ae/`,
 
 ## 4. Photos
 
-- Source photos go in `assets/photos/{products,journal,artisans,team,brocade}/`. Today there are thirteen, chosen from the 663 frames GIEO shared in November 2026; `assets/photos/SOURCES.md` lists the album, the original and the crop of each.
+- Source photos go in `assets/photos/{products,journal,artisans,team,brocade}/`. Today there are eleven, chosen from the 663 frames GIEO shared in November 2026; `assets/photos/SOURCES.md` lists the album, the original and the crop of each.
 - **The rule (`09-feedback.md` F3):** a real GIEO photo may be used when no person in it can be recognised. Hands and a back view are fine. No face of a child or a teenager, ever, without GIEO's consent for that photo; the team are minors too. A frame that fails this does not enter the repo.
 - **Every photo needs a `yes` row in `assets/consent.csv`**, products and cloth included. A missing row, or anything other than `yes`, counts as no.
-- `scripts/process-images.mjs` (sharp, `npm run images`) outputs AVIF + WebP at 640/1024/1600/2400 widths into `public/img/`, strips all metadata (location data!), and writes `src/lib/photos-manifest.json` with dimensions and blur placeholders.
+- Legible text that names a place, a shop, a group or a person (a sign, an address, an email) and number plates are blurred in the source file itself by `scripts/redact-photos.mjs` (`npm run redact`, re-runnable). Its boxes are listed in `assets/photos/SOURCES.md`; `npm run images` refuses a listed file that is not blurred.
+- `scripts/process-images.mjs` (sharp, `npm run images`) outputs AVIF + WebP at 640/1024/1600/2400 widths (plus the original width when it is smaller than 2400) into `public/img/`, strips all metadata (location data!), and writes `src/lib/photos-manifest.json` with dimensions and blur placeholders.
 - Pages look a photo up by its id (`photo(id, t)` in `src/lib/photos.ts`), never by a file-name prefix. Its alt text is `photos.<id>.alt` in both content files; without it the photo is not shown. It is shown as a print (`PhotoPrint`).
 - Every photo entry in the manifest has `consent: true|false`. Components refuse to render `false` in production.

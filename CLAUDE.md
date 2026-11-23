@@ -46,5 +46,5 @@ The site must feel premium and alive: **three signature 3D scroll animations**, 
 - Supported by: IB Global Youth Action Fund (text mention only unless GIEO approves the logo)
 - Product partner: Chie Dù Pù Dù Pà (founded 2011)
 - Products: the Nối Nếp collection. Nối Bag / Túi Nối (brocade handbag, id `bag`) and Nếp Keychain / Móc Nếp (lipstick holder, id `lipstick`). The names come from GIEO's printed leaflet and are DRAFT until GIEO confirms them for the web. Both are modelled in 3D after GIEO's photos (`blender/film/weave.py` for the films and portraits, `blender/scripts/weave.py` for the Collections showroom). No prices, no wallets, no mug, no coaster.
-- Photos: thirteen real frames in `assets/photos/`, listed in `assets/consent.csv` and `assets/photos/SOURCES.md`; `npm run images` writes them to `public/img/`. They are looked up by id (`src/lib/photos.ts`, `src/lib/photos-manifest.json`), not by file-name prefix, and shown as prints (`PhotoPrint`).
+- Photos: eleven real frames in `assets/photos/`, listed in `assets/consent.csv` and `assets/photos/SOURCES.md`; `npm run images` writes them to `public/img/`. They are looked up by id (`src/lib/photos.ts`, `src/lib/photos-manifest.json`), not by file-name prefix, and shown as prints (`PhotoPrint`).
 - Signature line from GIEO: "This is GIEO, so far."

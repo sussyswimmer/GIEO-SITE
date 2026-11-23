@@ -1,13 +1,14 @@
 import { getTranslations } from 'next-intl/server';
-import { Container, Grid, PhotoPrint, type PrintCrop, Section, ViWords } from '@/components/ui';
+import { Container, Grid, PhotoPrint, Section, ViWords } from '@/components/ui';
 import { photo } from '@/lib/photos';
 
-// GIEO's own photographs of the two products, cropped to the product: the stall tables they were taken on
-// also hold zip wallets, which GIEO does not show (CLAUDE.md), so every crop keeps them out of frame. Crops
-// are fractions of the photo: [left, top, right, bottom].
-const PRODUCT_PRINTS: { key: 'bag' | 'lipstick'; id: string; crop: PrintCrop }[] = [
-  { key: 'bag', id: 'bag-pink', crop: [0.455, 0.08, 0.89, 0.56] },
-  { key: 'lipstick', id: 'lipstick-on-bag', crop: [0.14, 0.36, 0.72, 0.9] },
+// GIEO's own photographs of the two products. The stall tables they were taken on also hold wallets and printed
+// sheets, which GIEO does not show (docs/09-feedback.md F2), so each file in assets/photos/products/ is already
+// cut to the product (assets/photos/SOURCES.md): nothing else is in the file, so nothing else is published. Each
+// print takes its photo's own proportions.
+const PRODUCT_PRINTS: { key: 'bag' | 'lipstick'; id: string }[] = [
+  { key: 'bag', id: 'bag-pink' },
+  { key: 'lipstick', id: 'lipstick-on-bag' },
 ];
 
 /**
@@ -18,9 +19,9 @@ const PRODUCT_PRINTS: { key: 'bag' | 'lipstick'; id: string; crop: PrintCrop }[]
  */
 export async function AsMade() {
   const t = await getTranslations();
-  const items = PRODUCT_PRINTS.flatMap(({ key, id, crop }) => {
+  const items = PRODUCT_PRINTS.flatMap(({ key, id }) => {
     const p = photo(id, t);
-    return p ? [{ key, crop, photo: p, name: t(`home.craft.products.${key}.name`), kind: t(`home.craft.products.${key}.kind`) }] : [];
+    return p ? [{ key, photo: p, name: t(`home.craft.products.${key}.name`), kind: t(`home.craft.products.${key}.kind`) }] : [];
   });
   if (items.length === 0) return null;
   const cloth = photo('nep-cloth', t);
@@ -41,7 +42,6 @@ export async function AsMade() {
         <Grid className="items-start">
           <PhotoPrint
             photo={first.photo}
-            crop={first.crop}
             tilt={-2}
             glow
             tone="plum"
@@ -64,7 +64,6 @@ export async function AsMade() {
           {second && (
             <PhotoPrint
               photo={second.photo}
-              crop={second.crop}
               tilt={2}
               glow
               tone="plum"

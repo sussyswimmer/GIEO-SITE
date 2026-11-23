@@ -2,7 +2,7 @@ import manifest from './photos-manifest.json';
 
 /**
  * One processed photo. Written by scripts/process-images.mjs; never edit the manifest by hand.
- * `src` is the 1600 px WebP under /img; `variants` lists every width (AVIF + WebP).
+ * `src` is the largest WebP under /img up to 1600 px wide; `variants` lists every width (AVIF + WebP).
  * consent:false entries have no files (src '', variants []): nothing is copied into public/.
  * Alt text is copy, so it lives in src/content/{vi,en}.json as photos.<id>.alt (PLAN.md §5);
  * a photo without that key is not rendered.

@@ -141,16 +141,16 @@ Page layout (the showroom design, unchanged): the parallax hero; the plum galler
 
 ## Photographs (`09-feedback.md` F3)
 
-Thirteen real frames, chosen from the 663 GIEO shared. Alt text is copy: `photos.<id>.alt` in both languages, one key per photo in `src/lib/photos-manifest.json`, all `DRAFT`. It says what is visible and nothing else: no place names, no ethnic group, no "our artisans", because we do not know who is in each frame. Product photos carry their name and kind and one partner credit. There are no other captions. Each is shown as a print (`PhotoPrint`).
+Eleven real frames, chosen from the 663 GIEO shared. Alt text is copy: `photos.<id>.alt` in both languages, one key per photo in `src/lib/photos-manifest.json`, all `DRAFT`. It says what is visible and nothing else: no place names, no ethnic group, no "our artisans", because we do not know who is in each frame. Product photos carry their name and kind and one partner credit. There are no other captions. Each is shown as a print (`PhotoPrint`).
 
 | Where | Photo id |
 |---|---|
 | Home, Journal, beside the heading | `01-loom-weaver`, `02-stilt-house`, `03-heddles`, `04-sewing-hands`, `05-cloth-on-loom`, `06-valley` |
 | Home, Hands, under the partner paragraph | `loom-cloth` |
-| Collections, "As made" | `bag-pink` (cropped to the pink bag), `lipstick-on-bag` (cropped to three holders), and from 1024 px `nep-cloth` between them; no wallet in frame |
+| Collections, "As made" | `bag-pink` (the file is cut to the pink bag and the two behind it), `lipstick-on-bag` (cut to three holders), each in its own proportions, and from 1024 px `nep-cloth` between them; no wallet, leaflet or printed sheet in either file |
 | About, partner block | `02-stilt-house` |
 
-`bag-rows`, `lipstick-rows` and `sewing-cloth` are in the repo with consent and alt text but are not placed today. Get involved and Contact take no photo: a trip picture beside "what we're building" would read as a result.
+`sewing-cloth` is in the repo with consent and alt text but is not placed today. Get involved and Contact take no photo: a trip picture beside "what we're building" would read as a result.
 
 ---
 
