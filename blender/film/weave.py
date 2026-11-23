@@ -1,11 +1,8 @@
-"""Film `weave` (07-redesign §4, 09-feedback F2): close on yarn; warps are strung, wefts interlace into plain-weave
-cloth, the camera pulls back, the cloth drapes onto a bag, and the film ends there. Alpha, lit to sit on plum.
-Beats (0-based frames): thread 0-30, warps 30-50, weave 50-89, drape 89-109, bag 109-129.
+"""Film `weave` (07-redesign §4): close on yarn; warps are strung, wefts interlace into plain-weave cloth, the camera
+pulls back, the cloth drapes onto a tote, then the camera travels to the mug and the coaster. Alpha, lit to sit on plum.
+Beats (0-based frames): thread 0-30, warps 30-50, weave 50-89, drape 89-109, tote 109-129, mug 129-149, coaster 149-169.
 Every cloth here is real yarn geometry in PLAIN WEAVE with one mint end (the seed's thread): no motif, no brocade
-pattern, until GIEO sends a scan (07-redesign §1). The bag is the stylised canvas tote the film has always had, not
-a likeness of GIEO's Nối Bag: the real products are shown in photographs.
-The film once ran on to frame 169, past two more products. The published s.mp4 is the first 130 frames of that
-render, copied without re-encoding; this script builds those 130 frames and nothing that came after them.
+pattern, until GIEO sends a scan (07-redesign §1).
 
   blender -b --factory-startup -P blender/film/weave.py -- --quality draft|final [--frames ...] [--resume]
 """
@@ -20,9 +17,9 @@ import rig  # noqa: E402
 from rig import T, lerp, lin, mix, ss, track  # noqa: E402
 
 SETS = {"s": (960, 960)}
-FRAMES = 130
+FRAMES = 170
 P, R = 0.015, 0.0062  # yarn pitch and radius
-PF, RF = P / 2, R / 2  # the finer cloth of the still-lifes (stills.py)
+PF, RF = P / 2, R / 2  # the finer cloth on the mug and the coaster
 NW = NF = 48
 SIZE = NW * P  # 0.72 m of cloth
 MINT = 31  # the warp that is the seed's thread
@@ -32,16 +29,19 @@ FRINGE = SIZE / 2 + 0.025
 TAIL = 0.62  # how far up the warps hang from before they are cut
 TOTE_W, TOTE_H, TOTE_D = 0.60, 0.62, 0.12
 PANEL_Z = 0.28  # centre of the cloth once it is on the tote
+MUG_X, MUG_R, MUG_H = 0.95, 0.118, 0.28
+COASTER_X, COASTER_R = 1.75, 0.15
 WARP_COL, WEFT_COL = mix(T["peach-glow"], T["cream"], 0.3), mix(T["petal-soft"], T["cream"], 0.25)
 CANVAS = tuple(c * 0.9 for c in mix(T["peach-glow"], T["cream"], 0.6))
 THREAD = mix(T["lotus-pink"], T["plum-ink"], 0.2)  # sewing thread
 
 # (frame, target x, y, z, view height, pitch, yaw, f-stop): macro and oblique on the yarn, square-on for the cloth,
-# then a slow turn on the bag. Targets sit on the surface in focus, not the object's axis.
+# then a travelling shot along the three products. Targets sit on the surface in focus, not the object's axis.
 CAM = [(0, MX, -0.256, 0.20, 0.075, 2, 30, 14), (16, MX, -0.256, 0.20, 0.10, 2, 28, 11), (30, MX - 0.01, -0.256, 0.20, 0.17, 3, 24, 6),
        (50, 0.06, -0.256, 0.19, 0.34, 4, 18, 3.4), (62, 0.04, -0.256, 0.21, 0.44, 4, 14, 3.0), (76, 0.0, -0.256, 0.34, 0.80, 3, 6, 2.4),
        (89, 0.0, -0.256, 0.42, 1.0, 3, 0, 2.4), (100, 0.0, -0.18, 0.41, 1.06, 5, -6, 2.4), (109, 0.0, -0.085, 0.40, 1.04, 7, -12, 2.8),
-       (129, 0.0, -0.085, 0.40, 1.02, 8, -5, 2.8)]
+       (129, 0.0, -0.085, 0.40, 1.02, 8, -5, 2.8), (140, MUG_X, -MUG_R, 0.15, 0.46, 12, 12, 5.6), (149, MUG_X + 0.005, -MUG_R, 0.15, 0.45, 12, 6, 5.6),
+       (159, COASTER_X, 0.0, 0.02, 0.46, 38, 2, 8), (169, COASTER_X, 0.0, 0.02, 0.44, 42, -4, 8)]
 
 
 def smoother(t):
@@ -183,6 +183,58 @@ def panel_place(tau):
     return place, s
 
 
+# ---- mug and coaster ---------------------------------------------------------------
+def cord(name, mat_, centre, radius, r, colour):
+    """A ring of plied cord: the hem of the mug's band, the coaster's piping."""
+    a = np.linspace(0, 2 * np.pi, 400)
+    c = np.asarray(centre) + np.stack([radius * np.cos(a), radius * np.sin(a), np.zeros_like(a)], -1)
+    return rig.mesh(name, rig.tube(c, r, 12, (0, 0, 1), lobes=2, twist=2 * np.pi / (r * 9), depth=0.2), rig.grid_faces(400, 13), mat_,
+                    uv=rig.tube_uv(400, 12, 2 * np.pi * radius, 2.4 * r), col=np.tile([*lin(colour), 1.0], (400 * 13, 1)))
+
+
+def mug(yarn, at=(MUG_X, 0.0), **cloth):
+    """Glazed ceramic mug with a band of the same plain-weave cloth round it. cloth: rig.Cloth options (K, ply) for a
+    closer view than the film's."""
+    glaze = rig.mat("Glaze", mix(T["cream"], T["peach-glow"], 0.3), rough=0.16, noise=(3, 0.04),
+                    **{"Coat Weight": 1.0, "Coat Roughness": 0.06, "Subsurface Weight": 0.15, "Subsurface Radius": (0.01, 0.006, 0.004)})
+    Rm, H = MUG_R, MUG_H
+    prof = [(0, 0), (Rm - 0.022, 0), (Rm - 0.006, 0.003), (Rm, 0.016), (Rm, H - 0.012), (Rm - 0.002, H - 0.003), (Rm - 0.006, H),
+            (Rm - 0.010, H - 0.003), (Rm - 0.012, H - 0.012), (Rm - 0.012, 0.035), (Rm - 0.022, 0.022), (0, 0.022)]
+    v, f = rig.lathe(prof, 72)
+    body = rig.subsurf(rig.mesh("MugBody", v + [at[0], at[1], 0], f, glaze), 2)
+    t = np.linspace(0, 1, 40)
+    c = np.stack([at[0] + Rm - 0.012 + 0.088 * np.sin(np.pi * t) ** 0.8, np.full_like(t, at[1]), lerp(H - 0.06, 0.065, t)], -1)
+    rig.subsurf(rig.mesh("MugHandle", rig.tube(c, 0.0115 * (1 + 0.5 * (2 * t - 1) ** 2), 12, (0, 1, 0)), rig.grid_faces(40, 13), glaze), 1)
+    nw, nf = 104, 16  # an even count closes the plain weave round the mug
+    Rb, zb = nw * PF / (2 * np.pi), 0.145
+    band = rig.Cloth("MugBand", nw, nf, PF, RF, yarn, WARP_COL, WEFT_COL, rings=(64, 624), accents={52: T["stem-mint"]}, **cloth)
+
+    def place(Q):
+        phi = Q[..., 0] / Rb
+        n = np.stack([np.sin(phi), -np.cos(phi), np.zeros_like(phi)], -1)
+        return np.array([at[0], at[1], zb]) + n * (Rb + Q[..., 2])[..., None] + Q[..., 1:2] * [0, 0, 1.0], n
+
+    band.update(np.tile(np.linspace(-nf * PF / 2 - 0.003, nf * PF / 2 + 0.003, 64), (nw, 1)),
+                np.tile(np.linspace(-np.pi * Rb, np.pi * Rb, 624), (nf, 1)), place)
+    for i, z in enumerate((zb - nf * PF / 2 - 0.005, zb + nf * PF / 2 + 0.005)):
+        cord(f"MugHem{i}", yarn, (at[0], at[1], z), Rb + 0.001, 0.0042, mix(T["petal-soft"], T["lotus-pink"], 0.25))
+    return body
+
+
+def coaster(yarn, at=(COASTER_X, 0.0), **cloth):
+    """Round coaster: a padded base, a plain-weave top of real yarn, plied piping round the edge. cloth: as for mug()."""
+    Rc, th = COASTER_R, 0.016
+    m = rig.mat("Pad", CANVAS, rough=0.85, bump=(700, 0.4, 0.0015), **{"Sheen Weight": 0.5})
+    v, f = rig.lathe([(0, 0), (Rc - 0.012, 0), (Rc - 0.003, 0.003), (Rc, th / 2), (Rc - 0.003, th - 0.003), (Rc - 0.012, th), (0, th)], 72)
+    rig.mesh("CoasterPad", v + [at[0], at[1], 0], f, m)
+    n = 40
+    top = rig.Cloth("CoasterTop", n, n, PF, RF, yarn, WARP_COL, WEFT_COL, rings=(200, 200), accents={26: T["stem-mint"]}, **cloth)
+    half = np.sqrt(np.clip((Rc - 0.002) ** 2 - ((np.arange(n) - (n - 1) / 2) * PF) ** 2, 1e-6, None))  # yarns end on a circle
+    s = np.linspace(-1, 1, 200)[None, :] * half[:, None]
+    top.update(s, s, lambda Q: (np.array([at[0], at[1], th + 2 * RF]) + Q, np.array([0, 0, 1.0])))
+    cord("CoasterPiping", yarn, (at[0], at[1], th + 0.004), Rc - 0.003, 0.0075, mix(T["petal-soft"], T["lotus-pink"], 0.25))
+
+
 def main():
     a = rig.parse(SETS)
     rig.setup(a, mix(T["plum-ink"], T["cream"], 0.4), 0.2)
@@ -190,9 +242,11 @@ def main():
     rig.catcher(0.0, T["plum-ink"])
     rig.lights((0.8, -0.1, 0.3), 1.7, key=0.95, fill=0.7, rim=1.5)
     cam = rig.camera(60)
-    yarn = rig.yarn_mat("Yarn", plies=3, r=R)
+    yarn, fine = rig.yarn_mat("Yarn", plies=3, r=R), rig.yarn_mat("YarnFine", plies=3, r=RF)
     cloth = rig.Cloth("Panel", NW, NF, P, R, yarn, WARP_COL, WEFT_COL, rings=(300, 250), K=18, accents={MINT: T["stem-mint"]}, ply=(3, 0.09))
     tote_root = tote()
+    mug(fine)
+    coaster(fine)
 
     sw0 = np.linspace(-FRINGE, TAIL, 300)  # warp rings, evenly spaced so the ply twist is even
     sf0 = np.linspace(-SIZE / 2 - 0.004, SIZE / 2 + 0.004, 250)
@@ -246,6 +300,11 @@ def main():
         tote_root.location.z = lerp(-1.0, 0.0, float(ss(89, 104, f)))
         for ob in tote_root.children:
             ob.hide_render = f < 89
+        # as the camera leaves it for the mug, the tote steps aside with its cloth: the shadow it throws to the
+        # right would otherwise lie beside the mug as a dark band with nothing in frame to explain it
+        away = -1.2 * smoother((f - 135) / 7)
+        for ob in (tote_root, *cloth.obs, fuzz):
+            ob.location.x = away
         rig.frame_cam(cam, aspect, (tx, ty, tz), H, pitch, yaw, fstop=fstop)
 
     rig.render(a, "weave", SETS, FRAMES, pose)

@@ -1,6 +1,7 @@
-import { Fragment } from 'react';
 import { getTranslations } from 'next-intl/server';
 import { ButtonLink, Container, FilmStage, Hairline, Section } from '@/components/ui';
+import { VineStage } from '@/components/motion/VineStage';
+import { ScrollCue } from './ScrollCue';
 
 /**
  * S0 Sow: the hero and the meaning of "gieo" in one pin (docs/07 §3, docs/08 H0 and H1). The first screen
@@ -25,67 +26,32 @@ export async function Sow() {
   const nav = await getTranslations('nav');
   const craft = await getTranslations('home.craft');
 
-  const band = Array.from({ length: 6 }, (_, i) => (
-    <Fragment key={i}>
-      <span lang="vi">{m('word')}</span>
-      <span className="mx-[0.7em] not-italic text-lotus-pink">·</span>
-      <span className="opacity-60">{m('gloss')}</span>
-      <span className="mx-[0.7em] not-italic text-lotus-pink">·</span>
-    </Fragment>
-  ));
-
   return (
     <Section tone="cream" glow="dawn" glowClassName="bottom-auto h-svh" pad="none" id="hero" labelledBy="hero-title">
       <div data-hero-pin>
         <div data-hero-ground className="absolute inset-x-0 top-0 h-svh min-h-[34rem]">
           <FilmStage scene="seed" className="!absolute inset-0" />
+          {/* Act 1 (Full tier): the vine, the tree and the seed it drops, over the film and under the word. */}
+          <VineStage />
           <div data-hero-sink aria-hidden="true" />
           <svg data-hero-roots data-ornament aria-hidden="true" />
         </div>
 
         <div className="relative flex h-svh min-h-[34rem] flex-col">
           <Container className="flex flex-1 flex-col pt-(--nav-offset)">
-            <h1 id="hero-title" className="flex flex-col gap-2 lg:flex-1 lg:justify-between">
-              <span
-                data-hero-fade
-                lang="en"
-                className="word-in block max-w-[26ch] font-sans text-body font-medium text-ink [animation-delay:120ms] lg:max-w-none lg:text-lead lg:font-normal"
-              >
+            {/* The first screen is the word alone (Maxwell, 2026-11-17: nothing pops up on load). The full
+                name stays in the heading for screen readers and search; the sub line and the ways in come
+                at the end of the hero, in the last beat. */}
+            <h1 id="hero-title" className="flex flex-1 flex-col justify-center">
+              <span lang="en" className="sr-only">
                 {t('eyebrow')}
               </span>
               <span data-hero-word className="word-in -ml-[0.04em] block font-serif text-hero whitespace-nowrap text-plum-ink">
                 {t('headline')}
               </span>
             </h1>
-            <div data-hero-fade className="mt-3 flex flex-1 flex-col justify-between gap-4 lg:mt-2 lg:flex-none lg:flex-row lg:items-end lg:gap-10">
-              <p className="word-in max-w-[22ch] font-serif text-h3 italic text-plum-ink [animation-delay:200ms] lg:max-w-[30ch]">
-                {t('sub')}
-              </p>
-              <div className="word-in flex flex-col gap-3 [animation-delay:280ms] lg:items-end">
-                <p className="order-last flex items-center gap-3 text-caption font-medium text-ink lg:order-first">
-                  <span aria-hidden="true" className="stitch hidden w-10 lg:block" />
-                  {m('ibNote')}
-                </p>
-                <div className="flex flex-col gap-2 min-[26rem]:flex-row">
-                  <ButtonLink variant="primary" href="/collections">
-                    {craft('cta')}
-                  </ButtonLink>
-                  <ButtonLink variant="secondary" href="/get-involved" className="bg-(--cream-a86)">
-                    {nav('getInvolved')}
-                  </ButtonLink>
-                </div>
-              </div>
-            </div>
           </Container>
-
-          {/* The word and its gloss, running sideways. Decoration: both are read in the first beat below. */}
-          <div data-hero-fade data-ornament aria-hidden="true" className="mt-4 overflow-x-clip pb-3 lg:mt-5 lg:pb-4">
-            <Hairline />
-            <p className="hero-band flex w-max pt-2 font-serif text-h4 whitespace-nowrap italic text-plum-ink lg:text-h3">
-              <span>{band}</span>
-              <span>{band}</span>
-            </p>
-          </div>
+          <ScrollCue />
         </div>
 
         <Container>
@@ -112,6 +78,19 @@ export async function Sow() {
               {/* 4 px on a 667-high phone, more as the screen allows: tight against the type the stitch reads as an underline */}
               <Hairline className="my-[max(0.25rem,3svh_-_1rem)] max-w-40 lg:mt-6 lg:mb-4" />
               <p className="text-body font-medium text-ink">{m('ibNote')}</p>
+            </div>
+
+            {/* The last beat: the sub line and the two ways in, once the sprout is up. */}
+            <div data-hero-beat>
+              <p className="max-w-[22ch] font-serif text-h3 italic text-plum-ink lg:max-w-[26ch]">{t('sub')}</p>
+              <div className="mt-6 flex flex-col items-start gap-2 min-[26rem]:flex-row">
+                <ButtonLink variant="primary" href="/collections">
+                  {craft('cta')}
+                </ButtonLink>
+                <ButtonLink variant="secondary" href="/get-involved" className="bg-(--cream-a86)">
+                  {nav('getInvolved')}
+                </ButtonLink>
+              </div>
             </div>
           </div>
         </Container>

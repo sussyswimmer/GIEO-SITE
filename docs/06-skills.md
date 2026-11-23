@@ -21,7 +21,7 @@ If the plugin isn't installed in this Claude Code, the same skills are on Prompt
 |---|---|---|
 | `davila7/3d-artist` | agent | 3D asset creation workflow, good for the Blender scene scripts |
 | `patrickjs/blender-python-addon` | rule | Correct `bpy` patterns for the scene scripts |
-| `f/blender-object-maker` | prompt | Turning a described object (bag, seed, lotus petal) into Blender Python |
+| `f/blender-object-maker` | prompt | Turning a described object (tote, mug, lotus petal) into Blender Python |
 | `github/adobe-creative-cloud` | agent | After Effects / Lottie work |
 
 Skills on Promptkura are community content under each author's license; the CLI prints the credit and license on install. Read each SKILL.md once before relying on it, and if a skill's advice conflicts with `03-motion-and-3d.md` (scroll rules, budgets), this kit wins.

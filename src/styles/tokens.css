@@ -59,19 +59,17 @@
 
   /* Fluid sizes: linear from 375px to 1440px viewport, capped after. 01-brand.md §4 */
   /* Redesign v2 (docs/07 §2): hero, h2, quote and lead went up; mega is new. */
-  /* First feedback (docs/09 F1): display type came down by about a fifth, lead and body by a step. The floors
-     hold: 14 px for any text, 16 px in a paragraph, 18 px for weight 300. */
-  /* "GIEO" spans about 84 % of the content width (the word is 2.24 em wide, its advance 2.312 em), unless the
-     screen is too short to also hold the nav, the eyebrow, the sub line with its buttons and the band: 127 at
-     390, 477 at 1440×900. */
-  --fs-hero: max(4rem, min(calc(min(100vw - 2 * var(--gutter), var(--wrap-max)) / 2.75), calc((100svh - 21rem) / 0.95)));
-  --fs-mega: clamp(3rem, 0.5352rem + 10.5164vw, 10rem);      /* 48 → 160: partner name, kinetic band, dictionary word, footer line */
-  --fs-h2: clamp(2.75rem, 1.4296rem + 5.6338vw, 6.5rem);     /* 44 → 104 */
-  --fs-quote: clamp(1.75rem, 1.0458rem + 3.0047vw, 3.75rem); /* 28 → 60 */
-  --fs-h3: clamp(1.375rem, 1.1989rem + 0.7512vw, 1.875rem);  /* 22 → 30 */
-  --fs-h4: clamp(1.125rem, 1.037rem + 0.3756vw, 1.375rem);   /* 18 → 22 */
-  --fs-lead: clamp(1.125rem, 0.993rem + 0.5634vw, 1.5rem);   /* 18 → 24 */
-  --fs-body: clamp(1rem, 0.978rem + 0.0939vw, 1.0625rem);    /* 16 → 17 */
+  /* "GIEO" fits the content width (the word is 2.24 em wide), unless the screen is too short to also hold
+     the nav, the eyebrow, the sub line with its buttons and the band: 149 at 390, 560 at 1440×900. The
+     word's advance is 2.312 em. */
+  --fs-hero: max(4rem, min(calc(min(100vw - 2 * var(--gutter), var(--wrap-max)) / 2.34), calc((100svh - 21rem) / 0.95)));
+  --fs-mega: clamp(3.5rem, 0.331rem + 13.5211vw, 12.5rem);   /* 56 → 200: partner name, kinetic band, dictionary word, footer line */
+  --fs-h2: clamp(3.5rem, 1.8275rem + 7.1362vw, 8.25rem);     /* 56 → 132 */
+  --fs-quote: clamp(2rem, 1.1197rem + 3.7559vw, 4.5rem);     /* 32 → 72 */
+  --fs-h3: clamp(1.5rem, 1.2359rem + 1.1268vw, 2.25rem);     /* 24 → 36 */
+  --fs-h4: clamp(1.25rem, 1.162rem + 0.3756vw, 1.5rem);      /* 20 → 24 */
+  --fs-lead: clamp(1.125rem, 0.949rem + 0.7512vw, 1.625rem); /* 18 → 26 */
+  --fs-body: clamp(1rem, 0.956rem + 0.1878vw, 1.125rem);     /* 16 → 18 */
   --fs-ui: clamp(0.875rem, 0.853rem + 0.0939vw, 0.9375rem);  /* 14 → 15 */
   --fs-caption: 0.875rem;                                    /* 14: the floor for credits and captions */
 
@@ -118,8 +116,8 @@
   --space-32: 8rem;    /* 128 */
   --space-40: 10rem;   /* 160 */
   /* Fluid rhythm (375 → 1440) */
-  --space-section: clamp(3rem, 1.9437rem + 4.507vw, 6rem);          /* 48 → 96 section padding-block */
-  --space-section-sm: clamp(1.75rem, 1.0458rem + 3.0047vw, 3.75rem); /* 28 → 60 short sections */
+  --space-section: clamp(3.5rem, 2.2676rem + 5.2582vw, 7rem);      /* 56 → 112 section padding-block */
+  --space-section-sm: clamp(2rem, 1.1197rem + 3.7559vw, 4.5rem);   /* 32 → 72 short sections */
   --gutter: clamp(1.25rem, 0.2817rem + 4.1315vw, 4rem);            /* 20 → 64 page side padding */
   --grid-gap: clamp(1rem, 0.6479rem + 1.5023vw, 2rem);             /* 16 → 32 column gap */
   --handoff: clamp(3rem, 1.9437rem + 4.507vw, 6rem);               /* 48 → 96 tone gradient height */

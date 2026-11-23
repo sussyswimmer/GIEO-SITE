@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Container, Grid, Hairline, Heading, Prose, Section } from '@/components/ui';
 
-const HEADING = 'italic xl:text-[clamp(3.75rem,5.3vw,5.25rem)]';
+const HEADING = 'italic xl:text-[clamp(4.5rem,6.4vw,6.5rem)]';
 const PICTURE = 'absolute inset-0 size-full object-cover object-[74%_50%] lg:object-[62%_50%]';
 
 /**

@@ -1,15 +1,7 @@
 import Image from 'next/image';
 import { Todo } from './Todo';
 
-export type FramePhoto = {
-  src: string;
-  width: number;
-  height: number;
-  alt: string;
-  consent: boolean;
-  /** 16 px WebP from scripts/process-images.mjs: shown blurred until the photo arrives. */
-  blurDataURL?: string;
-};
+export type FramePhoto = { src: string; width: number; height: number; alt: string; consent: boolean };
 
 type PhotoFrameProps = {
   photo: FramePhoto | undefined;
@@ -47,14 +39,7 @@ export function PhotoFrame({ photo, ratio, sizes, caption, className }: PhotoFra
     <figure className={className}>
       <div className="relative overflow-hidden rounded-frame bg-paper" style={box}>
         <div data-parallax className="absolute inset-0">
-          <Image
-            src={photo.src}
-            alt={photo.alt}
-            fill
-            sizes={sizes}
-            className="object-cover"
-            {...(photo.blurDataURL ? { placeholder: 'blur' as const, blurDataURL: photo.blurDataURL } : {})}
-          />
+          <Image src={photo.src} alt={photo.alt} fill sizes={sizes} className="object-cover" />
         </div>
       </div>
       {caption && <figcaption className="mt-3 text-caption text-ink-soft">{caption}</figcaption>}

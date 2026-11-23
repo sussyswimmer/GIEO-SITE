@@ -31,7 +31,7 @@ export function TextField({ label, error, className, ...props }: ComponentProps<
         <input
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? id : undefined}
-          className={cx(CONTROL, 'min-h-12', className)}
+          className={cx(CONTROL, 'min-h-13', className)}
           {...props}
         />
       </label>

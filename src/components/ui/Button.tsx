@@ -4,10 +4,10 @@ import { AnyLink, type AnyLinkProps } from './AnyLink';
 
 type Variant = 'primary' | 'secondary';
 
-// Labels may wrap (Vietnamese runs long), so no fixed height: min 44px (the touch floor) plus padding.
+// Labels may wrap (Vietnamese runs long), so no fixed height: min 48px plus padding.
 // Hover lifts and adds the pink glow; press scales; reduced motion zeroes both (tokens.css).
 const BASE = cx(
-  'inline-flex min-h-11 items-center justify-center rounded-pill px-6 py-2.5 text-center text-ui font-medium',
+  'inline-flex min-h-12 items-center justify-center rounded-pill px-6 py-3 text-center text-ui font-medium',
   'transition-[translate,scale,box-shadow,background-color,color] duration-(--dur-hover) ease-out',
   'not-disabled:hover:translate-y-(--lift) not-disabled:hover:shadow-lift',
   'not-disabled:active:translate-y-0 not-disabled:active:scale-(--press-scale) active:duration-(--dur-press)',

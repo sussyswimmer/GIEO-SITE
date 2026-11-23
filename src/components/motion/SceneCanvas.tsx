@@ -1,7 +1,8 @@
 'use client';
 
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { Component, lazy, Suspense, useEffect, useMemo, useRef, type ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
+import { Component, lazy, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useMotionStore } from '@/lib/motion-store';
 
 const FOV = 35;
@@ -10,6 +11,16 @@ const DIST = 10;
 const LotusScene = lazy(() => import('./LotusScene'));
 const SeedScene = lazy(() => import('./SeedScene'));
 const WeaveScene = lazy(() => import('./WeaveScene'));
+const ShowroomScene = lazy(() => import('./ShowroomScene'));
+
+// Collections only: mounted while the page has its stage, so the GLB never loads elsewhere.
+function Showroom({ on }: { on: boolean }) {
+  return on ? (
+    <Suspense fallback={null}>
+      <ShowroomScene />
+    </Suspense>
+  ) : null;
+}
 
 // Mounted only once the lotus section is near, so the GLB and its loaders stay out of the first load.
 function Lotus() {
@@ -99,6 +110,14 @@ class CanvasBoundary extends Component<{ children: ReactNode }, { failed: boolea
 }
 
 export function SceneCanvas() {
+  // The canvas outlives route changes (MotionBoot keeps it), so each route asks again whether it has a showroom.
+  const pathname = usePathname();
+  const [showroom, setShowroom] = useState(false);
+  useEffect(() => {
+    const has = !!document.querySelector('[data-scene-stage="showroom"]');
+    setShowroom(has);
+  }, [pathname]);
+
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-(--z-canvas)">
       <CanvasBoundary>
@@ -115,6 +134,7 @@ export function SceneCanvas() {
         <Weave />
         <Seed />
         <Lotus />
+        <Showroom on={showroom} />
         <Bridge />
       </Canvas>
       </CanvasBoundary>

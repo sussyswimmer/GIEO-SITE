@@ -1,38 +1,54 @@
 import { getTranslations } from 'next-intl/server';
 import { Container, Grid, Heading, PhotoFrame, Prose, Section, Todo } from '@/components/ui';
-import { journalPhotos, withAlt } from '@/lib/photos';
+import { journalPhotos } from '@/lib/photos';
+import { art } from '@/components/pages/art';
+import { HOME_STILLS, listStills } from '@/lib/stills';
+import { StillLife } from './StillLife';
 
-const SIZES = '(min-width: 1024px) 36vw, (min-width: 768px) 30vw, 46vw';
+const SIZES = '(min-width: 1024px) 40vw, (min-width: 768px) 60vw, 90vw';
 
-// Six-photo module for GIEO's own photos. Index i uses slot i % 6; ratio (--r) and placement come from the
-// same slot. Two rows of three from 768, each frame a step off its neighbour, so the six read as a loose
-// contact sheet and the section stays near a screen and a half at 1440×900 (docs/09 F1: the page gets
-// shorter). Under 768 they stand two to a row, the right one a step lower.
+// Six-photo module for GIEO's own photos. Index i uses slot i % 6; ratio and placement come from the same slot.
+const RATIO = ['4 / 5', '3 / 2', '1 / 1', '4 / 5', '3 / 4', '16 / 9'] as const;
 const SLOT = [
-  'col-span-2 [--r:3/4] lg:col-start-1 lg:col-end-4 lg:[--r:4/5]',
-  'col-span-2 [--r:1/1] max-md:mt-8 md:max-lg:mt-8 lg:col-start-4 lg:col-end-9 lg:mt-10 lg:[--r:3/2]',
-  'col-span-2 [--r:1/1] lg:col-start-9 lg:col-end-13 lg:mt-20 lg:[--r:4/3]',
-  'col-span-2 [--r:4/5] max-md:mt-8 lg:col-start-2 lg:col-end-5',
-  'col-span-2 [--r:3/4] md:max-lg:mt-8 lg:col-start-5 lg:col-end-8 lg:mt-12',
-  'col-span-2 [--r:1/1] max-md:mt-8 lg:col-start-8 lg:col-end-13 lg:mt-6 lg:[--r:3/2]',
+  'col-start-1 col-end-5 md:col-start-1 md:col-end-6 lg:col-start-1 lg:col-end-6',
+  'col-start-2 col-end-5 md:col-start-4 md:col-end-9 lg:col-start-7 lg:col-end-13 lg:mt-24',
+  'col-start-1 col-end-5 md:col-start-1 md:col-end-6 lg:col-start-2 lg:col-end-5',
+  'col-start-2 col-end-5 md:col-start-4 md:col-end-9 lg:col-start-6 lg:col-end-10 lg:mt-16',
+  'col-start-1 col-end-5 md:col-start-1 md:col-end-6 lg:col-start-10 lg:col-end-13 lg:mt-32',
+  'col-start-2 col-end-5 md:col-start-4 md:col-end-9 lg:col-start-3 lg:col-end-11',
 ] as const;
 
+// The rail: still-lifes in one row that slides sideways with scroll, the picture version of the kinetic
+// band. They stand on one ground line and differ in size, so the row has a rhythm.
+const RAIL_SIZES = '(min-width: 1024px) 30vw, 62vw';
+const RAIL_SLOT = ['w-[62vw] lg:w-[30vw]', 'w-[54vw] lg:w-[25vw]', 'w-[58vw] lg:w-[27vw]'] as const;
+
 /**
- * S5. GIEO's season: GIEO's own photographs in a loose grid (docs/09 F3; it replaces the rail of stills), on
- * a horizon of pale ridges behind the heading (docs/08 H3). Only frames in which nobody can be recognised,
- * each with consent and alt text. No captions: the alt text says what is visible and nothing else.
+ * S5. GIEO's season. Consented photos when GIEO sends them; until then a rail of still-lifes (the Blender
+ * stills Hands does not use, then the illustrated ones from public/art/pages) that slides sideways with
+ * scroll, on a horizon of pale ridges behind the heading (docs/08 H3). A still carries no caption that
+ * states a fact; one that shows products carries the partner credit.
  */
 export async function Journal() {
   const t = await getTranslations('home.journal');
   const tAll = await getTranslations();
 
   // Alt text is the content key photos.<id>.alt; a photo without it is not shown (PLAN.md §5, §6).
-  const photos = journalPhotos.flatMap((p) => withAlt(p, tAll) ?? []);
+  const photos = journalPhotos.flatMap((p) => {
+    const key = `photos.${p.id}.alt`;
+    const alt = p.consent && tAll.has(key) ? tAll(key) : '';
+    return alt ? [{ ...p, alt }] : [];
+  });
+  const stills =
+    photos.length > 0
+      ? []
+      : [...listStills(HOME_STILLS).slice(2, 5), ...['get-involved', 'about', 'contact'].flatMap((name) => art(`pages/${name}`) ?? [])];
+  const credit = tAll('collections.hmong.credit');
   const closing = t('closing');
 
   return (
     <Section tone="cream" pad="none" id="journal" labelledBy="journal-title" thread="right" className="pt-section-sm pb-section-sm lg:pb-10">
-      {/* A horizon behind the heading and the first photographs: an illustration on the section's own cream, eased out at
+      {/* A horizon behind the heading and the rail: an illustration on the section's own cream, eased out at
           its top and bottom so it has no edge. Lazy, so it can never be the LCP element. */}
       {/* eslint-disable-next-line @next/next/no-img-element -- one sized WebP, drawn as the section's ground */}
       <img
@@ -56,11 +72,11 @@ export async function Journal() {
           {photos.length > 0 && (
             <ul
               role="list"
-              className="col-span-full mt-10 grid grid-cols-4 items-start gap-x-gap gap-y-4 md:grid-cols-6 md:gap-y-6 lg:mt-12 lg:grid-cols-12 lg:gap-y-10"
+              className="col-span-full mt-16 grid grid-cols-4 items-start gap-x-gap gap-y-8 md:grid-cols-8 md:gap-y-12 lg:mt-24 lg:grid-cols-12 lg:gap-y-16"
             >
               {photos.map((photo, i) => (
                 <li key={photo.id} className={SLOT[i % 6]}>
-                  <PhotoFrame photo={photo} ratio="var(--r)" sizes={SIZES} />
+                  <PhotoFrame photo={photo} ratio={RATIO[i % 6]} sizes={SIZES} />
                 </li>
               ))}
             </ul>
@@ -68,6 +84,16 @@ export async function Journal() {
 
         </Grid>
       </Container>
+
+      {stills.length > 0 && (
+        <div className="relative mt-8 overflow-x-clip lg:mt-10">
+          <div data-band className="flex w-max items-end gap-[4vw] pl-gutter lg:gap-[2.5vw]">
+            {stills.map((still, i) => (
+              <StillLife key={still.src} still={still} credit={credit} index={i % 3} sizes={RAIL_SIZES} className={RAIL_SLOT[i % 3]} />
+            ))}
+          </div>
+        </div>
+      )}
 
       <Container className="relative">
         <Grid>

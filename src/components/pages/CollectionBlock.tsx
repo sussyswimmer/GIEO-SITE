@@ -1,17 +1,27 @@
-import { Fragment } from 'react';
 import Image from 'next/image';
-import { ButtonLink, Container, type FramePhoto, Grid, PhotoFrame, Prose, Section, Todo } from '@/components/ui';
+import {
+  ButtonLink,
+  Container,
+  type FramePhoto,
+  Grid,
+  PhotoFrame,
+  type ProductPhoto,
+  Prose,
+  Section,
+  Todo,
+} from '@/components/ui';
 import { cx } from '@/lib/cx';
 import { EMAIL, INSTAGRAM_URL } from '@/lib/site';
 import { ArtLife } from './ArtLife';
 import { type Art, fit } from './art';
 
 type Product = {
-  /** The product's own name (Nối Bag) and what it is (Brocade handbag). */
   name: string;
-  kind: string;
-  /** GIEO's own consented photograph, with its alt text. Without one the slab shows the words only. */
-  photo?: FramePhoto;
+  /** A Blender render of this product on a transparent ground, made to sit on plum. */
+  render: string;
+  /** GIEO's own consented photo; replaces the render when it arrives. */
+  photo?: ProductPhoto;
+  alt: string;
 };
 
 export type CollectionBlockProps = {
@@ -19,8 +29,6 @@ export type CollectionBlockProps = {
   tone: 'cream' | 'paper';
   from: 'cream' | 'paper';
   name: string;
-  /** The collection's own line, set under its name. */
-  tagline: string;
   body: string;
   credit: string;
   swatch?: FramePhoto;
@@ -31,36 +39,34 @@ export type CollectionBlockProps = {
 };
 
 /**
- * One product, as a wide plum tile that unveils on entering view: GIEO's photograph of it on one half, its
- * name and kind on the other (sides alternate from 1024), the partner credit with it. Not interactive, no price.
+ * One product, as a wide plum tile that unveils on entering view: the picture on a soft glow on one half,
+ * the name on the other (sides alternate from 1024), the partner credit with it. Not interactive, no price.
  */
 function ProductSlab({ product, credit, flip }: { product: Product; credit: string; flip: boolean }) {
-  const { name, kind, photo } = product;
+  const { name, render, photo, alt } = product;
   return (
-    <li data-tone="plum" data-enter className={cx('grid overflow-hidden rounded-card bg-plum-ink', photo && 'lg:grid-cols-2')}>
-      {photo?.consent && (
-        <div className={cx('relative aspect-3/2 lg:aspect-auto lg:h-[min(32rem,64svh)]', flip && 'lg:order-2')}>
-          <Image
-            src={photo.src}
-            alt={photo.alt}
-            fill
-            sizes="(min-width: 1024px) 45vw, 90vw"
-            className="object-cover"
-            {...(photo.blurDataURL ? { placeholder: 'blur' as const, blurDataURL: photo.blurDataURL } : {})}
-          />
-        </div>
-      )}
-      <div className="flex flex-col justify-center p-6 md:p-10 lg:p-16">
-        <h3 lang="vi" className="font-serif text-h2 text-fg-heading">{name}</h3>
-        <p className="mt-2 text-lead text-fg-body">{kind}</p>
-        <small className="mt-4 block text-balance text-caption text-fg-body lg:mt-6">{credit}</small>
+    <li data-tone="plum" data-enter className="grid overflow-hidden rounded-card bg-plum-ink lg:grid-cols-2">
+      <div
+        className={cx('relative aspect-square lg:aspect-auto lg:h-[min(36rem,72svh)]', flip && 'lg:order-2')}
+        style={{ backgroundImage: 'var(--still-loom)' }}
+      >
+        {photo?.consent ? (
+          <Image src={photo.src} alt={alt} fill sizes="(min-width: 1024px) 45vw, 90vw" className="object-cover" />
+        ) : (
+          // The name beside it says what this is, so the render itself is decoration.
+          <Image src={render} alt="" fill unoptimized sizes="(min-width: 1024px) 45vw, 90vw" data-drift="3" className="object-contain p-[4%]" />
+        )}
+      </div>
+      <div className="flex flex-col justify-center gap-4 p-6 md:p-10 lg:gap-6 lg:p-16">
+        <h3 className="font-serif text-h2 text-fg-heading">{name}</h3>
+        <small className="block text-caption text-fg-body">{credit}</small>
       </div>
     </li>
   );
 }
 
-/** One collection: its name very large, its line and copy, a photo of its cloth, the products as large tiles, then how to order. No prices. */
-export function CollectionBlock({ id, tone, from, name, tagline, body, credit, swatch, art, products, orderLabels }: CollectionBlockProps) {
+/** One collection: its name very large, the copy, the products as large tiles, then how to order. No prices. */
+export function CollectionBlock({ id, tone, from, name, body, credit, swatch, art, products, orderLabels }: CollectionBlockProps) {
   const titleId = `${id}-title`;
   return (
     <Section tone={tone} from={from} pad="none" id={id} labelledBy={titleId} className="pt-section-sm pb-6 lg:pb-8">
@@ -68,25 +74,13 @@ export function CollectionBlock({ id, tone, from, name, tagline, body, credit, s
         <Grid className="items-center">
           <h2
             id={titleId}
-            lang="vi"
             className="relative z-1 col-span-full font-serif text-mega italic text-fg-heading"
-            style={{ fontSize: fit(name, 0.5, '3rem', 'var(--fs-mega)') }}
+            style={{ fontSize: fit(name, 0.5, '3.5rem', 'var(--fs-mega)') }}
           >
             {name}
           </h2>
           <div className="relative z-1 col-span-full mt-4 md:col-span-5 lg:col-span-6 lg:mt-6">
-            {/* One sentence to a line where the column allows it: a line may break between sentences, not inside one. */}
-            <p className="font-serif text-quote italic text-fg-heading">
-              {tagline.split(/(?<=\.)\s+/).map((sentence, i) => (
-                <Fragment key={i}>
-                  {i > 0 && ' '}
-                  <span className="inline-block">{sentence}</span>
-                </Fragment>
-              ))}
-            </p>
-            <Prose variant="lead" className="mt-4 lg:mt-6">
-              {body}
-            </Prose>
+            <Prose variant="lead">{body}</Prose>
             <small className="mt-4 block text-caption text-fg-body">{credit}</small>
           </div>
           {art && (

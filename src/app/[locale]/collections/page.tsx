@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { PageHeader } from '@/components/layout/PageHeader';
-import { CollectionBlock } from '@/components/pages/CollectionBlock';
+import { ItalicFaces } from '@/components/layout/PageHeader';
 import { PageBand } from '@/components/pages/PageBand';
+import { ParallaxHero } from '@/components/pages/ParallaxHero';
+import { Showroom } from '@/components/pages/Showroom';
 import { art, still } from '@/components/pages/art';
 import { routing } from '@/i18n/routing';
-import { photo } from '@/lib/photos';
+import { collectionPhotos, type Photo } from '@/lib/photos';
 import { alternates } from '@/lib/seo';
 
 export function generateStaticParams() {
@@ -24,46 +25,52 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// The Nối Nếp collection's two products, each with GIEO's own photograph of it (docs/09 F2, F3).
+// The product pictures (docs/08 §2): the Blender portraits in public/art/products, made to sit on plum, or
+// the weave film's key frame where one is not rendered. In the order the film makes them.
 const PRODUCTS = [
-  { key: 'bag', photo: 'bag-rows' },
-  { key: 'lipstick', photo: 'lipstick-rows' },
+  { key: 'tote', frame: 129 },
+  { key: 'mug', frame: 149 },
+  { key: 'coaster', frame: 169 },
 ] as const;
 
 export default async function CollectionsPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations();
+  const { hmong } = collectionPhotos;
 
   // A photo renders only with consent and its content key photos.<id>.alt (PLAN.md §5, §6).
-  const products = PRODUCTS.map(({ key, photo: id }) => ({
-    name: t(`home.craft.products.${key}.name`),
-    kind: t(`home.craft.products.${key}.kind`),
-    photo: photo(id, t),
-  }));
-  const credit = t('collections.noinep.credit');
+  const usable = (p?: Photo) => {
+    const key = `photos.${p?.id}.alt`;
+    const alt = p?.consent && t.has(key) ? t(key) : '';
+    return p && alt ? { ...p, alt } : undefined;
+  };
+  const products = PRODUCTS.map(({ key, frame }) => {
+    const photo = usable(hmong[key]);
+    return {
+      key,
+      name: t(`home.craft.products.${key}`),
+      render: art(`products/${key}`)?.src ?? `/film/weave/keys/s-${String(frame).padStart(4, '0')}.webp`,
+      photo,
+      alt: photo?.alt ?? '',
+    };
+  });
+  const credit = t('collections.hmong.credit');
 
   return (
     <>
-      <PageHeader
-        title={t('collections.title')}
-        intro={t('collections.intro')}
-        art={art('pages/collections') ?? still('cloth')}
-      />
-      <CollectionBlock
-        id="noinep"
-        tone="paper"
-        from="cream"
-        name={t('collections.noinep.name')}
-        tagline={t('collections.noinep.tagline')}
-        body={t('collections.noinep.body')}
+      <ItalicFaces />
+      <ParallaxHero title={t('collections.title')} intro={t('collections.intro')} />
+      <Showroom
+        name={t('collections.hmong.name')}
+        body={t('collections.hmong.body')}
         credit={credit}
-        swatch={photo('nep-cloth', t)}
-        art={art('objects/basket')}
+        cloth={still('cloth')}
+        swatch={usable(hmong.brocade)}
         products={products}
         orderLabels={{ instagram: t('contact.instagramLabel'), email: t('contact.emailLabel') }}
       />
-      <PageBand tone="paper" items={products.map((p) => p.name)} />
+      <PageBand tone="paper" from="plum" items={products.map((p) => p.name)} />
     </>
   );
 }

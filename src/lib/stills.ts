@@ -38,8 +38,11 @@ export function listStills(first: readonly string[] = []): Still[] {
         w,
         h,
         // A still that shows products carries the partner credit (docs/07 §1).
-        products: /product|bag/i.test(name),
+        products: /product|tote|mug|coaster/i.test(name),
       };
     })
     .sort((a, b) => rank(a) - rank(b));
 }
+
+/** Home page casting: Hands takes the first two, Journal the next three. */
+export const HOME_STILLS = ['products', 'cloth', 'sprouts', 'spools', 'lotus-seeds'] as const;

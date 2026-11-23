@@ -37,14 +37,9 @@
       "beat3": "Rather than simply selling handicrafts, GIEO develops contemporary products inspired by traditional H'mong brocade, making ethnic craftsmanship more accessible and relevant to today's young consumers. Every purchase helps sustain traditional weaving while directly supporting the women artisans who preserve this cultural heritage.",
       "cta": "See the collection",
       "products": {
-        "bag": {
-          "name": "Nối Bag",
-          "kind": "Brocade handbag"
-        },
-        "lipstick": {
-          "name": "Nếp Keychain",
-          "kind": "Lipstick holder"
-        }
+        "tote": "Tote bag",
+        "mug": "Ceramic mug",
+        "coaster": "Coaster"
       }
     },
     "partner": {
@@ -96,52 +91,10 @@
   "collections": {
     "title": "Collections",
     "intro": "Each collection uses one ethnic group's pattern; profits from it go back to that group.",
-    "noinep": {
-      "name": "Nối Nếp",
-      "tagline": "Connecting craft. Connecting people. Connecting futures.",
-      "body": "Products crafted from canvas and brocade fabrics.",
+    "hmong": {
+      "name": "H'mong brocade",
+      "body": "Tote bags, ceramic mugs and coasters inspired by traditional H'mong brocade.",
       "credit": "Products made with Chie Dù Pù Dù Pà"
-    }
-  },
-  "photos": {
-    "bag-pink": {
-      "alt": "A pink cloth handbag with a patterned woven trim on a black table, beside rows of patterned cloth pouches."
-    },
-    "bag-rows": {
-      "alt": "Rows of cloth handbags in navy, red and pink, each with a patterned woven band around the opening."
-    },
-    "lipstick-on-bag": {
-      "alt": "Small navy cloth holders with brass clasps, wooden buttons and patterned woven fronts on a black table, with a pink cloth bag behind them."
-    },
-    "lipstick-rows": {
-      "alt": "Rows of small red and navy cloth holders with gold clasps on a black tablecloth."
-    },
-    "01-loom-weaver": {
-      "alt": "A weaver seen from behind, working at a wooden frame loom."
-    },
-    "02-stilt-house": {
-      "alt": "A thatched stilt house on a green lawn, with wooded hills behind it."
-    },
-    "03-heddles": {
-      "alt": "Cream heddle strings above blue warp threads on a loom."
-    },
-    "04-sewing-hands": {
-      "alt": "Hands guiding a piece of cloth under the needle of a sewing machine."
-    },
-    "05-cloth-on-loom": {
-      "alt": "Striped cloth with an orange patterned band, on a loom."
-    },
-    "06-valley": {
-      "alt": "A green field and tree-covered hills under a sky full of clouds."
-    },
-    "loom-cloth": {
-      "alt": "Striped cloth with patterned bands, stretched on a wooden loom."
-    },
-    "sewing-cloth": {
-      "alt": "Hands guiding checked cloth under a sewing machine needle."
-    },
-    "nep-cloth": {
-      "alt": "Blue and white patterned cloth with a fringe, on a wooden loom."
     }
   },
   "about": {

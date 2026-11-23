@@ -15,15 +15,12 @@ Components read strings by key. Never hard-code copy in components.
 | `meta` | site name, page title, meta description |
 | `nav` | navigation labels, language switch, skip link, menu buttons |
 | `home` | sections H0 to H8 of the home page: `hero`, `meaning`, `craft`, `partner`, `nextGen`, `pillars`, `visionMission`, `journal`, `involve` |
-| `collections` | collections page. One block per collection: today `collections.noinep` (`name`, `tagline`, `body`, `credit`) |
+| `collections` | collections page |
 | `about` | about page: story, departments, partner, team heading |
 | `getInvolved` | shop, mentor, partner, volunteer, donate, and community programs |
 | `contact` | contact page and mailto form labels |
 | `footer` | footer lines and labels |
 | `common` | shared labels |
-| `photos` | alt text, one `photos.<id>.alt` per photo in `src/lib/photos-manifest.json` |
-
-The products are named in one place, `home.craft.products.<id>.name` and `.kind`, with ids `bag` and `lipstick`. The home page and the collections page both read them from there. The three older product keys and the older collection block are gone (`docs/09-feedback.md` F2 lists them).
 
 Contact details (email, Instagram and Facebook addresses) are not copy. They live in code as constants.
 
@@ -39,9 +36,7 @@ Do not rename or move keys without updating every component that reads them.
 ## DRAFT, TODO and verbatim
 
 - **Verbatim**: the string comes word for word from GIEO's own copy (`docs/02-content.md`, `docs/01-brand.md`, `CLAUDE.md`). It is not listed in `_meta.json`.
-- **DRAFT**: a string the docs do not give word for word. Button labels, form labels, page intros, photo alt text and the Vietnamese versions of English-only copy are DRAFT. Every DRAFT key path is listed under `draftKeys` in `_meta.json`. GIEO must approve these before launch.
-- **Leaflet copy**: the collection name, the product names and kinds, the tagline and the body line come from GIEO's printed Nối Nếp leaflet (`docs/02-content.md`, "the Nối Nếp collection", says which are word for word). They all stay in `draftKeys` anyway, until GIEO confirms them for the web (`docs/00-open-questions.md` #14).
-- **Photo alt text** says what is visible and nothing else: no place names, no ethnic group, no "our artisans". A photo without `photos.<id>.alt` in both files is not shown.
+- **DRAFT**: a string the docs do not give word for word. Button labels, form labels, page intros, product name translations and the Vietnamese versions of English-only copy are DRAFT. Every DRAFT key path is listed under `draftKeys` in `_meta.json`. GIEO must approve these before launch.
 - **TODO(tag)**: content is not known yet. The value is `""` and the key is listed under `todo` with a tag. Tags come from `docs/00-open-questions.md`, plus `copy-vi` for missing Vietnamese lines. Current TODOs:
   - `home.journal.closing` (VI), tag `copy-vi`
   - `about.teamHeading`, tag `team`
@@ -66,5 +61,3 @@ It warns, without failing, when a DRAFT string contains a digit. Statistics must
 - English copy: `H'mong`
 - Vietnamese copy: `H'Mông`
 - Partner name: `Chie Dù Pù Dù Pà` in both languages.
-- Collection and products, with every diacritic: `Nối Nếp`, `Nối Bag`, `Nếp Keychain`, `Túi Nối`, `Móc Nếp`, `Túi xách vải thủ công`, `Móc đựng son dưỡng`.
-- GIEO's product leaflet says the patterns are Thái; GIEO's own copy says H'mong. Until GIEO answers (`docs/00-open-questions.md` #13), do not change their sentences and do not name an ethnic group in the collection copy, the product labels or the alt text.

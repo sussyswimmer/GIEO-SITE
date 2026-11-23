@@ -3,7 +3,7 @@ import type { Art } from './art';
 
 type ArtLifeProps = {
   art: Art;
-  /** `collections.noinep.credit`: shown under a picture that has products in it. */
+  /** `collections.hmong.credit`: shown under a picture that has products in it. */
   credit?: string;
   sizes: string;
   /** On the first screen: fetched at once instead of lazily. */
@@ -29,7 +29,7 @@ export function ArtLife({ art, credit, sizes, eager, drift = 4, className, credi
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={art.src}
-            srcSet={art.small && `${art.small} ${art.smallW ?? 800}w, ${art.src} ${art.w}w`}
+            srcSet={art.small && `${art.small} 800w, ${art.src} ${art.w}w`}
             sizes={art.small && sizes}
             width={art.w}
             height={art.h}

@@ -1,12 +1,11 @@
-"""Page art (docs/08-fuller.md): two stills on transparent. One PNG each at <out>/art/<name>/f0000.png;
-scripts/encode-film.mjs --scenes art turns them into public/art/products/tote.webp and public/art/seam/roots.webp.
-  tote                 the weave film's stylised bag: its model, materials and plain weave (no motif), three-quarter
-                       view, lit and framed like the still-lifes in stills.py. No page loads it since 09-feedback:
-                       the real products are shown in photographs
+"""Page art (docs/08-fuller.md): four stills on transparent. One PNG each at <out>/art/<name>/f0000.png;
+scripts/encode-film.mjs --scenes art turns them into public/art/products/*.webp and public/art/seam/roots.webp.
+  tote, mug, coaster   one product each: the weave film's models, materials and plain weave (no motif), three-quarter
+                       view, lit and framed like the still-lifes in stills.py
   roots                the seam under the hero film, 2400 x 900: the seed film's earth turning over a lip into a cut
                        face that crumbles away into loose crumbs, with a few pale roots hanging into empty space
 
-  blender -b --factory-startup -P blender/film/art.py -- --quality draft|final [--set tote,roots]
+  blender -b --factory-startup -P blender/film/art.py -- --quality draft|final [--set tote,mug,coaster,roots]
 """
 import math
 import sys
@@ -21,11 +20,11 @@ import stills  # noqa: E402  (blender/scripts has no stills.py, so this is the o
 from rig import T, lin, mix, ss  # noqa: E402
 
 weave, seedfilm = stills.weave, stills.seedfilm
-SETS = ("tote", "roots")
+SETS = ("tote", "mug", "coaster", "roots")
 CLOSE = dict(K=18, ply=(3, 0.09))  # yarn as the film models it for its close-ups: 18-sided, the plies in the geometry
 
 
-# ---- the bag's portrait -------------------------------------------------------------------------
+# ---- product portraits -------------------------------------------------------------------------
 def portrait(a, name, cam, **view):
     stills.STILLS[name] = (1600, 1600)  # only where shoot() starts: it fits the frame to the product
     stills.shoot(a, name, cam, scene="art", **view)
@@ -45,6 +44,20 @@ def tote(a):
     sf = np.tile(np.linspace(-half, half, 250), (W.NF, 1))
     panel.update(sw, sf, place, rw=ss(0, blunt, W.FRINGE - np.abs(sw)), rf=ss(0, blunt, half - np.abs(sf)), scale=s)  # both ends domed: this view sees the picks end on
     portrait(a, "tote", cam, target=at, height=1.0, pitch=10, yaw=28, fstop=11)
+
+
+def mug(a):
+    at = (0.03, 0.0, 0.14)
+    cam = stills.stage(a, at, 0.4)
+    weave.mug(rig.yarn_mat("YarnFine", plies=3, r=weave.RF), at=(0.0, 0.0), **CLOSE)
+    portrait(a, "mug", cam, target=at, height=0.44, pitch=20, yaw=28, fstop=16)
+
+
+def coaster(a):
+    at = (0.0, 0.0, 0.012)
+    cam = stills.stage(a, at, 0.36)
+    weave.coaster(rig.yarn_mat("YarnFine", plies=3, r=weave.RF), at=(0.0, 0.0), **CLOSE)
+    portrait(a, "coaster", cam, target=at, height=0.40, pitch=36, yaw=24, fstop=16)
 
 
 # ---- the seam: earth in section, with roots ------------------------------------------------------
@@ -178,7 +191,7 @@ def roots(a):
 def main():
     a = rig.parse(SETS)
     for name in a.set.split(","):
-        {"tote": tote, "roots": roots}[name](a)
+        {"tote": tote, "mug": mug, "coaster": coaster, "roots": roots}[name](a)
 
 
 if __name__ == "__main__":

@@ -1,17 +1,16 @@
 import { getTranslations } from 'next-intl/server';
-import { Container, Grid, Hairline, PhotoFrame, Prose, Section } from '@/components/ui';
-import { photo } from '@/lib/photos';
-import { fit } from './art';
+import { Container, Grid, Hairline, Prose, Section } from '@/components/ui';
+import { ArtLife } from './ArtLife';
+import { fit, still } from './art';
 
 /**
  * The product partner on /about: the section's heading small, the partner's name very large in italic (as
- * in the home page's Hands), its paragraph, and GIEO's photograph of the bags beside it with the credit
- * (docs/09 F3).
+ * in the home page's Hands), its paragraph, and the products still beside it with the credit.
  */
 export async function PartnerBlock({ heading, from = 'cream' }: { heading: string; from?: 'cream' | 'paper' }) {
   const t = await getTranslations('home.partner');
-  const tAll = await getTranslations();
-  const bags = photo('bag-rows', tAll);
+  const credit = (await getTranslations('collections.hmong'))('credit');
+  const art = still('products');
   const name = t('name');
 
   return (
@@ -25,20 +24,22 @@ export async function PartnerBlock({ heading, from = 'cream' }: { heading: strin
           <h3
             lang="vi"
             className="relative z-1 col-span-full mt-2 font-serif text-mega italic text-fg-heading"
-            style={{ fontSize: fit(name, 0.44, '3rem', 'var(--fs-mega)') }}
+            style={{ fontSize: fit(name, 0.44, '3.5rem', 'var(--fs-mega)') }}
           >
             {name}
           </h3>
           <Prose variant="lead" className="relative z-1 col-span-full mt-6 lg:col-end-7 lg:mt-10">
             {t('body')}
           </Prose>
-          <PhotoFrame
-            photo={bags}
-            ratio="16 / 9"
-            sizes="(min-width: 1024px) 40vw, 92vw"
-            caption={tAll('collections.noinep.credit')}
-            className="col-span-full mt-6 lg:col-start-8 lg:col-end-13 lg:mt-10"
-          />
+          {art && (
+            <ArtLife
+              art={art}
+              credit={credit}
+              sizes="(min-width: 1024px) 45vw, 75vw"
+              className="col-span-full -mr-gutter mt-6 ml-auto w-3/4 lg:col-start-7 lg:col-end-13 lg:-mt-20 lg:ml-0 lg:w-auto"
+              creditClassName="mt-2 lg:ml-[10%]"
+            />
+          )}
         </Grid>
       </Container>
     </Section>

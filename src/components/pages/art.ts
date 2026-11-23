@@ -4,8 +4,8 @@ import { listStills } from '@/lib/stills';
 
 const PUBLIC = path.join(process.cwd(), 'public');
 
-/** A decorative picture on a transparent ground. `small` is its 800 px version, for phones; `smallW` is that file's real width (800 is its long edge). */
-export type Art = { src: string; small?: string; smallW?: number; w: number; h: number; products: boolean };
+/** A decorative picture on a transparent ground. `small` is its 800 px version, for phones. */
+export type Art = { src: string; small?: string; w: number; h: number; products: boolean };
 
 /** Canvas size from a WebP header: VP8X (alpha, extended), VP8L (lossless) or VP8 (plain lossy). */
 function webpSize(file: string): [number, number] | undefined {
@@ -32,9 +32,7 @@ export function art(name: string, products = false): Art | undefined {
   const file = path.join(PUBLIC, src);
   const size = fs.existsSync(file) ? webpSize(file) : undefined;
   const small = `/art/${name}-800.webp`;
-  const smallFile = path.join(PUBLIC, small);
-  const hasSmall = fs.existsSync(smallFile);
-  return size && { src, small: hasSmall ? small : undefined, smallW: hasSmall ? webpSize(smallFile)?.[0] : undefined, w: size[0], h: size[1], products };
+  return size && { src, small: fs.existsSync(path.join(PUBLIC, small)) ? small : undefined, w: size[0], h: size[1], products };
 }
 
 /**

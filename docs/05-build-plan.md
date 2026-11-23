@@ -29,7 +29,7 @@ Pin exact versions in `package.json` after install.
 - All routes and all home sections H0 to H8, fully styled, responsive (375, 768, 1280, 1920).
 - Hero shows a Still-tier poster where the 3D will go (use an ArtCraft lookdev frame or a soft gradient placeholder).
 - Nav pill, language toggle, footer, contact mailto, SEO metadata (OG image, `lang` attributes, hreflang), sitemap, robots.
-- Image pipeline + consent flag. Every photo needs a `yes` row in `assets/consent.csv` and a source in `assets/photos/SOURCES.md`; the rule for which photos may be used is `09-feedback.md` F3.
+- Image pipeline + consent flag.
 - **Check:** Lighthouse mobile ≥ 95 on all four categories. Playwright screenshots of every route at 375 and 1440 saved to `qa/phase1/`. No text overflow in Vietnamese (Vietnamese runs ~15 to 25% longer than English in places).
 
 ## Phase 2: Motion infrastructure + supporting motion
@@ -47,8 +47,8 @@ Pin exact versions in `package.json` after install.
 - **Check:** LCP still under 2.5 s (canvas must not delay the headline). Hero GLB ≤ 600 KB.
 
 ## Phase 5: Animation 2, thread to brocade to product
-- Weave shader, instanced threads, a procedural bag with real brocade texture (or TODO(products) neutral texture), drape clip. One product only: the animation ends on the bag (`09-feedback.md` F2). The Nối Bag and the Nếp Keychain themselves are shown in photographs.
-- **Check:** budget met; brocade pattern not stretched on the bag (screenshot it at its hero angle).
+- Weave shader, instanced threads, procedural products with real brocade texture (or TODO(products) neutral texture), drape clip.
+- **Check:** budget met; brocade pattern not stretched on any product (screenshot each product at its hero angle).
 
 ## Phase 6: Fallback tiers
 - Render Lite-tier scrub videos and Still-tier posters from the Blender scenes.

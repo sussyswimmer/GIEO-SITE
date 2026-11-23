@@ -59,8 +59,6 @@ Home page order (`src/app/[locale]/page.tsx`), since the 2026-11-16 redesign: `T
 ## 2. Home
 
 > **Rebuilt on 2026-11-16 to `docs/07-redesign.md`. §2a below is the home page as built. The H0–H8 blocks after it describe the earlier build and are kept for history only**; the Footer block still holds for its small print, and §3 onwards (other routes) is unchanged. `home/Partner.tsx` and `home/DictionaryCard.tsx` are still used by `/about`.
->
-> **Corrected in November 2026 to `docs/09-feedback.md` (GIEO's first feedback):** the type is a step smaller (DESIGN.md §3, §4), the products are the Nối Bag and the Nếp Keychain (and nothing else), the weave film ends on the bag, and real photographs stand where several stills stood. §2a and the /collections block in §3 say so; DESIGN.md §11 has the summary.
 
 ## 2a. Home as rebuilt (redesign v2)
 
@@ -70,22 +68,20 @@ Files: `src/components/home/{Thread,Sow,Weave,Hands,Bloom,KineticBand,VisionMiss
 |---|---|---|---|---|---|
 | — | `Thread` | — | none | One SVG over the whole page on the z 0 layer | Drawn by scroll from the seed film's `threadExit`; mint to pink; one gutter, never across text |
 | S0 | `Sow` (`#hero`) | cream, dawn glow | `home.hero.{eyebrow,headline,sub}`, `home.meaning.{word,pos,pron,gloss,body,intro,ibNote}` | First screen (`100svh`, min 34rem): `film: seed` full-bleed; `h1` = eyebrow + "GIEO" spanning the content width (the LCP element); sub line under it. Then three beats of copy: dictionary entry (`h2` "gieo" + pos + pron, gloss), `meaning.body`, `meaning.intro` + stitch + `ibNote` | With the runtime up and ≥ 600 px of height the screen sticks for `[data-hero-run]` (150svh phone, 190svh from 1024). Copy and film change together and rest together (`HERO_FILM`, `HERO_WORD`, `HERO_BEATS` in `motion-runtime.ts`, in shares of the run): the headline holds over the seed in the air (to 12 %); the seed falls and sprouts (film frames 0–95) while the headline shrinks away towards the nav; the dictionary entry holds over the sprout (29–45 %); `meaning.body` passes while the stem grows into the thread (frames 95–149); the initiative line holds over the thread from 77 % to the end. The beats crossfade inside the film's `textSafe` box. Otherwise the beats read in flow under the first screen |
-| S1 | `Weave` (`#craft`) | **plum** | `home.craft.{beat1,quote,beat3,cta}`, `home.craft.products.{bag,lipstick}.{name,kind}`, `collections.noinep.{name,credit}` | Copy in cols 1–6 (1–5 from 1280): `beat1` (h3 size), the quote (`text-quote`, 48 px from 1280), `beat3` + the two product names in one list under the label "Nối Nếp" (name large, kind small) + button. `film: weave` in a sticky stage, with the partner credit at the stage's foot (its one copy in this section; it lights up at the drape beat, film frame 89, and stays): cols 7–12 and bleeding off the top, bottom and right from 1280; a band at the top of the screen below 1024 (DESIGN.md §10, "Weave stage") | Stage is sticky for the whole section while copy scrolls. Film: thread → warps → cloth as the first two beats pass, then the cloth drapes onto the bag and the film ends there, on frame 129. The bag rests once (54svh on wide screens, 48svh on phones) while the product list is on screen and the stage is still pinned. Both names get `data-active` together once the bag is at least half in; nothing lights for a product the film does not show. Quote words light up one by one |
-| S2 | `Hands` (`#partner`, `#next-gen`) | paper | `home.partner.{name,body}`, `home.nextGen.body`, `home.craft.products.{bag,lipstick}.{name,kind}`, `collections.noinep.credit`, `photos.{bag-pink,lipstick-on-bag,loom-cloth}.alt` | Partner name in `text-mega` italic. Beside it, where the products still stood: the photo `bag-pink`, with `lipstick-on-bag` as a smaller second frame, each labelled with its product's name and kind, and one credit line for the pair. Partner body under the name. Lower: the photo `loom-cloth` where the cloth still stood, with `nextGen.body` as a lead beside it. Phone: one column in the same order | Photographs sit in calm frames (`--round-frame` corners, at most 60vw wide from 1024) |
+| S1 | `Weave` (`#craft`) | **plum** | `home.craft.{beat1,quote,beat3,products.*,cta}`, `collections.hmong.credit` | Copy in cols 1–6 (1–5 from 1280): `beat1` (h3 size), the quote (`text-quote`, 56 px from 1280), `beat3` + three product names + button. `film: weave` in a sticky stage, with the partner credit at the stage's foot (its one copy in this section; it lights up at the drape beat, film frame 89, and stays): cols 7–12 and bleeding off the top, bottom and right from 1280; a band at the top of the screen below 1024 (DESIGN.md §10, "Weave stage") | Stage is sticky for the whole section while copy scrolls. Film: thread → warps → cloth as the first two beats pass, then tote, mug, coaster while the product list is on screen and the stage is still pinned; a name gets `data-active` only once its product is in (40 % into its beat) and loses it when the beat ends (the coaster keeps it: the film ends there). Quote words light up one by one |
+| S2 | `Hands` (`#partner`, `#next-gen`) | paper | `home.partner.{name,body}`, `home.nextGen.body`, `collections.hmong.credit` | Row 1: partner name in `text-mega` italic, cols 1–8; products still cols 8–12 spanning rows 1–2, with the credit under it. Row 2: partner body cols 1–5. Row 3: cloth still cols 1–6 (bleeds left), `nextGen.body` as a lead in cols 7–12, centred on the still. Phone: name, products still at two thirds width on the right, body, cloth still, lead | Stills unveil with a clip-path wipe and drift |
 | S3 | `Bloom` (`#pillars`) | cream from paper, blush glow | `home.pillars.{heading,economic,education,mentorship}.*` | Heading cols 1–7. `film: lotus` in a sticky stage, cols 1–6 (square, up to 72svh); three `PillarCard`s in cols 7–12. Phone: lotus band 40svh at the top of the screen, cards beneath | Lotus opens a petal per card; the film's lowest 12 % fades out so the stem does not end in a cut. Where all three cards fit, they stack as a deck with each whole title showing (`--deck-peek`, 5.5rem from 768) and leave together; otherwise they follow in flow |
 | — | `KineticBand` | cream | pillar titles (decorative, `aria-hidden`) | One line of `text-mega` italic, filled then outlined | Slides sideways with scroll; static under reduced motion |
 | S4 | `VisionMission` (`#vision-mission`) | paper from cream | `home.visionMission.{visionTitle,vision,missionTitle,mission}` | Two columns from 1280 with a stitched vertical divider; stacked with a horizontal stitch below that | Divider sews in on entering view. The two headings start their line reveal as they cross the foot of the screen, not at the usual 88 %: they follow the decorative band, and the screen needs something to read |
-| S5 | `Journal` (`#journal`) | cream from paper | `home.journal.{heading,body,closing}`, `photos.<id>.alt` | Heading cols 1–7, lead cols 1–6. Six real photographs, `01-loom-weaver` to `06-valley`, in the six-slot module (`SLOT` in `Journal.tsx`; the table under H7 in §2b is the pre-09 placement, kept as history). The grid replaces the rail of stills. Two to a row under 768, three to a row from 768, two loose rows of three on the 12-column grid from 1024, each frame a step off its neighbour, so the section stays near a screen and a half at 1440×900. `closing` (EN only so far) follows the grid | Each photo drifts a little inside its frame (parallax); none under reduced motion |
+| S5 | `Journal` (`#journal`) | cream from paper | `home.journal.{heading,body,closing}`, `photos.<id>.alt` | Heading cols 1–7, lead cols 1–6. Consented photos in the six-slot module when GIEO sends them; until then three Blender stills in one full-bleed row, each a third of the screen, stepping up to the right (phone: one at four fifths width, then two side by side). `closing` (EN only so far) sits in the row's right third | Stills unveil in sequence and drift |
 | S6 | `Involve` (`#involve`) + `Footer` | paper from cream; footer cream, dusk glow | `home.involve.{heading,shop.label,mentor.label,partner.label}`, `footer.*`, `home.journal.heading` | Heading, then three index rows with `text-h2` labels. Footer: contacts and page links, then the closing line (`home.journal.heading` as a `<p>`, one line across the content width on desktop) with five seeds above it, then the small print | Rows lift on hover; seeds fall towards the line as the footer scrolls in |
 
 Rules that hold for every row above:
 
-- **Copy added since the redesign** (`docs/09-feedback.md`): the product names and kinds, the Nối Nếp name, tagline and body, and one alt text per photo. All are `DRAFT` keys; `docs/02-content.md` says where each comes from. Weave still has no visible heading (there is no key for one, §6); the label "Nối Nếp" stands over its product list.
-- **Stills state nothing.** Empty alt text, no caption.
-- **Photographs** (`docs/09-feedback.md` F3): a real GIEO photo may be used when no person in it can be recognised; hands and a back view are fine; no face of a child or a teenager without GIEO's consent for that photo. Each has a row in `assets/consent.csv` and a source in `assets/photos/SOURCES.md`. Alt text says what is visible and nothing else. A product photo carries its product's name and kind and one partner credit line; no other photo has a caption.
-- **The products are two**, in this order everywhere: `bag` (Nối Bag / Túi Nối, brocade handbag) and `lipstick` (Nếp Keychain / Móc Nếp, lipstick holder). The film shows only the bag.
+- **No copy was added.** Every string is an existing key; no `DRAFT` label was introduced. Weave still has no visible heading (there is no key for one, §6).
+- **Stills state nothing.** Empty alt text, no caption except the partner credit under a still that shows products.
 - **Reduced motion or no JS:** nothing sticks, nothing is hidden, the films show key stills, the band and thread are static.
-- **Page length** (checked by `scripts/qa-density.mjs`): at most 15.1 screens at 1440×900 and 14.0 at 390×844, in both languages, **counting the hero as one screen**. This is `docs/09-feedback.md` F1's rule that the page gets shorter: no page may be longer than the home page was before GIEO's first feedback (15.11 and 14.00 counted screens in English). The first cap, 12.0 and 12.5, stopped holding when `docs/08-fuller.md` lengthened the product run. After the feedback the home page counts 14.00 (EN) and 14.58 (VI) at 1440×900, and 12.98 and 13.67 at 390×844. A pinned film is not spaced-out content, so the scroll the hero's pin takes beyond its own 100svh is taken off the total before the cap is applied. The script prints both the raw and the counted length.
+- **Page length** (checked by `scripts/qa-density.mjs`): at most 12.0 screens at 1440×900 and 12.5 at 390×844, in both languages, **counting the hero as one screen**. A pinned film is not spaced-out content, so the scroll the hero's pin takes beyond its own 100svh is taken off the total before the cap is applied. The script prints both the raw and the counted length.
 
 ## 2b. Home before the redesign (history)
 
@@ -126,12 +122,12 @@ Rules that hold for every row above:
 ### H2 Craft (`home/Craft.tsx`, `ui/PullQuote.tsx`, `ui/ProductTile.tsx` compact, `ui/SceneStage.tsx`)
 
 - **Purpose**: thread → brocade → product. Signature moment 2.
-- **Keys**: `home.craft.beat1`, `.quote`, `.beat3`, `.cta`, one `.products.*` key per product, `footer.madeWith` (partner credit, once). That build's product list was wrong: the products are the Nối Bag and the Nếp Keychain (§2a, `docs/09-feedback.md` F2).
+- **Keys**: `home.craft.beat1`, `.quote`, `.beat3`, `.cta`, `.products.tote`, `.products.mug`, `.products.coaster`, `footer.madeWith` (partner credit, once).
 - **Section**: `tone="paper" from="cream" pad="default" scene="weave" id="craft"`. There is no visible heading (the docs give none); see §6 for the requested sr-only key.
-- **Beats** are `div`s. At ≥1024 beats 1 and 2 are `min-h-[var(--beat-min)] flex flex-col justify-center`; beat 3 is `lg:min-h-[85svh]` so the products get time. Sticky travel is about 109svh, under the 150vh limit. Phase 5 (as built): the stage is CSS sticky, the scene is scrubbed by one proxy per beat (`weave-thread`, `weave-warps`, `weave-weave`, `weave-drape`, then one per product), and the compact tiles take `data-active` at ≥1024 while their product is on screen.
+- **Beats** are `div`s. At ≥1024 beats 1 and 2 are `min-h-[var(--beat-min)] flex flex-col justify-center`; beat 3 is `lg:min-h-[85svh]` so the three products get time. Sticky travel is about 109svh, under the 150vh limit. Phase 5 (as built): the stage is CSS sticky, the scene is scrubbed by seven proxies `weave-thread|warps|weave|drape|tote|mug|coaster`, and the compact tiles take `data-active` at ≥1024 while their product is on screen.
   - Beat 1: `<p>` beat1 as Lead.
   - Beat 2: `<PullQuote>` with `home.craft.quote`.
-  - Beat 3: `<p>` beat3 as Body; then `<ul class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">` with one `ProductTile variant="compact"` per product; then `<p class="mt-4 text-caption text-ink-soft">` footer.madeWith; then `ButtonLink variant="primary" href="/collections"` with `home.craft.cta`, `mt-8 lg:mt-12`.
+  - Beat 3: `<p>` beat3 as Body; then `<ul class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">` with three `ProductTile variant="compact"` (tote, mug, coaster); then `<p class="mt-4 text-caption text-ink-soft">` footer.madeWith; then `ButtonLink variant="primary" href="/collections"` with `home.craft.cta`, `mt-8 lg:mt-12`.
 
 | Element | 375 | 768 | 1280 | 1920 |
 |---|---|---|---|---|
@@ -141,7 +137,7 @@ Rules that hold for every row above:
 | Beat 3 | cols 1–4, `mt-16` | cols 1–7, `mt-16` | cols 1–5, row 3, `mt-0` | = 1280 |
 
 - **Phase 1 placeholder**: the stage is filled with `--still-loom`. No brocade pattern is drawn or faked; the real pattern comes from GIEO's scans (TODO(products)).
-- **Phase 2+**: Phase 5 maps this section's scroll (≈150vh) to the weave scene. Instanced threads enter in Beat 1, the loom fills during Beat 2, and the products turn one after another during Beat 3, each setting `data-active` on its compact tile. Nothing pins: the stage is CSS sticky and the HTML keeps scrolling.
+- **Phase 2+**: Phase 5 maps this section's scroll (≈150vh) to the weave scene. Instanced threads enter in Beat 1, the loom fills during Beat 2, and tote → mug → coaster turn during Beat 3, each setting `data-active` on its compact tile. Nothing pins: the stage is CSS sticky and the HTML keeps scrolling.
 
 ### H3 Partner (`home/Partner.tsx`)
 
@@ -229,7 +225,7 @@ Rules that hold for every row above:
 | 5 | cols 1–4, `aspect-[3/4]` | cols 1–5, `aspect-[3/4]` | cols 10–12, `aspect-[3/4]`, `mt-32` |
 | 6 | cols 2–4, `aspect-video` | cols 4–8, `aspect-video` | cols 3–10, `aspect-video` |
 
-`sizes` for next/image: `(min-width: 1024px) 40vw, (min-width: 768px) 60vw, 90vw`. Superseded by docs/09: `Journal.tsx` now uses `(min-width: 1024px) 36vw, (min-width: 768px) 30vw, 46vw` and its own `SLOT` placements.
+`sizes` for next/image: `(min-width: 1024px) 40vw, (min-width: 768px) 60vw, 90vw`.
 
 - **Video (when it exists)**: a poster image (PhotoFrame) plus a centred `Button variant="secondary"` whose label is a requested key (§6). Click to play, with sound only after the click; no autoplay.
 - **Phase 2+**: per-image parallax of 6–10% inside each frame (transform only) and fade + scale 1.04→1 on enter. None under reduced motion.
@@ -270,8 +266,6 @@ Rules that hold for every row above:
 
 All inner pages start with `PageHeader` and end with the shared Footer. Section tones alternate as listed.
 
-Photographs on the inner pages (`docs/09-feedback.md` F3): Collections takes `nep-cloth`, `bag-rows` and `lipstick-rows` (below). About takes `sewing-cloth` beside the story, where the lotus-seeds still stood, and `bag-rows` with the partner credit in the partner block, where the products still stood. Get involved and Contact take no photo: a trip picture beside "what we're building" would read as a result.
-
 ### PageHeader (`layout/PageHeader.tsx`)
 
 - **Props**: `title`, `intro?`.
@@ -282,26 +276,24 @@ Photographs on the inner pages (`docs/09-feedback.md` F3): Collections takes `ne
 | `<h1>`, `font-serif text-h2 max-w-[var(--measure-heading)]` | cols 1–4 | cols 1–7 | cols 1–8 | = 1280 |
 | Intro (Lead) | cols 1–4, `mt-6` | cols 1–7, `mt-6` | cols 1–6, `mt-8` | = 1280 |
 
-### /collections (`app/[locale]/collections/page.tsx`, `pages/CollectionBlock.tsx`, `pages/PageBand.tsx`, `ui/PhotoFrame.tsx`)
+### /collections (`app/[locale]/collections/page.tsx`, `pages/CollectionBlock.tsx`, `ui/ProductTile.tsx` full, `ui/PhotoFrame.tsx`)
 
-As rebuilt in the fuller pass (`docs/08-fuller.md` §4) and corrected by GIEO's first feedback (`docs/09-feedback.md` F2, F3).
-
-- **Purpose**: the collections, starting with **Nối Nếp**, made with Chie Dù Pù Dù Pà. Two products: the Nối Bag (brocade handbag) and the Nếp Keychain (lipstick holder). No prices, no wallets, no ethnic group named.
-- **Keys**: `collections.title`, `collections.intro` (PageHeader); `collections.noinep.name` (`<h2>`, very large italic serif, sized from its length, never under 48 px, up to `text-mega`), `.tagline`, `.body` (Lead), `.credit` (`text-caption`); `home.craft.products.bag.name` / `.kind` and `home.craft.products.lipstick.name` / `.kind` (slab titles); `photos.nep-cloth.alt`, `photos.bag-rows.alt`, `photos.lipstick-rows.alt`; `contact.instagramLabel`, `contact.emailLabel` (order buttons until `collections.order` exists, §6).
-- **CollectionBlock**: `Section tone="paper" from="cream" pad="none"`, labelled by its `<h2>`.
-- **Swatch**: a PhotoFrame, `16 / 9`, 8 of 12 columns from 1024, holding the photo `nep-cloth` (cloth on a loom). A flat, straight-on scan from GIEO would replace it (TODO(products)).
-- **Slabs**: a `<ul role="list">` of two plum slabs (`data-tone="plum"`, `rounded-card`), `bag` then `lipstick`. Each has the product's photograph on one half (`bag-rows`, `lipstick-rows`; 3:2 on phones) and its name (`text-h2`), kind and the partner credit on the other. The sides alternate from 1024. Not interactive, no price. There is no third tile.
-- **Photos are looked up by id** in `src/lib/photos-manifest.json`, not by a file-name prefix. A photo shows only with `consent: true` (a `yes` row in `assets/consent.csv`) and its `photos.<id>.alt` in both languages (§5).
+- **Purpose**: the collections, starting with H'mong brocade. No prices.
+- **Keys**: `collections.title`, `collections.intro` (PageHeader); `collections.hmong.name` (`<h2>`, `font-serif text-h2`), `.body` (Lead), `.credit` (`text-caption text-ink-soft`, `mt-4`); `home.craft.products.tote/.mug/.coaster` (tile names); `contact.instagramLabel`, `contact.emailLabel` (order buttons until `collections.order` exists, §6).
+- **CollectionBlock**: `Section tone="paper" from="cream" pad="default" id="hmong" labelledBy="hmong-title"`.
+- **Brocade swatch**: a PhotoFrame of GIEO's flat brocade scan (`collectionPhotos.hmong.brocade` in `photos.ts`). TODO(products): not rendered until the file exists. Product and brocade images contain no people and are marked `consent: true` in the manifest.
 - **Order actions**: `ButtonLink variant="primary" href={INSTAGRAM_URL}` (label `contact.instagramLabel`) and `ButtonLink variant="secondary" href={'mailto:' + EMAIL}` (label `contact.emailLabel`), plus `<Todo tag="shop">`.
-- **Band**: a `PageBand` of the two product names under the block.
 
-| Element | below 1024 | from 1024 |
-|---|---|---|
-| h2 (collection name) | full width | full width |
-| Tagline, body + credit | full width (5 of 8 columns from 768) | 6 of 12 columns |
-| Swatch (`nep-cloth`) | full width, `mt-8` | 8 of 12 columns |
-| Slabs `<ul>` | one column, photo above the name | photo on one half, name on the other, sides alternating |
-| Order actions (`flex flex-col md:flex-row gap-4`) | stacked (a row from 768) | a row |
+| Element | 375 | 768 | 1280 | 1920 |
+|---|---|---|---|---|
+| h2 | cols 1–4 | cols 1–7 | cols 1–7, row 1 | = 1280 |
+| Body + credit | cols 1–4, `mt-6` | cols 1–7, `mt-6` | cols 1–6, row 2, `mt-8` | = 1280 |
+| Brocade swatch | cols 1–4, `mt-12`, `aspect-[4/5]` | cols 1–5, `mt-12` | cols 9–12, rows 1–2 (`row-span-2`), `aspect-[4/5]` | = 1280 |
+| Products `<ul>` (inner grid `grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-x-gap`) | cols 1–4, `mt-16`, `gap-y-12` | cols 1–8, `mt-16`, `gap-y-12` | cols 1–12, row 3, `mt-24` | = 1280 |
+| Tile 1 (tote) | full | col 1 | cols 1–4 | = 1280 |
+| Tile 2 (mug) | full | col 2, `mt-12` | cols 5–8, `mt-12` | = 1280 |
+| Tile 3 (coaster) | full | col 1 | cols 9–12, `mt-24` | = 1280 |
+| Order actions (`flex flex-col md:flex-row gap-4`) | cols 1–4, `mt-16` | cols 1–8, `mt-16` | cols 1–8, `mt-16` | = 1280 |
 
 - More collections later: one more `CollectionBlock` per collection, alternating tone (paper, cream, paper…), each with `from` set to the previous tone.
 
@@ -395,8 +387,8 @@ Reduced motion everywhere: Still tier, no Lenis, no scrub, no parallax, no nav h
 ## 5. TODO handling
 
 - **Empty strings** in the JSON are TODOs (listed in `src/content/_meta.json`). A component that reads one renders nothing: no wrapper, no heading without its body. Current ones: `home.journal.closing` (VI), `about.teamHeading`, `getInvolved.volunteer.body`, `getInvolved.donate.body`.
-- **`<Todo tag="…">`** (`ui/Todo.tsx`) marks missing assets or answers in dev only. Tags in use: `logo-svg` (Logo), `products` (plain-background product shots and a flat scan of the cloth, both still owed by GIEO), `photos` (a photo frame with no consented photo), `video` (Journal video), `shop` (order buttons), `mentor` (mentor action), `team`, `volunteer`, `donate`, `brand` (tokens.css header).
-- **Photos manifest** (`src/lib/photos-manifest.json`, written by `npm run images`, read through `src/lib/photos.ts`): one entry per file under `assets/photos/`, with `id`, `collection`, `src`, `width`, `height` and `consent`. Pages look a photo up by its id (`bag-rows`, `nep-cloth`, `01-loom-weaver`, ...), not by a file-name prefix. The alt text for a photo comes from content key `photos.<id>.alt` (added with the photo, both languages); it says what is visible and nothing else. All metadata is stripped before a file enters `public/`. **Every photo needs a matching `assets/consent.csv` row set to yes** before `consent: true`, with or without people in it: a missing row counts as no. The rule for which photos may be used at all is `docs/09-feedback.md` F3 (no recognisable person; hands and a back view are fine; no face of a child or a teenager without GIEO's consent for that photo), and `assets/photos/SOURCES.md` records where each one came from. Thirteen photos are in today.
+- **`<Todo tag="…">`** (`ui/Todo.tsx`) marks missing assets or answers in dev only. Tags in use: `logo-svg` (Logo), `products` (ProductTile image, brocade swatch, Craft stage), `photos` (Journal gallery), `video` (Journal video), `shop` (order buttons), `mentor` (mentor action), `team`, `volunteer`, `donate`, `brand` (tokens.css header).
+- **Photos manifest** (`src/lib/photos.ts`): `export type Photo = { id: string; src: string; width: number; height: number; consent: boolean }` plus `journalPhotos: Photo[] = []` and `collectionPhotos = { hmong: { brocade: undefined, tote: undefined, mug: undefined, coaster: undefined } }`. The alt text for a photo comes from content key `photos.<id>.alt` (added with the photo, both languages). EXIF is stripped before a file enters `public/`. A photo with people needs a matching `consent.csv` row set to yes before `consent: true`.
 - **Never** fill a TODO with a guess: no numbers, no names, no prices, no pattern meanings, no stock imagery.
 
 ## 6. Keys requested from the content owner (DRAFT; until they exist, follow the fallback)
@@ -408,7 +400,7 @@ Reduced motion everywhere: Still tier, no Lenis, no scrub, no parallax, no nav h
 | `collections.order` | Label for the order actions ("Order via Instagram or email") | Buttons labelled `contact.instagramLabel` / `contact.emailLabel` |
 | `contact.form.errors.required`, `contact.form.errors.email` | Translated field errors | Browser `validationMessage` |
 | `home.journal.playVideo` | Video play button label | Video not rendered (TODO(video)) |
-| `photos.<id>.alt` | Alt text per photo, VI + EN. Written for the thirteen photos in `assets/photos/` (`DRAFT`) | Photo not rendered |
+| `photos.<id>.alt` | Alt text per photo, VI + EN | Photo not rendered |
 
 ## 7. Phase 1 acceptance (from 05-build-plan.md, plus this plan)
 
