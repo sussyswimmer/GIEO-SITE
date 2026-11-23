@@ -1,3 +1,382 @@
 {
-  "photos": []
+  "photos": [
+    {
+      "id": "bag-pink",
+      "collection": "products",
+      "src": "/img/products/bag-pink-1600.webp",
+      "width": 1600,
+      "height": 889,
+      "consent": true,
+      "blurDataURL": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAADQAQCdASoQAAkAA4BaJaACdACZ+IZecAD2Q/J0JTLO3aaAjoVqBC+dXYQMrJDtaurQCrgdswD7tD2APiT2BGLOvt2S5OQcfX6AqcoAZk3WDsBgK3UtgRgj7ExgAA==",
+      "variants": [
+        {
+          "w": 640,
+          "avif": "/img/products/bag-pink-640.avif",
+          "webp": "/img/products/bag-pink-640.webp"
+        },
+        {
+          "w": 1024,
+          "avif": "/img/products/bag-pink-1024.avif",
+          "webp": "/img/products/bag-pink-1024.webp"
+        },
+        {
+          "w": 1600,
+          "avif": "/img/products/bag-pink-1600.avif",
+          "webp": "/img/products/bag-pink-1600.webp"
+        },
+        {
+          "w": 2400,
+          "avif": "/img/products/bag-pink-2400.avif",
+          "webp": "/img/products/bag-pink-2400.webp"
+        }
+      ]
+    },
+    {
+      "id": "bag-rows",
+      "collection": "products",
+      "src": "/img/products/bag-rows-1600.webp",
+      "width": 1600,
+      "height": 875,
+      "consent": true,
+      "blurDataURL": "data:image/webp;base64,UklGRmwAAABXRUJQVlA4IGAAAABQAgCdASoQAAkAA4BaJbACdAYsP20hlCOPKAAA/qxsymX2na998pTn94DiFyFssbXuls35cYWVZBtWx9S9UyOtg6P2fGlmXSuJtH1YSBdPbjwWdRJY95XMPIJpdtlR4AA=",
+      "variants": [
+        {
+          "w": 640,
+          "avif": "/img/products/bag-rows-640.avif",
+          "webp": "/img/products/bag-rows-640.webp"
+        },
+        {
+          "w": 1024,
+          "avif": "/img/products/bag-rows-1024.avif",
+          "webp": "/img/products/bag-rows-1024.webp"
+        },
+        {
+          "w": 1600,
+          "avif": "/img/products/bag-rows-1600.avif",
+          "webp": "/img/products/bag-rows-1600.webp"
+        },
+        {
+          "w": 2400,
+          "avif": "/img/products/bag-rows-2400.avif",
+          "webp": "/img/products/bag-rows-2400.webp"
+        }
+      ]
+    },
+    {
+      "id": "lipstick-on-bag",
+      "collection": "products",
+      "src": "/img/products/lipstick-on-bag-1600.webp",
+      "width": 1600,
+      "height": 637,
+      "consent": true,
+      "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADwAQCdASoQAAYAA4BaJZgCdAEf4keI04AA/tKBuMi+6Rh0R1TvhXT3E4cgmiZXfm3Rn42Ju7ru2JxxetRNWYzyGt3i0UAkqLUKN7cAAAA=",
+      "variants": [
+        {
+          "w": 640,
+          "avif": "/img/products/lipstick-on-bag-640.avif",
+          "webp": "/img/products/lipstick-on-bag-640.webp"
+        },
+        {
+          "w": 1024,
+          "avif": "/img/products/lipstick-on-bag-1024.avif",
+          "webp": "/img/products/lipstick-on-bag-1024.webp"
+        },
+        {
+          "w": 1600,
+          "avif": "/img/products/lipstick-on-bag-1600.avif",
+          "webp": "/img/products/lipstick-on-bag-1600.webp"
+        }
+      ]
+    },
+    {
+      "id": "lipstick-rows",
+      "collection": "products",
+      "src": "/img/products/lipstick-rows-1600.webp",
+      "width": 1600,
+      "height": 960,
+      "consent": true,
+      "blurDataURL": "data:image/webp;base64,UklGRlYAAABXRUJQVlA4IEoAAADwAQCdASoQAAoAA4BaJQBOgB0l6rijXgAA/vasKtaNLhvS1pKdEqHLWa1R59uaA75lppHx//mBs6Pgqnd6JcnO1jFOl0OUeoAAAA==",
+      "variants": [
+        {
+          "w": 640,
+          "avif": "/img/products/lipstick-rows-640.avif",
+          "webp": "/img/products/lipstick-rows-640.webp"
+        },
+        {
+          "w": 1024,
+          "avif": "/img/products/lipstick-rows-1024.avif",
+          "webp": "/img/products/lipstick-rows-1024.webp"
+        },
+        {
+          "w": 1600,
+          "avif": "/img/products/lipstick-rows-1600.avif",
+          "webp": "/img/products/lipstick-rows-1600.webp"
+        }
+      ]
+    },
+    {
+      "id": "01-loom-weaver",
+      "collection": "journal",
+      "src": "/img/journal/01-loom-weaver-1024.webp",
+      "width": 1024,
+      "height": 2095,
+      "consent": true,
+      "blurDataURL": "data:image/webp;base64,UklGRsoAAABXRUJQVlA4IL4AAABQBQCdASoQACEAPt1Yo02opSMiNUgBEBuJYwDCgdwBWWbGVffqjZQJknyWy9xZ8ZI6yQAA/DoFiarvKoZwnUYyaG8+PbnncIfAhMySU3XFgSKuohQxT0jc4OfYZ1YJ8vuCMtrtOFHhP0Zp2/DMkX7cJKxOPFoRWteuNTbF0JhpDCKRS0xJKgacveCoBg+p98l7fY4IzCnFzlm7LnF27g6aQ2VwisKfDYlK241QfHIP4VpUwMfrspSD5Em6RVwA",
+      "variants": [
+        {
+          "w": 640,
+          "avif": "/img/journal/01-loom-weaver-640.avif",
+          "webp": "/img/journal/01-loom-weaver-640.webp"
+        },
+        {
+          "w": 1024,
+          "avif": "/img/journal/01-loom-weaver-1024.avif",
+          "webp": "/img/journal/01-loom-weaver-1024.webp"
+        }
+      ]
+    },
+    {
+      "id": "02-stilt-house",
+      "collection": "journal",
+      "src": "/img/journal/02-stilt-house-1600.webp",
+      "width": 1600,
+      "height": 1067,
+      "consent": true,
+      "blurDataURL": "data:image/webp;base64,UklGRmgAAABXRUJQVlA4IFwAAADQAQCdASoQAAsAA4BaJbACdADzn48ziAD+o39C1+kqA26+ChC0Kj5CWEaARZX26c4JRMpvUdnizoXkMgNgb1ZlFPcYiPhxLwG99XeYtg29OGWzdED8v80lMkAAAA==",
+      "variants": [
+        {
+          "w": 640,
+          "avif": "/img/journal/02-stilt-house-640.avif",
+          "webp": "/img/journal/02-stilt-house-640.webp"
+        },
+        {
+          "w": 1024,
+          "avif": "/img/journal/02-stilt-house-1024.avif",
+          "webp": "/img/journal/02-stilt-house-1024.webp"
+        },
+        {
+          "w": 1600,
+          "avif": "/img/journal/02-stilt-house-1600.avif",
+          "webp": "/img/journal/02-stilt-house-1600.webp"
+        },
+        {
+          "w": 2400,
+          "avif": "/img/journal/02-stilt-house-2400.avif",
+          "webp": "/img/journal/02-stilt-house-2400.webp"
+        }
+      ]
+    },
+    {
+      "id": "03-heddles",
+      "collection": "journal",
+      "src": "/img/journal/03-heddles-1600.webp",
+      "width": 1600,
+      "height": 1067,
+      "consent": true,
+      "blurDataURL": "data:image/webp;base64,UklGRlAAAABXRUJQVlA4IEQAAAAwAgCdASoQAAsAA4BaJZgCdAEf/71FGgomAADN8zWdS7z5Lg2nHJcvS5mJga3mIatzTG3xre0Qx0oQNcCofos3abYAAA==",
+      "variants": [
+        {
+          "w": 640,
+          "avif": "/img/journal/03-heddles-640.avif",
+          "webp": "/img/journal/03-heddles-640.webp"
+        },
+        {
+          "w": 1024,
+          "avif": "/img/journal/03-heddles-1024.avif",
+          "webp": "/img/journal/03-heddles-1024.webp"
+        },
+        {
+          "w": 1600,
+          "avif": "/img/journal/03-heddles-1600.avif",
+          "webp": "/img/journal/03-heddles-1600.webp"
+        },
+        {
+          "w": 2400,
+          "avif": "/img/journal/03-heddles-2400.avif",
+          "webp": "/img/journal/03-heddles-2400.webp"
+        }
+      ]
+    },
+    {
+      "id": "04-sewing-hands",
+      "collection": "journal",
+      "src": "/img/journal/04-sewing-hands-1600.webp",
+      "width": 1600,
+      "height": 2400,
+      "consent": true,
+      "blurDataURL": "data:image/webp;base64,UklGRq4AAABXRUJQVlA4IKIAAABwBACdASoQABgAPu1iqU2ppaOiMAgBMB2JQBYdsY7Y06THGyjOvOBcr4HoAAD+6i/vATuGZF5CSvKhzWa7phPtU7dywxA7dLjmfn/xC61PEtNTiWhXDixFz5tWAIzzH+0AVvsydiQo1IdKU5c1a8EkiwU7+Xz4vMBm2JYFMIPhZ2DqwsfxxAdnpPeh13wo+ITGBarDQ1FyI0F2Sbcw5EQAAAA=",
+      "variants": [
+        {
+          "w": 640,
+          "avif": "/img/journal/04-sewing-hands-640.avif",
+          "webp": "/img/journal/04-sewing-hands-640.webp"
+        },
+        {
+          "w": 1024,
+          "avif": "/img/journal/04-sewing-hands-1024.avif",
+          "webp": "/img/journal/04-sewing-hands-1024.webp"
+        },
+        {
+          "w": 1600,
+          "avif": "/img/journal/04-sewing-hands-1600.avif",
+          "webp": "/img/journal/04-sewing-hands-1600.webp"
+        },
+        {
+          "w": 2400,
+          "avif": "/img/journal/04-sewing-hands-2400.avif",
+          "webp": "/img/journal/04-sewing-hands-2400.webp"
+        }
+      ]
+    },
+    {
+      "id": "05-cloth-on-loom",
+      "collection": "journal",
+      "src": "/img/journal/05-cloth-on-loom-1600.webp",
+      "width": 1600,
+      "height": 2400,
+      "consent": true,
+      "blurDataURL": "data:image/webp;base64,UklGRpIAAABXRUJQVlA4IIYAAABwBACdASoQABgAPu1iqU2ppaOiMAgBMB2JQBOmUGaUpMAVKsdSMRsNQ5h/gAD+dB6434SJtZ2fyvfMHK7gIzzclBzMh9LlJjjU8xy0rA/R0Hq4xrQsdjGwud4GxsMzAGDS0AYGW2VVev6tINz2oGcTDMMAGvEx2IK4646sEKUqQ9npel/AAA==",
+      "variants": [
+        {
+          "w": 640,
+          "avif": "/img/journal/05-cloth-on-loom-640.avif",
+          "webp": "/img/journal/05-cloth-on-loom-640.webp"
+        },
+        {
+          "w": 1024,
+          "avif": "/img/journal/05-cloth-on-loom-1024.avif",
+          "webp": "/img/journal/05-cloth-on-loom-1024.webp"
+        },
+        {
+          "w": 1600,
+          "avif": "/img/journal/05-cloth-on-loom-1600.avif",
+          "webp": "/img/journal/05-cloth-on-loom-1600.webp"
+        },
+        {
+          "w": 2400,
+          "avif": "/img/journal/05-cloth-on-loom-2400.avif",
+          "webp": "/img/journal/05-cloth-on-loom-2400.webp"
+        }
+      ]
+    },
+    {
+      "id": "06-valley",
+      "collection": "journal",
+      "src": "/img/journal/06-valley-1600.webp",
+      "width": 1600,
+      "height": 1067,
+      "consent": true,
+      "blurDataURL": "data:image/webp;base64,UklGRlwAAABXRUJQVlA4IFAAAAAQAgCdASoQAAsAA4BaJagCdAEf8MfPfzIAAP7q3M3lA3EcXGE7jOtbKgVdVnM6xj2CeAcn3VlWm0PD14+VAAUV0vyyrUNbA5as+x1pFXAAAA==",
+      "variants": [
+        {
+          "w": 640,
+          "avif": "/img/journal/06-valley-640.avif",
+          "webp": "/img/journal/06-valley-640.webp"
+        },
+        {
+          "w": 1024,
+          "avif": "/img/journal/06-valley-1024.avif",
+          "webp": "/img/journal/06-valley-1024.webp"
+        },
+        {
+          "w": 1600,
+          "avif": "/img/journal/06-valley-1600.avif",
+          "webp": "/img/journal/06-valley-1600.webp"
+        },
+        {
+          "w": 2400,
+          "avif": "/img/journal/06-valley-2400.avif",
+          "webp": "/img/journal/06-valley-2400.webp"
+        }
+      ]
+    },
+    {
+      "id": "loom-cloth",
+      "collection": "artisans",
+      "src": "/img/artisans/loom-cloth-1600.webp",
+      "width": 1600,
+      "height": 2400,
+      "consent": true,
+      "blurDataURL": "data:image/webp;base64,UklGRooAAABXRUJQVlA4IH4AAABwBACdASoQABgAPu1kq04ppaQiMAgBMB2JZACdAq/6q8Dz/8Ux76yn3vTBwAD0bKOZfOECuLTm7yRlmZ6fENwRnuaFYSdvveh7oCJls5in5WqRinoKd/pY5NeB+lHyclwW6VzqvZE3hC/8Lk7ahXi1F3mD3+JeoG2vjOvwAAA=",
+      "variants": [
+        {
+          "w": 640,
+          "avif": "/img/artisans/loom-cloth-640.avif",
+          "webp": "/img/artisans/loom-cloth-640.webp"
+        },
+        {
+          "w": 1024,
+          "avif": "/img/artisans/loom-cloth-1024.avif",
+          "webp": "/img/artisans/loom-cloth-1024.webp"
+        },
+        {
+          "w": 1600,
+          "avif": "/img/artisans/loom-cloth-1600.avif",
+          "webp": "/img/artisans/loom-cloth-1600.webp"
+        },
+        {
+          "w": 2400,
+          "avif": "/img/artisans/loom-cloth-2400.avif",
+          "webp": "/img/artisans/loom-cloth-2400.webp"
+        }
+      ]
+    },
+    {
+      "id": "sewing-cloth",
+      "collection": "artisans",
+      "src": "/img/artisans/sewing-cloth-1600.webp",
+      "width": 1600,
+      "height": 1067,
+      "consent": true,
+      "blurDataURL": "data:image/webp;base64,UklGRmQAAABXRUJQVlA4IFgAAACwAQCdASoQAAsAA4BaJYwAApvtYU8QAP6ECIUhT4VykDw/F0EpGuWxvuESSl1mjfpNJTV9/uptkKQsuoGg4Gwyqm196oPstoUcntsVKKVbzQAaf56BbuAA",
+      "variants": [
+        {
+          "w": 640,
+          "avif": "/img/artisans/sewing-cloth-640.avif",
+          "webp": "/img/artisans/sewing-cloth-640.webp"
+        },
+        {
+          "w": 1024,
+          "avif": "/img/artisans/sewing-cloth-1024.avif",
+          "webp": "/img/artisans/sewing-cloth-1024.webp"
+        },
+        {
+          "w": 1600,
+          "avif": "/img/artisans/sewing-cloth-1600.avif",
+          "webp": "/img/artisans/sewing-cloth-1600.webp"
+        },
+        {
+          "w": 2400,
+          "avif": "/img/artisans/sewing-cloth-2400.avif",
+          "webp": "/img/artisans/sewing-cloth-2400.webp"
+        }
+      ]
+    },
+    {
+      "id": "nep-cloth",
+      "collection": "brocade",
+      "src": "/img/brocade/nep-cloth-1600.webp",
+      "width": 1600,
+      "height": 1886,
+      "consent": true,
+      "blurDataURL": "data:image/webp;base64,UklGRnoAAABXRUJQVlA4IG4AAADQAwCdASoQABMAPu1kqU4ppaOiMAgBMB2JbACdABnrD5WD6CahPsAA/jw7EE7dAiaaCxFvWA6G6HLLLybbbt6Gqx+KkQW9wuJZRMn5JIt/j7uaomGOPjmnD7y6DuRPdfS6mzuYEzCvW/XQB94AAA==",
+      "variants": [
+        {
+          "w": 640,
+          "avif": "/img/brocade/nep-cloth-640.avif",
+          "webp": "/img/brocade/nep-cloth-640.webp"
+        },
+        {
+          "w": 1024,
+          "avif": "/img/brocade/nep-cloth-1024.avif",
+          "webp": "/img/brocade/nep-cloth-1024.webp"
+        },
+        {
+          "w": 1600,
+          "avif": "/img/brocade/nep-cloth-1600.avif",
+          "webp": "/img/brocade/nep-cloth-1600.webp"
+        }
+      ]
+    }
+  ]
 }
