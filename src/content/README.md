@@ -23,7 +23,7 @@ Components read strings by key. Never hard-code copy in components.
 | `common` | shared labels |
 | `photos` | alt text, one `photos.<id>.alt` per photo in `src/lib/photos-manifest.json` |
 
-The products are named in one place, `home.craft.products.<id>.name` and `.kind`, with ids `bag` and `lipstick`. The home page and the collections page both read them from there. There is no `tote`, `mug` or `coaster` key and no `collections.hmong` (`docs/09-feedback.md` F2).
+The products are named in one place, `home.craft.products.<id>.name` and `.kind`, with ids `bag` and `lipstick`. The home page and the collections page both read them from there. The three older product keys and the older collection block are gone (`docs/09-feedback.md` F2 lists them).
 
 Contact details (email, Instagram and Facebook addresses) are not copy. They live in code as constants.
 

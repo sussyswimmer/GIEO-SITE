@@ -2,17 +2,19 @@ import { getTranslations } from 'next-intl/server';
 import { Container, Grid, Heading, PhotoFrame, Prose, Section, Todo } from '@/components/ui';
 import { journalPhotos, withAlt } from '@/lib/photos';
 
-const SIZES = '(min-width: 1024px) 40vw, (min-width: 768px) 60vw, 90vw';
+const SIZES = '(min-width: 1024px) 36vw, (min-width: 768px) 30vw, 46vw';
 
-// Six-photo module for GIEO's own photos. Index i uses slot i % 6; ratio and placement come from the same slot.
-const RATIO = ['4 / 5', '3 / 2', '1 / 1', '4 / 5', '3 / 4', '16 / 9'] as const;
+// Six-photo module for GIEO's own photos. Index i uses slot i % 6; ratio (--r) and placement come from the
+// same slot. Two rows of three from 768, each frame a step off its neighbour, so the six read as a loose
+// contact sheet and the section stays near a screen and a half at 1440×900 (docs/09 F1: the page gets
+// shorter). Under 768 they stand two to a row, the right one a step lower.
 const SLOT = [
-  'col-start-1 col-end-5 md:col-start-1 md:col-end-6 lg:col-start-1 lg:col-end-6',
-  'col-start-2 col-end-5 md:col-start-4 md:col-end-9 lg:col-start-7 lg:col-end-13 lg:mt-24',
-  'col-start-1 col-end-5 md:col-start-1 md:col-end-6 lg:col-start-2 lg:col-end-5',
-  'col-start-2 col-end-5 md:col-start-4 md:col-end-9 lg:col-start-6 lg:col-end-10 lg:mt-16',
-  'col-start-1 col-end-5 md:col-start-1 md:col-end-6 lg:col-start-10 lg:col-end-13 lg:mt-32',
-  'col-start-2 col-end-5 md:col-start-4 md:col-end-9 lg:col-start-3 lg:col-end-11',
+  'col-span-2 [--r:3/4] lg:col-start-1 lg:col-end-4 lg:[--r:4/5]',
+  'col-span-2 [--r:1/1] max-md:mt-8 md:max-lg:mt-8 lg:col-start-4 lg:col-end-9 lg:mt-10 lg:[--r:3/2]',
+  'col-span-2 [--r:1/1] lg:col-start-9 lg:col-end-13 lg:mt-20 lg:[--r:4/3]',
+  'col-span-2 [--r:4/5] max-md:mt-8 lg:col-start-2 lg:col-end-5',
+  'col-span-2 [--r:3/4] md:max-lg:mt-8 lg:col-start-5 lg:col-end-8 lg:mt-12',
+  'col-span-2 [--r:1/1] max-md:mt-8 lg:col-start-8 lg:col-end-13 lg:mt-6 lg:[--r:3/2]',
 ] as const;
 
 /**
@@ -54,11 +56,11 @@ export async function Journal() {
           {photos.length > 0 && (
             <ul
               role="list"
-              className="col-span-full mt-16 grid grid-cols-4 items-start gap-x-gap gap-y-8 md:grid-cols-8 md:gap-y-12 lg:mt-24 lg:grid-cols-12 lg:gap-y-16"
+              className="col-span-full mt-10 grid grid-cols-4 items-start gap-x-gap gap-y-4 md:grid-cols-6 md:gap-y-6 lg:mt-12 lg:grid-cols-12 lg:gap-y-10"
             >
               {photos.map((photo, i) => (
                 <li key={photo.id} className={SLOT[i % 6]}>
-                  <PhotoFrame photo={photo} ratio={RATIO[i % 6]} sizes={SIZES} />
+                  <PhotoFrame photo={photo} ratio="var(--r)" sizes={SIZES} />
                 </li>
               ))}
             </ul>

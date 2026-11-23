@@ -5,9 +5,12 @@
 //              ΔE > 6 (CIE76). Ink and imagery, not DOM boxes.
 //   band     = tallest run of cell rows with no such cell, as a share of the viewport height.
 // Pass = coverage >= 12 % (viewport >= 1024 wide) or 10 % (phones), and band <= 35 %, on every shot.
-// Two page-level checks ride along: the page is at most 12.0 screens long (12.5 on phones), and no text in
+// Two page-level checks ride along: the page is at most 15.1 screens long (14.0 on phones), and no text in
 // <main> is set under 14 px, nor under 16 px inside a <p>. The length is counted with the hero as one
 // screen: the scroll its pinned film takes is not empty space. Both the raw and the counted length print.
+// The cap is docs/09 F1's ("the page gets shorter"): no page may be longer than the home page was before
+// GIEO's first feedback, which at da65345 counted 15.11 screens at 1440x900 and 14.00 at 390x844 in English.
+// docs/07's cap of 12.0 / 12.5 had not held since docs/08 lengthened the product run (PROGRESS.md).
 //
 // Usage: node scripts/qa-density.mjs [--base http://localhost:3101] [--routes /en,/vi]
 //          [--sizes 1440x900,390x844] [--out qa/redesign] [--reduced] [--films <dir>]
@@ -66,7 +69,7 @@ export function measure(px, w, h, bgAt) {
   return { coverage: filled / (cols * rows), band: Math.min(1, (band * CELL) / h) };
 }
 
-export const limits = (w) => ({ coverage: w >= 1024 ? 0.12 : 0.1, band: 0.35, screens: w >= 1024 ? 12 : 12.5 });
+export const limits = (w) => ({ coverage: w >= 1024 ? 0.12 : 0.1, band: 0.35, screens: w >= 1024 ? 15.1 : 14 });
 
 // Runs in the page: text in <main> set smaller than the floor (14 px; 16 px inside a paragraph).
 function smallType() {

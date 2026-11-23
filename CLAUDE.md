@@ -2,7 +2,7 @@
 
 You are building the official website for **GIEO (Girls' Initiative for Education and Opportunities)**, a student-led social initiative from Hanoi that turns traditional brocade weaving into modern products with partner Chie Dù Pù Dù Pà, and reinvests in H'mong women artisans and their daughters through three pillars: Economic Empowerment, Education, and a Mentorship Network. "Gieo" means "to sow".
 
-The products today are the **Nối Nếp** collection, made with Chie Dù Pù Dù Pà: the **Nối Bag** (a brocade handbag) and the **Nếp Keychain** (a lipstick holder). There is no mug and no coaster (`docs/09-feedback.md` F2). GIEO's own copy says H'mong throughout; their product leaflet says the patterns come from the weaving of the Thái people in Chiềng Châu, Mai Châu. That is an open question (`docs/00-open-questions.md` #13): leave GIEO's sentences exactly as they wrote them, and name no ethnic group in anything new about the products.
+The products today are the **Nối Nếp** collection, made with Chie Dù Pù Dù Pà: the **Nối Bag** (a brocade handbag) and the **Nếp Keychain** (a lipstick holder). GIEO makes nothing else today: the two other products this site once showed are gone (`docs/09-feedback.md` F2). GIEO's own copy says H'mong throughout; their product leaflet says the patterns come from the weaving of the Thái people in Chiềng Châu, Mai Châu. That is an open question (`docs/00-open-questions.md` #13): leave GIEO's sentences exactly as they wrote them, and name no ethnic group in anything new about the products.
 
 The site must feel premium and alive: **three signature 3D scroll animations**, soft and editorial in look, and a scroll that is **fluid from top to bottom with nothing blocking the reader**.
 
@@ -45,6 +45,6 @@ The site must feel premium and alive: **three signature 3D scroll animations**, 
 - Email: gieovietnam2026@gmail.com · Instagram: @gieo.vietnam · Facebook: facebook.com/gieo.vietnam
 - Supported by: IB Global Youth Action Fund (text mention only unless GIEO approves the logo)
 - Product partner: Chie Dù Pù Dù Pà (founded 2011)
-- Products: the Nối Nếp collection. Nối Bag / Túi Nối (brocade handbag, id `bag`) and Nếp Keychain / Móc Nếp (lipstick holder, id `lipstick`). The names come from GIEO's printed leaflet and are DRAFT until GIEO confirms them for the web. No prices, no wallets, no mug, no coaster.
+- Products: the Nối Nếp collection. Nối Bag / Túi Nối (brocade handbag, id `bag`) and Nếp Keychain / Móc Nếp (lipstick holder, id `lipstick`). The names come from GIEO's printed leaflet and are DRAFT until GIEO confirms them for the web. No prices, no wallets, and none of the products `docs/09-feedback.md` F2 removed.
 - Photos: thirteen real frames in `assets/photos/`, listed in `assets/consent.csv` and `assets/photos/SOURCES.md`; `npm run images` writes them to `public/img/`. They are looked up by id (`src/lib/photos-manifest.json`), not by file-name prefix.
 - Signature line from GIEO: "This is GIEO, so far."

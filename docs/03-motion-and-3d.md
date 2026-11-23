@@ -68,11 +68,11 @@ The three animations are one continuous story: **a seed is sown → its stem bec
 
 **As built now (`07-redesign.md`, `08-fuller.md`, `09-feedback.md`):** the home page plays this animation as a Blender film scrubbed by scroll (`public/film/weave/`), not as the real-time scene above.
 - The film ends on the bag: 130 frames (0 to 129). Beats: thread 0-30, warps 30-50, weave 50-89, drape 89-109, bag 109-129. Key frames: 0, 50, 89, 129. The beat id is `bag`.
-- GIEO has no mug and no coaster, so the film has none (`09-feedback.md` F2). The bag in the film is the stylised bag it has always had, not a likeness of the Nối Bag (`00-open-questions.md` #19). The real products are shown in photographs.
+- GIEO makes only the bag and the lipstick holder, so the film shows no other product (`09-feedback.md` F2). The bag in the film is the stylised bag it has always had, not a likeness of the Nối Bag (`00-open-questions.md` #19). The real products are shown in photographs.
 - The product run rests once: `weaveRun` is one `hold` (54svh on wide screens, 48svh on phones; `scripts/timeline.test.mjs` holds it to at least 45svh on both).
 - Both product names stand beside the stage in one list, name large and kind small. They light together when the bag is at least half in. Nothing lights for a product the film does not show.
 - `blender/film/weave.py`, `art.py` and `stills.py` build exactly what ships, and `scripts/encode-film.mjs` matches.
-- The real-time scene described above is not mounted on any page. It and `public/models/weave.glb` still hold a mug and a coaster that nobody can see; that is listed as open in `PROGRESS.md`.
+- The real-time scene described above is not mounted on any page. It and `public/models/weave.glb` still hold two products GIEO does not make, which nobody can see; that is listed as open in `PROGRESS.md`.
 
 ## 4. Animation 3: "The lotus of three". Pillars section, ~150vh
 

@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import Image from 'next/image';
 import { ButtonLink, Container, type FramePhoto, Grid, PhotoFrame, Prose, Section, Todo } from '@/components/ui';
 import { cx } from '@/lib/cx';
@@ -39,7 +40,14 @@ function ProductSlab({ product, credit, flip }: { product: Product; credit: stri
     <li data-tone="plum" data-enter className={cx('grid overflow-hidden rounded-card bg-plum-ink', photo && 'lg:grid-cols-2')}>
       {photo?.consent && (
         <div className={cx('relative aspect-3/2 lg:aspect-auto lg:h-[min(32rem,64svh)]', flip && 'lg:order-2')}>
-          <Image src={photo.src} alt={photo.alt} fill sizes="(min-width: 1024px) 45vw, 90vw" className="object-cover" />
+          <Image
+            src={photo.src}
+            alt={photo.alt}
+            fill
+            sizes="(min-width: 1024px) 45vw, 90vw"
+            className="object-cover"
+            {...(photo.blurDataURL ? { placeholder: 'blur' as const, blurDataURL: photo.blurDataURL } : {})}
+          />
         </div>
       )}
       <div className="flex flex-col justify-center p-6 md:p-10 lg:p-16">
@@ -66,7 +74,15 @@ export function CollectionBlock({ id, tone, from, name, tagline, body, credit, s
             {name}
           </h2>
           <div className="relative z-1 col-span-full mt-4 md:col-span-5 lg:col-span-6 lg:mt-6">
-            <p className="font-serif text-quote text-balance italic text-fg-heading">{tagline}</p>
+            {/* One sentence to a line where the column allows it: a line may break between sentences, not inside one. */}
+            <p className="font-serif text-quote italic text-fg-heading">
+              {tagline.split(/(?<=\.)\s+/).map((sentence, i) => (
+                <Fragment key={i}>
+                  {i > 0 && ' '}
+                  <span className="inline-block">{sentence}</span>
+                </Fragment>
+              ))}
+            </p>
             <Prose variant="lead" className="mt-4 lg:mt-6">
               {body}
             </Prose>

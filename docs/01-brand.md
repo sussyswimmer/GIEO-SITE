@@ -16,7 +16,7 @@
 | Support | Selected for the **IB Global Youth Action Fund** (International Baccalaureate) |
 | Product partner | **Chie Dù Pù Dù Pà**, an enterprise founded in 2011 that works with ethnic minority communities on traditional handicrafts (doc also spells it "Chie Dupudupa"; use "Chie Dù Pù Dù Pà") |
 | Community | H'mong women brocade artisans and their children, especially daughters |
-| Products | Contemporary lifestyle products made with traditional brocade weaving. Today that is one collection, **Nối Nếp**, made with Chie Dù Pù Dù Pà: the **Nối Bag** / Túi Nối (brocade handbag) and the **Nếp Keychain** / Móc Nếp (lipstick holder). The names come from GIEO's printed leaflet (`09-feedback.md` F2) and are DRAFT until GIEO confirms them for the web. There is no mug and no coaster. The leaflet also lists a zip wallet, a fold wallet and prices; none of them is on the site until GIEO asks. Each collection uses one ethnic group's pattern; profits from it go back to that group |
+| Products | Contemporary lifestyle products made with traditional brocade weaving. Today that is one collection, **Nối Nếp**, made with Chie Dù Pù Dù Pà: the **Nối Bag** / Túi Nối (brocade handbag) and the **Nếp Keychain** / Móc Nếp (lipstick holder). The names come from GIEO's printed leaflet (`09-feedback.md` F2) and are DRAFT until GIEO confirms them for the web. GIEO makes nothing else today. The leaflet also lists a zip wallet, a fold wallet and prices; none of them is on the site until GIEO asks. Each collection uses one ethnic group's pattern; profits from it go back to that group |
 | Email | gieovietnam2026@gmail.com |
 | Instagram | @gieo.vietnam |
 | Facebook | facebook.com/gieo.vietnam (page: "GIEO - Girls' Initiative for Education and Opportunities") |

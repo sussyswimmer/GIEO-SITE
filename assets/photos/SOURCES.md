@@ -9,7 +9,7 @@ Crop boxes are fractions of the original frame: x, y, width, height.
 | products/bag-rows.jpg | Lotte Mall Tây Hồ stall, 22-23/8/2026 | album item 37 | 0.22, 0.36, 0.78, 0.64 (removes the neighbouring stall) |
 | products/bag-pink.jpg | Lotte Mall Tây Hồ stall | album item 10 | 0.10, 0.25, 0.90, 0.75 |
 | products/lipstick-rows.jpg | Lotte Mall Tây Hồ stall | album item 20 | 0.12, 0.50, 0.30, 0.27 (removes the person behind the table) |
-| products/lipstick-on-bag.jpg | Lotte Mall Tây Hồ stall | album item 182 | 0.36, 0.22, 0.36, 0.215 (removes the printed sheets and the person) |
+| products/lipstick-on-bag.jpg | Lotte Mall Tây Hồ stall | album item 182 | 0.36, 0.22, 0.26, 0.25 (removes the printed sheets and the person) |
 | brocade/nep-cloth.jpg | Inspection trip (Mai Châu) | DSCF1237.JPG | 0.30, 0.30, 0.70, 0.55 |
 | journal/01-loom-weaver.jpg | Mai Châu trip, GIEO 2026 | DSCF3872.JPG | 0.34, 0.10, 0.66, 0.90 (removes a distant passer-by) |
 | journal/02-stilt-house.jpg | Mai Châu trip | DSCF3681.JPG | whole frame |

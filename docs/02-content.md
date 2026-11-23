@@ -2,7 +2,7 @@
 
 All long-form copy below is **verbatim from GIEO's Org Info doc or GIEO's own Facebook posts** (the 20/10 post and the season recap post). Lines marked `DRAFT` are short connective lines written for the site; they must be shown to GIEO for approval and are the only copy you may edit freely. Store everything in `src/content/{en,vi}.json`, never hard-code strings in components.
 
-Since November 2026 there is one more source: GIEO's printed Nối Nếp leaflet. Its copy has its own block below ("/collections: the Nối Nếp collection"), which says line by line what is verbatim and what is `DRAFT`. That block and `09-feedback.md` replace every earlier mention of tote bags, mugs and coasters: the products are the bag and the lipstick holder.
+Since November 2026 there is one more source: GIEO's printed Nối Nếp leaflet. Its copy has its own block below ("/collections: the Nối Nếp collection"), which says line by line what is verbatim and what is `DRAFT`. That block and `09-feedback.md` replace every earlier product list: the products are the bag and the lipstick holder.
 
 ---
 
@@ -47,7 +47,7 @@ Beat 2 (pull quote, from their 20/10 post):
 - EN: "Every single thread, every careful stitch, and every piece of woven fabric tells the quiet, enduring story of a Vietnamese woman."
 - VI: "Từng sợi chỉ đan, từng mũi khâu dệt, từng mảnh vải thêu đều là một câu chuyện bền bỉ về người phụ nữ Việt Nam."
 
-Beat 3 (the cloth becomes a bag and the film ends there, at frame 129. Both product names stand beside the stage in one list, name large and kind small: Nối Bag / Túi Nối and Nếp Keychain / Móc Nếp. The strings are in the Nối Nếp block below. There is no mug and no coaster):
+Beat 3 (the cloth becomes a bag and the film ends there, at frame 129. Both product names stand beside the stage in one list, name large and kind small: Nối Bag / Túi Nối and Nếp Keychain / Móc Nếp. The strings are in the Nối Nếp block below. The film shows no other product):
 - EN: "Rather than simply selling handicrafts, GIEO develops contemporary products inspired by traditional H'mong brocade, making ethnic craftsmanship more accessible and relevant to today's young consumers. Every purchase helps sustain traditional weaving while directly supporting the women artisans who preserve this cultural heritage."
 - VI: "Thay vì chỉ đơn thuần bán các sản phẩm thủ công, GIEO phát triển những sản phẩm đương đại nhưng vẫn sử dụng họa tiết và kỹ thuật dệt thổ cẩm truyền thống của người H'Mông, giúp các giá trị thủ công truyền thống trở nên gần gũi và phù hợp hơn với người tiêu dùng trẻ ngày nay. Mỗi sản phẩm được bán ra không chỉ góp phần duy trì nghề dệt truyền thống mà còn trực tiếp hỗ trợ những nữ nghệ nhân đang gìn giữ di sản văn hóa này."
 - CTA: "Xem bộ sưu tập / See the collection" → `/collections`
@@ -115,7 +115,7 @@ The collection, made with Chie Dù Pù Dù Pà:
 | `collections.noinep.name` | Nối Nếp | Nối Nếp | As printed (the leaflet's title, in capitals) |
 | `collections.noinep.tagline` | "Nối nghề. Nối người. Nối tương lai." | "Connecting craft. Connecting people. Connecting futures." | VI: verbatim. EN: `DRAFT`, the first word is hidden in the photo |
 | `collections.noinep.body` | "Những sản phẩm được tạo nên từ vải canvas và vải dệt thủ công." | "Products crafted from canvas and brocade fabrics." | VI: the first clause of the leaflet's sentence, verbatim, ended with a full stop where the leaflet has a comma. EN: `DRAFT`, the first word is hidden in the photo, and it is cut at the same place |
-| `collections.noinep.credit` | "Sản phẩm được thực hiện cùng Chie Dù Pù Dù Pà" | "Products made with Chie Dù Pù Dù Pà" | `DRAFT`, unchanged from the earlier `collections.hmong.credit` |
+| `collections.noinep.credit` | "Sản phẩm được thực hiện cùng Chie Dù Pù Dù Pà" | "Products made with Chie Dù Pù Dù Pà" | `DRAFT`, unchanged from the credit key of the earlier collection block |
 
 The two products (ids `bag` and `lipstick`):
 
@@ -133,7 +133,7 @@ Left out on purpose:
 - **Every price** on the leaflet (#16), and the combo offer that is only a price.
 - **The leaflet's four short value lines** (fabrics, livelihoods, opportunities for girls, local cultures). They are not used on the site.
 
-Removed keys: `home.craft.products.tote`, `.mug`, `.coaster` and `collections.hmong.*`.
+Removed keys: the three older product keys under `home.craft.products` and the whole older collection block (`09-feedback.md` F2 lists them).
 
 Page layout: the collection name very large, the tagline and body, one photo of the cloth (`nep-cloth`) as the swatch, then two slabs, one per product, each with its photograph (`bag-rows`, `lipstick-rows`), its name and kind, and the partner credit. No third tile.
 

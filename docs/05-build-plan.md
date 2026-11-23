@@ -47,7 +47,7 @@ Pin exact versions in `package.json` after install.
 - **Check:** LCP still under 2.5 s (canvas must not delay the headline). Hero GLB ≤ 600 KB.
 
 ## Phase 5: Animation 2, thread to brocade to product
-- Weave shader, instanced threads, a procedural bag with real brocade texture (or TODO(products) neutral texture), drape clip. One product only: GIEO has no mug and no coaster, and the animation ends on the bag (`09-feedback.md` F2). The Nối Bag and the Nếp Keychain themselves are shown in photographs.
+- Weave shader, instanced threads, a procedural bag with real brocade texture (or TODO(products) neutral texture), drape clip. One product only: the animation ends on the bag (`09-feedback.md` F2). The Nối Bag and the Nếp Keychain themselves are shown in photographs.
 - **Check:** budget met; brocade pattern not stretched on the bag (screenshot it at its hero angle).
 
 ## Phase 6: Fallback tiers

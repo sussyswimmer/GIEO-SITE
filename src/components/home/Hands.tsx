@@ -4,9 +4,10 @@ import { photo } from '@/lib/photos';
 
 /**
  * S2 Hands: who makes the products, and who the work is for (the old Partner and NextGen sections).
- * First screen: the partner's name very large, the partner paragraph under it, and beside the paragraph
- * GIEO's own photographs of the two products (docs/09 F3): the bag, and the lipstick holder as a smaller
- * second frame, each labelled with its name and kind, one partner credit under both. A strip of thread
+ * First screen: the partner's name very large, the partner paragraph under it, and beside the two (under
+ * the name on a phone) GIEO's own photographs of the two products (docs/09 F3): the bag, and the lipstick
+ * holder as a smaller second frame, each labelled with its name and kind, one partner credit under both.
+ * The name is two balanced lines and stays inside seven columns, clear of the photographs. A strip of thread
  * unwinds across the page between the two screens: it is their divider.
  * Second screen: a photograph of cloth on the loom beside the paragraph on the next generation, whose first
  * sentence is set large in italic (the same paragraph, cut at its first full stop: no word is added or
@@ -32,22 +33,23 @@ export async function Hands() {
           <h2
             id="partner-title"
             lang="vi"
-            className="relative z-1 col-span-full font-serif text-mega italic text-fg-heading lg:col-start-1 lg:col-end-9 lg:row-start-1"
+            className="relative z-1 col-span-full font-serif text-mega italic text-fg-heading lg:col-start-1 lg:col-end-8 lg:row-start-1"
           >
             {t('name')}
           </h2>
           {(bag || holder) && (
-            <div className="col-span-full mt-6 lg:col-start-7 lg:col-end-13 lg:row-start-2 lg:mt-8">
-              <PhotoFrame photo={bag} ratio="16 / 9" sizes="(min-width: 1024px) 45vw, 92vw" caption={label('bag')} />
+            // one figure for the two frames: its caption is the partner credit, as under every product picture
+            <figure className="col-span-full mt-6 lg:col-start-8 lg:col-end-13 lg:row-start-1 lg:row-end-3 lg:mt-4">
+              <PhotoFrame photo={bag} ratio="16 / 9" sizes="(min-width: 1024px) 40vw, 92vw" caption={label('bag')} />
               <PhotoFrame
                 photo={holder}
-                ratio="5 / 2"
-                sizes="(min-width: 1024px) 30vw, 70vw"
+                ratio="3 / 2"
+                sizes="(min-width: 1024px) 24vw, 70vw"
                 caption={label('lipstick')}
                 className="mt-4 ml-auto w-3/4 lg:mt-6 lg:w-3/5"
               />
-              <small className="mt-4 block text-caption text-fg-body">{credit}</small>
-            </div>
+              <figcaption className="mt-4 text-caption text-fg-body">{credit}</figcaption>
+            </figure>
           )}
           <Prose variant="lead" className="relative z-1 col-span-full mt-6 lg:col-start-1 lg:col-end-7 lg:row-start-2 lg:mt-8">
             {t('body')}

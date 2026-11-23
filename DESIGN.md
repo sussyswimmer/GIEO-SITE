@@ -4,7 +4,7 @@ Read this before changing any UI. Tokens live in `src/styles/tokens.css`, which 
 
 **The home page was rebuilt on 2026-11-16 to `docs/07-redesign.md`. §10 at the end of this file describes it and wins over §1, §5 and §6 wherever they describe the home page.** The token tables in §3 and §4 are current. The inner pages still follow §1–§9.
 
-**GIEO's first feedback (`docs/09-feedback.md`, November 2026) changed three things: the type and spacing came down a step, the products are the bag and the lipstick holder (no mug, no coaster), and real photographs came in. §3 and §4 carry the new numbers, §11 lists the rest, and §11 wins over everything before it.**
+**GIEO's first feedback (`docs/09-feedback.md`, November 2026) changed three things: the type and spacing came down a step, the products are the bag and the lipstick holder (and nothing else), and real photographs came in. §3 and §4 carry the new numbers, §11 lists the rest, and §11 wins over everything before it.**
 
 ---
 
@@ -552,9 +552,9 @@ Brief: `docs/07-redesign.md`. Same palette, same two typefaces, same ethics rule
 
 **Partner credit in the stage.** The film shows a product (the bag), so `collections.noinep.credit` sits at the foot of the sticky stage, under it, in `text-caption` cream on plum. It is the section's only copy of the credit. The runtime lights it (`data-on`) at the drape beat, when the cloth starts to become a product, and it stays lit; without the runtime it is simply visible. No product is on screen without it.
 
-The numbers were measured from the product boxes of the first film, which ran on past the bag to a mug and a coaster. GIEO has neither, so the film now ends on the bag (docs/09 F2, §11). The stage geometry was left exactly as it was, and the bag stays fully on screen from 1280 to 1920 wide. `scripts/qa-redesign.mjs` (`weave`) re-measures this from the key frames; re-run it if the film is re-rendered with different framing.
+The numbers were measured from the product boxes of the first film, which ran on past the bag to two products GIEO does not make. The film now ends on the bag (docs/09 F2, §11). The stage geometry was left exactly as it was, and the bag stays fully on screen from 1280 to 1920 wide. `scripts/qa-redesign.mjs` (`weave`) re-measures this from the key frames; re-run it if the film is re-rendered with different framing.
 
-**StillLife** (`home/StillLife.tsx`, data in `src/lib/stills.ts`). One Blender still: empty alt text, no caption that states a fact. Its box takes the render's own proportions (read from the file). A still that shows products carries `collections.noinep.credit` as its `figcaption`; none does now, because the products still (`products.webp`, which showed a mug and a coaster) is gone and photographs of the real products stand where it stood (§11). The Hands stills and the Journal stills described in this paragraph are replaced by photographs too (§11); where a still remains it is 40–50 % of the content width on desktop. It unveils with a `clip-path` wipe on entering view (`data-enter`) and its layers drift at different speeds (`data-drift`). The runtime fetches and decodes a held still a screen and a half before it unveils: the clip hides it from the browser's lazy loading, so without that the image arrived after its own wipe and its first paint dropped a frame.
+**StillLife** (`home/StillLife.tsx`, data in `src/lib/stills.ts`). One Blender still: empty alt text, no caption that states a fact. Its box takes the render's own proportions (read from the file). A still that shows products carries `collections.noinep.credit` as its `figcaption`; none does now, because the products still (`products.webp`, which showed two products GIEO does not make) is gone and photographs of the real products stand where it stood (§11). The Hands stills and the Journal stills described in this paragraph are replaced by photographs too (§11); where a still remains it is 40–50 % of the content width on desktop. It unveils with a `clip-path` wipe on entering view (`data-enter`) and its layers drift at different speeds (`data-drift`). The runtime fetches and decodes a held still a screen and a half before it unveils: the clip hides it from the browser's lazy loading, so without that the image arrived after its own wipe and its first paint dropped a frame.
 
 **Thread** (`home/Thread.tsx`). One SVG path from the seed film's `threadExit` point to the end of the page, drawn by scroll with `stroke-dashoffset`, stem mint shifting to lotus pink. Loose S-curves down one gutter; at a seam between sections it leans further in, deepest in the gap between their copy, taking the same half wave as any other sway to get there and back (a swing made inside the gap alone is too tight and reads as a kink); it stays in the gutter and never crosses text. Its first point is exactly under the film's stem, including on a phone, where the crop puts the stem at the screen's edge. It sits on `--z-canvas`: above section backgrounds, under copy, films and stills. `Section` takes a `thread="left|right"` prop to say which gutter.
 
@@ -587,7 +587,7 @@ The numbers were measured from the product boxes of the first film, which ran on
 
 ## 11. First feedback: smaller, the real products, real photographs (November 2026)
 
-Brief: `docs/09-feedback.md`. GIEO liked the site and asked for two things: elements and type "smaller, like a bit", and the right products (the bag and the lipstick holder, not a mug and coasters). They also shared three photo albums. This section wins over §1–§10 wherever they disagree. Everything else in §10 still stands: the three films, the fallback tiers, the scroll rules, the footer.
+Brief: `docs/09-feedback.md`. GIEO liked the site and asked for two things: elements and type "smaller, like a bit", and the right products (the bag and the lipstick holder, which are all GIEO makes today). They also shared three photo albums. This section wins over §1–§10 wherever they disagree. Everything else in §10 still stands: the three films, the fallback tiers, the scroll rules, the footer.
 
 ### Smaller, a bit
 
@@ -595,11 +595,11 @@ Brief: `docs/09-feedback.md`. GIEO liked the site and asked for two things: elem
 - Nothing goes under the floors: 14 px for any text, 16 px in a paragraph, 18 px for weight 300, 44 px for anything you tap.
 - Buttons are 44 px high (were 48), form inputs 48 px (were 52).
 - `--fs-ui`, `--fs-caption`, the gutters, the wrap width, the nav pill, the line-heights and the film stage geometry did not move.
-- The home page is also about a screen and a half shorter, because the product run now rests once (below).
+- The home page is shorter. The product run lost 160svh on wide screens and 124svh on phones because it now rests once (below); the photographs take some of that back. Measured after the change: 14314 px (EN) and 14832 px (VI) at 1440×900, where it was 15308 and 15904; 12220 px and 12802 px at 390×844, where it was 13078 and 13725. `scripts/qa-density.mjs` holds every page to the length the home page had before the feedback.
 
 ### The products
 
-There is no mug and no coaster. The collection is **Nối Nếp**, made with Chie Dù Pù Dù Pà. The names come from GIEO's own printed leaflet and are `DRAFT` until GIEO confirms them for the web.
+The bag and the lipstick holder are the only products. The collection is **Nối Nếp**, made with Chie Dù Pù Dù Pà. The names come from GIEO's own printed leaflet and are `DRAFT` until GIEO confirms them for the web.
 
 | id | EN name | EN kind | VI name | VI kind |
 |---|---|---|---|---|
@@ -629,7 +629,7 @@ There is no mug and no coaster. The collection is **Nối Nếp**, made with Chi
 
 | Slot | Photo id | Notes |
 |---|---|---|
-| Home, Journal grid | `01-loom-weaver` to `06-valley` | The six-slot grid `Journal.tsx` already has; it replaces the rail of stills |
+| Home, Journal grid | `01-loom-weaver` to `06-valley` | The six-slot grid `Journal.tsx` already has; it replaces the rail of stills. Under 1024 the six stand two to a row |
 | Home, Hands, beside the partner name | `bag-pink`, with `lipstick-on-bag` as a smaller second frame | Replaces the products still. Each frame is labelled with the product name and kind; one credit line |
 | Home, Hands, lower | `loom-cloth` | Replaces the cloth still |
 | Collections, Nối Nếp swatch | `nep-cloth` | The 16/9 slot that was empty |
@@ -641,4 +641,4 @@ Get involved and Contact take no photo: a trip picture beside "what we're buildi
 
 ### Checks
 
-`npm run typecheck`, `lint`, `content:check`, `test:motion`, `test:images` and `build` clean. No "mug", "coaster", "ceramic", "cốc" or "lót ly" in `src/`, in `public/film/weave/manifest.json` or in the built HTML. Screenshots at 375 and 1440 of every route in both languages, and of the weave stage at each beat end. Vietnamese diacritics intact on "Nối Nếp", "Túi Nối", "Móc Nếp" and "Móc đựng son dưỡng" at every size. No horizontal overflow at 320, 375, 390, 768, 1024 or 1440.
+`npm run typecheck`, `lint`, `content:check`, `test:motion`, `test:images` and `build` clean. None of the five banned product words listed under Checks in `docs/09-feedback.md` in `src/`, in `public/film/weave/manifest.json` or in the built HTML. Screenshots at 375 and 1440 of every route in both languages, and of the weave stage at each beat end. Vietnamese diacritics intact on "Nối Nếp", "Túi Nối", "Móc Nếp" and "Móc đựng son dưỡng" at every size. No horizontal overflow at 320, 375, 390, 768, 1024 or 1440.

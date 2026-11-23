@@ -6,8 +6,9 @@
 //   hero       pinned first screen: the three beats of copy lie inside the film's textSafe box (also at 375x667)
 //   strip      11 screenshots down the hero's run (every 10 %): the headline, the dictionary entry and the
 //              initiative line are each whole and alone on screen in at least two shots in a row
-//   weave      screenshots at film frames 45, 120, 140, 169; the canvas bleeds off screen, the products do not,
-//              and from frame 120 the one partner credit is on screen, lit, below the product
+//   weave      screenshots at film frames 45, 89, 120, 129 (the film ends on the bag, docs/09 F2); the canvas
+//              bleeds off screen, the bag does not, and from frame 120 the one partner credit is on screen,
+//              lit, below the bag
 //   deck       pillar cards at 1440: while a card lies under the next, its whole title still shows
 //   trace     10 s wheel scroll: no long task over 50 ms, no frame over 33 ms; repeated at 4× CPU (reported only)
 //
@@ -215,12 +216,12 @@ for (const route of ROUTES) {
 
 // weave: one screenshot per named film frame, and the stage's geometry at each. The warp beat fills the
 // canvas, so the canvas must run off the part of the section that is on screen (top, bottom and right from
-// 1280; both sides on a phone), while every opaque pixel of the product on show stays on it. Each product's
-// box comes from its key frame; 1280x720 and 1920x1080 are checked too, since the stage scales with both.
+// 1280; both sides on a phone), while every opaque pixel of the bag stays on it. The bag's box comes from
+// its key frame; 1280x720 and 1920x1080 are checked too, since the stage scales with both.
 {
   const sharp = (await import('sharp')).default;
   const boxes = {}; // frame -> left, top, right, bottom of that product, as shares of the canvas
-  for (const [frame, key] of [[120, 's-0129'], [140, 's-0149'], [169, 's-0169']]) {
+  for (const [frame, key] of [[120, 's-0129'], [129, 's-0129']]) {
     const box = (boxes[frame] = [1, 1, 0, 0]);
     const { data, info } = await sharp(path.resolve(films || 'public/film', 'weave/keys', `${key}.webp`)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
     for (let i = 3, n = 0; i < data.length; i += 4, n++) {
@@ -245,7 +246,7 @@ for (const route of ROUTES) {
       return [r.top + scrollY - innerHeight, r.bottom + scrollY];
     });
     const bad = [];
-    for (const target of [45, 120, 140, 169]) {
+    for (const target of [45, 89, 120, 129]) {
       let [lo, hi] = span;
       while (hi - lo > 4) {
         const mid = (lo + hi) / 2;
@@ -271,7 +272,7 @@ for (const route of ROUTES) {
       });
       const wide = g.vw >= 1280;
       const bleeds = wide ? g.t < g.top && g.t + g.h > g.bottom && g.l + g.w > g.vw : g.l < 0 && g.l + g.w > g.vw;
-      const box = boxes[target] ?? [0.5, 0.5, 0.5, 0.5]; // frame 45 is the warp: no product yet
+      const box = boxes[target] ?? [0.5, 0.5, 0.5, 0.5]; // frames 45 and 89 are the warp and the cloth: no product yet
       const [l, t, r, b] = [g.l + box[0] * g.w, g.t + box[1] * g.h, g.l + box[2] * g.w, g.t + box[3] * g.h];
       const inside = l >= 0 && r <= g.vw && t >= (wide ? g.top : Math.max(g.top, g.nav)) && b <= g.bottom;
       // A product on screen carries the partner credit: one copy, lit, on screen, under the product.
@@ -287,7 +288,7 @@ for (const route of ROUTES) {
     check(
       `weave ${route} ${size[0]}`,
       bad.length === 0,
-      bad.join('; ') || 'frames 45, 120, 140, 169 shot; canvas bleeds off screen, each product inside it; one credit on screen under each product',
+      bad.join('; ') || 'frames 45, 89, 120, 129 shot; canvas bleeds off screen, the bag inside it; one credit on screen under the bag',
     );
     await page.context().close();
   }

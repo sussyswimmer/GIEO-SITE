@@ -1,14 +1,15 @@
 // Checks for docs/08-fuller.md H2 and H3 (the weave's pacing and the home page from the weave down),
 // against a running production server.
-//   pace      the scroll, in svh, for which each of tote, mug and coaster rests on the stage (its last
-//             frame, the stage pinned), the scroll each change takes, and the three-product total
+//   pace      the scroll, in svh, for which the bag rests on the stage (the film's last frame, the stage
+//             pinned) with both product names lit, and the scroll the change from cloth to bag takes
+//             (docs/09 F2: the film ends on the bag, so the run rests once)
 //   walk      screenshots from the weave section to the footer in 0.75-screen steps; per shot the ink
 //             coverage and the tallest empty band (qa-density's measure, decoration hidden), and per page
 //             the smallest font size of any p, li or small in <main>
 //   contrast  text on the Vision / Mission picture against the darkest and the lightest pixel under it
 //   reduced   the same walk under prefers-reduced-motion at 1440x900: nothing sticky, no copy hidden
 //   reducedproducts  under reduced motion, 1440x900 and 390x844, /en and /vi: scrolling through #craft, the
-//             stage shows tote, mug and coaster while at least 60 % of its box is on screen
+//             stage shows the bag while at least 60 % of its box is on screen
 //
 // Usage: node scripts/qa-fuller-b.mjs <pace|walk|contrast|reduced|reducedproducts|all> [--base http://localhost:3112] [--out qa/fuller/b]
 // Exit 1 when a check fails.
@@ -56,9 +57,9 @@ const filmsReady = () =>
 
 // ── pace ──────────────────────────────────────────────────────────────────────────────────────────
 async function pace() {
-  // each product's box in its key frame (left, top, right, bottom as shares of the canvas), as qa-redesign reads it
+  // the bag's box in its key frame (left, top, right, bottom as shares of the canvas), as qa-redesign reads it
   const boxes = {};
-  for (const f of [129, 149, 169]) {
+  for (const f of [129]) {
     const box = (boxes[f] = [1, 1, 0, 0]);
     const { data, info } = await sharp(path.resolve('public/film/weave/keys', `s-0${f}.webp`)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
     for (let i = 3, n = 0; i < data.length; i += 4, n++) {
@@ -70,7 +71,6 @@ async function pace() {
   }
   for (const size of [[1280, 720], [1366, 768], [1536, 864], DESKTOP, [1920, 1080], [1024, 768], PHONE]) {
     const [w, h] = size;
-    const floor = w >= 1024 ? 210 : 150;
     const page = await open('/en?tier=full', size); // ?tier exposes the QA hook; full is what this PC picks anyway
     const span = await page.evaluate(() => {
       const r = document.querySelector('#craft').getBoundingClientRect();
@@ -100,7 +100,8 @@ async function pace() {
             frame: Math.round(timeOf('weave', store.getState()) * (TRACKS.weave.frames - 1)),
             top: Math.round(box.top),
             onScreen: box.top >= -1 && box.bottom <= innerHeight + 1,
-            lit: [...document.querySelectorAll('#craft ul[role="list"] > li')].map((li) => (li.dataset.active ? li.textContent : '')).join(''),
+            lit: [...document.querySelectorAll('#craft ul[role="list"] > li')].map((li) => (li.dataset.active ? li.firstElementChild.textContent : '')).filter(Boolean).join(' + '),
+            names: document.querySelectorAll('#craft ul[role="list"] > li').length,
           };
         }, y),
       );
@@ -110,7 +111,7 @@ async function pace() {
     const rest = (frame) => rows.filter((r, i) => r.frame === frame && r.onScreen && rows[i - 1]?.top === r.top);
     const run = (rs) => (rs.length ? rs.at(-1).y - rs[0].y + step : 0);
     const between = (a, b) => run(rows.filter((r) => r.frame > a && r.frame < b)) + step;
-    const names = { 129: 'tote', 149: 'mug', 169: 'coaster' };
+    const names = { 129: 'bag' };
     // the product is whole on screen (under the nav pill below 1280, where the stage does not bleed off the top)
     const whole = (r, f) => {
       const [l, t, cw, ch] = r.film;
@@ -119,9 +120,9 @@ async function pace() {
     };
     const span3 = (r, f) => `${Math.round(r.film[1] + boxes[f][1] * r.film[3])} to ${Math.round(r.film[1] + boxes[f][3] * r.film[3])} of ${h}`;
     console.log(`\npace ${w}x${h} (1svh = ${step}px, #craft is ${svh(span[1] - span[0] - h)}svh tall)`);
-    const holds = [129, 149, 169].map((f) => rest(f));
+    const holds = [129].map((f) => rest(f));
     holds.forEach((rs, i) => {
-      const f = [129, 149, 169][i];
+      const f = [129][i];
       const lit = [...new Set(rs.map((r) => r.lit))].join('|');
       check(svh(run(rs)) >= 45, `${names[f].padEnd(8)} at rest on frame ${f} for ${svh(run(rs))}svh (floor 45), name lit: "${lit}"`);
       // whole for all of its rest, and whenever its name is lit (which starts half-way through the change before)
@@ -130,11 +131,14 @@ async function pace() {
       const cut = shown.filter((r) => !whole(r, f));
       check(cut.length === 0, `${names[f].padEnd(8)} whole on screen at all ${shown.length} held positions where it rests or its name is lit${cut.length ? `: cut at ${cut.length}, e.g. y=${Math.round(cut[0].y)} product ${span3(cut[0], f)}` : ` (mid-rest: y ${span3(rs[Math.floor(rs.length / 2)] ?? shown[0], f)})`}`);
     });
-    check(svh(between(109, 129)) <= 30, `cloth → tote takes ${svh(between(109, 129))}svh (ceiling 30)`);
-    check(svh(between(129, 149)) <= 30, `tote → mug takes ${svh(between(129, 149))}svh (ceiling 30)`);
-    check(svh(between(149, 169)) <= 30, `mug → coaster takes ${svh(between(149, 169))}svh (ceiling 30)`);
-    const total = holds[2].at(-1).y - holds[0][0].y + step;
-    check(svh(total) >= floor, `three products span ${svh(total)}svh, tote's first rest to the coaster's last (floor ${floor})`);
+    check(svh(between(109, 129)) <= 30, `cloth → bag takes ${svh(between(109, 129))}svh (ceiling 30)`);
+    // docs/09 F2: the list names two products and the film shows one; both names light together, and only
+    // while the bag is on the stage
+    const litAtRest = [...new Set(holds[0].map((r) => r.lit.split(' + ').filter(Boolean).length))];
+    check(rows[0].names === 2 && litAtRest.length === 1 && litAtRest[0] === 2, `${rows[0].names} names in the list, lit at rest: ${litAtRest.join(' or ')} (need 2 of 2, together)`);
+    const early = rows.filter((r) => r.frame < 109 && r.lit);
+    check(early.length === 0, `no name is lit before the cloth starts to become the bag${early.length ? `: lit at frame ${early[0].frame}` : ''}`);
+    check(Math.max(...rows.map((r) => r.frame)) === 129, `the film ends on frame ${Math.max(...rows.map((r) => r.frame))} (the bag, 129)`);
 
     // and what the canvas really draws mid-rest, in real time (scrub and seek left to settle)
     for (const [i, rs] of holds.entries()) {
@@ -143,7 +147,7 @@ async function pace() {
       await page.waitForFunction(filmsReady, null, { timeout: 8000 }).catch(() => {});
       await page.waitForTimeout(1600);
       const drawn = await page.evaluate(() => Number(document.querySelector('[data-film="weave"] canvas[data-frame]')?.dataset.frame));
-      const f = [129, 149, 169][i];
+      const f = [129][i];
       const file = `pace-w${w}x${h}-${names[f]}.png`;
       await page.screenshot({ path: path.join(out, file) });
       const now = await page.evaluate(() => {
@@ -307,10 +311,10 @@ async function contrast() {
 
 // ── reducedproducts ───────────────────────────────────────────────────────────────────────────────
 async function reducedProducts() {
-  // the stage's data-key indexes the manifest's keys; the last three are the tote, mug and coaster frames
-  const names = ['tote', 'mug', 'coaster'];
+  // the stage's data-key indexes the manifest's keys; the last one is the bag's frame, where the film ends
+  const names = ['bag'];
   const count = JSON.parse(fs.readFileSync(path.resolve('public/film/weave/manifest.json'), 'utf8')).keys.length;
-  const keyOf = [count - 3, count - 2, count - 1]; // indexes, as data-key holds them, not frame numbers
+  const keyOf = [count - 1]; // indexes, as data-key holds them, not frame numbers
   for (const route of ['/en', '/vi']) {
     for (const size of [DESKTOP, PHONE]) {
       const h = size[1];
@@ -334,7 +338,7 @@ async function reducedProducts() {
         seen.add(key);
       }
       const hit = names.filter((_, i) => seen.has(String(keyOf[i])));
-      check(hit.length === 3, `reduced ${route} ${size.join('x')}: stage keys seen [${[...seen].join(', ')}] over ${steps} steps with 60 % of the stage on screen; products seen: ${hit.join(', ') || 'none'} (need ${names.join(', ')} = keys ${keyOf.join(', ')})`);
+      check(hit.length === names.length, `reduced ${route} ${size.join('x')}: stage keys seen [${[...seen].join(', ')}] over ${steps} steps with 60 % of the stage on screen; products seen: ${hit.join(', ') || 'none'} (need ${names.join(', ')} = keys ${keyOf.join(', ')})`);
       await page.close();
     }
   }
