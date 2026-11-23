@@ -35,23 +35,24 @@ for (const scene of ['seed', 'weave', 'lotus']) {
   });
 }
 
-// docs/08 H2: each product rests for at least 45svh, a change takes at most 30svh, and the three span at
-// least 210svh on desktop and 150svh on a phone. A rest is on the product's last frame, which is a Still
-// key: the Still tier and the QA hook (pose) show the same picture the scrubbed film rests on.
-test('weave: the product run meets the brief, and every rest is a Still key', () => {
+// docs/08 H2, restated by docs/09 F2 for a film that ends on the bag: the product run rests once, for at
+// least 45svh on desktop and on a phone, and the change into it takes at most 30svh. The rest is on the
+// film's last frame, which is a Still key: the Still tier and the QA hook (pose) show the same picture the
+// scrubbed film rests on.
+test('weave: the product run meets the brief, and its one rest is a Still key', () => {
   for (const pace of Object.values(WEAVE_PACE)) {
     assert.ok(pace.hold >= 45, `hold ${pace.hold}svh`);
     assert.ok(pace.change <= 30, `change ${pace.change}svh`);
+    assert.equal(weaveRun(pace), pace.hold, 'the run is one rest');
   }
-  assert.ok(weaveRun(WEAVE_PACE.wide) >= 210, `desktop run ${weaveRun(WEAVE_PACE.wide)}svh`);
-  assert.ok(weaveRun(WEAVE_PACE.phone) >= 150, `phone run ${weaveRun(WEAVE_PACE.phone)}svh`);
-  const { beats, keys } = TRACKS.weave;
-  ['tote', 'mug', 'coaster'].forEach((product) => {
-    const done = beats.map((_, k) => (k <= beats.indexOf(product) ? 1 : 0));
-    const t = timeOf('weave', state('weave', done));
-    assert.ok(Math.abs(keys[keyAt('weave', t)] - t) < 1e-9, `${product} rests on a Still key`);
-    assert.equal(frameAt('weave', t), { tote: 129, mug: 149, coaster: 169 }[product]);
-  });
+  assert.ok(weaveRun(WEAVE_PACE.wide) >= 45, `desktop run ${weaveRun(WEAVE_PACE.wide)}svh`);
+  assert.ok(weaveRun(WEAVE_PACE.phone) >= 45, `phone run ${weaveRun(WEAVE_PACE.phone)}svh`);
+  const { beats, keys, frames } = TRACKS.weave;
+  assert.equal(beats.at(-1), 'bag', 'the film ends on the bag');
+  assert.equal(frames, 130);
+  const t = timeOf('weave', state('weave', beats.map(() => 1)));
+  assert.ok(Math.abs(keys[keyAt('weave', t)] - t) < 1e-9, 'the bag rests on a Still key');
+  assert.equal(frameAt('weave', t), 129);
 });
 
 // docs/07 §4: public/film/<scene>/manifest.json is the film's source of truth. When a film has been
@@ -59,7 +60,7 @@ test('weave: the product run meets the brief, and every rest is a Still key', ()
 const BEATS = {
   // the frames each film beat covers, straight from the brief; the seed is one scrub, so its beats are its keys
   seed: { fall: [0, 40], sprout: [40, 95], thread: [95, 149] },
-  weave: { thread: [0, 30], warps: [30, 50], weave: [50, 89], drape: [89, 109], tote: [109, 129], mug: [129, 149], coaster: [149, 169] },
+  weave: { thread: [0, 30], warps: [30, 50], weave: [50, 89], drape: [89, 109], bag: [109, 129] },
   lotus: { rise: [0, 20], p1: [20, 51], p2: [51, 82], p3: [82, 113], bloom: [113, 128], finale: [128, 159] },
 };
 

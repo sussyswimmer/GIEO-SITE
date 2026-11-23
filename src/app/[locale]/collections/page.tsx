@@ -5,7 +5,7 @@ import { CollectionBlock } from '@/components/pages/CollectionBlock';
 import { PageBand } from '@/components/pages/PageBand';
 import { art, still } from '@/components/pages/art';
 import { routing } from '@/i18n/routing';
-import { collectionPhotos, type Photo } from '@/lib/photos';
+import { photo } from '@/lib/photos';
 import { alternates } from '@/lib/seo';
 
 export function generateStaticParams() {
@@ -24,36 +24,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// The product pictures (docs/08 §2): the Blender portraits in public/art/products, made to sit on plum, or
-// the weave film's key frame where one is not rendered. In the order the film makes them.
+// The Nối Nếp collection's two products, each with GIEO's own photograph of it (docs/09 F2, F3).
 const PRODUCTS = [
-  { key: 'tote', frame: 129 },
-  { key: 'mug', frame: 149 },
-  { key: 'coaster', frame: 169 },
+  { key: 'bag', photo: 'bag-rows' },
+  { key: 'lipstick', photo: 'lipstick-rows' },
 ] as const;
 
 export default async function CollectionsPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations();
-  const { hmong } = collectionPhotos;
 
   // A photo renders only with consent and its content key photos.<id>.alt (PLAN.md §5, §6).
-  const usable = (p?: Photo) => {
-    const key = `photos.${p?.id}.alt`;
-    const alt = p?.consent && t.has(key) ? t(key) : '';
-    return p && alt ? { ...p, alt } : undefined;
-  };
-  const products = PRODUCTS.map(({ key, frame }) => {
-    const photo = usable(hmong[key]);
-    return {
-      name: t(`home.craft.products.${key}`),
-      render: art(`products/${key}`)?.src ?? `/film/weave/keys/s-${String(frame).padStart(4, '0')}.webp`,
-      photo,
-      alt: photo?.alt ?? '',
-    };
-  });
-  const credit = t('collections.hmong.credit');
+  const products = PRODUCTS.map(({ key, photo: id }) => ({
+    name: t(`home.craft.products.${key}.name`),
+    kind: t(`home.craft.products.${key}.kind`),
+    photo: photo(id, t),
+  }));
+  const credit = t('collections.noinep.credit');
 
   return (
     <>
@@ -63,13 +51,14 @@ export default async function CollectionsPage({ params }: Props) {
         art={art('pages/collections') ?? still('cloth')}
       />
       <CollectionBlock
-        id="hmong"
+        id="noinep"
         tone="paper"
         from="cream"
-        name={t('collections.hmong.name')}
-        body={t('collections.hmong.body')}
+        name={t('collections.noinep.name')}
+        tagline={t('collections.noinep.tagline')}
+        body={t('collections.noinep.body')}
         credit={credit}
-        swatch={usable(hmong.brocade)}
+        swatch={photo('nep-cloth', t)}
         art={art('objects/basket')}
         products={products}
         orderLabels={{ instagram: t('contact.instagramLabel'), email: t('contact.emailLabel') }}

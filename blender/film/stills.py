@@ -2,7 +2,6 @@
 in the alpha. One PNG each at <out>/stills/<name>/f0000.png; scripts/encode-film.mjs turns them into WebP.
   spools    three spools of thread, the mint one trailing its end
   cloth     plain-weave cloth with a corner folded over, a threaded needle resting on it
-  products  tote, mug and coaster together (the page sets the partner credit beside it, as text)
   lotus-seeds  a few loose lotus seeds and two fallen petals (the petals of the lotus film)
   sprouts   a dish of earth with upright seedlings, one just breaking the soil
 All cloth is plain weave of real yarn: no motif, no brocade pattern (07-redesign §1).
@@ -32,7 +31,7 @@ def film(name):
 
 seedfilm, weave, lotus = film("seed"), film("weave"), film("lotus")
 
-STILLS = {"spools": (1600, 1200), "cloth": (1600, 1200), "products": (1600, 1000), "lotus-seeds": (1600, 1200), "sprouts": (1600, 1200)}  # starting shapes: shoot() fits each frame to its subject
+STILLS = {"spools": (1600, 1200), "cloth": (1600, 1200), "lotus-seeds": (1600, 1200), "sprouts": (1600, 1200)}  # starting shapes: shoot() fits each frame to its subject
 FILL, EDGE = 0.80, 1600  # the subject's share of the frame, and the frame's long edge in pixels
 PF, RF = weave.PF, weave.RF
 WOOD = chroma(mix(T["peach-glow"], T["ink"], 0.28), 1.5)
@@ -170,23 +169,6 @@ def cloth(a):
     shoot(a, "cloth", cam, target=(0.0, -0.02, 0.0), height=0.56, pitch=52, yaw=0, fstop=11)
 
 
-# ---- the three products -----------------------------------------------------------------------
-def products(a):
-    cam = stage(a, (0.3, -0.2, 0.3), 1.5)
-    yarn, fine = rig.yarn_mat("Yarn", plies=3, r=weave.R), rig.yarn_mat("YarnFine", plies=3, r=RF)
-    weave.tote()
-    panel = rig.Cloth("Panel", weave.NW, weave.NF, weave.P, weave.R, yarn, weave.WARP_COL, weave.WEFT_COL, rings=(160, 160),
-                      accents={weave.MINT: T["stem-mint"]})
-    place, s = weave.panel_place(1.0)
-    sw = np.tile(np.linspace(-weave.FRINGE, weave.FRINGE, 160), (weave.NW, 1))
-    sf = np.tile(np.linspace(-weave.SIZE / 2 - 0.004, weave.SIZE / 2 + 0.004, 160), (weave.NF, 1))
-    end = lambda q, lim: ss(0, 0.6 * weave.R, lim - np.abs(q))
-    panel.update(sw, sf, place, rw=end(sw, weave.FRINGE), rf=end(sf, weave.SIZE / 2 + 0.004), scale=s)
-    weave.mug(fine, at=(0.50, -0.20))
-    weave.coaster(fine, at=(0.14, -0.50))
-    shoot(a, "products", cam, target=(0.20, -0.2, 0.34), height=1.12, pitch=13, yaw=10, fstop=11)
-
-
 # ---- lotus seeds and fallen petals -------------------------------------------------------------
 def lotus_seeds(a):
     cam = stage(a, (0, 0, 0.05), 0.7)
@@ -239,7 +221,7 @@ def sprouts(a):
 def main():
     a = rig.parse(STILLS)
     for name in a.set.split(","):
-        {"spools": spools, "cloth": cloth, "products": products, "lotus-seeds": lotus_seeds, "sprouts": sprouts}[name](a)
+        {"spools": spools, "cloth": cloth, "lotus-seeds": lotus_seeds, "sprouts": sprouts}[name](a)
 
 
 if __name__ == "__main__":

@@ -340,11 +340,12 @@ function mountSow(reduced: boolean): () => void {
 }
 
 /**
- * S1. The film runs thread → cloth against the copy's scroll, then tote → mug → coaster against the product
- * run (docs/08 H2). Scroll maps to the film piecewise, the film itself is not re-timed: each product is made
- * over `change` svh and then rests on its last frame for `hold` svh (WEAVE_PACE) while its name is lit and
- * the stage sways a little, so a rest is never dead. Where nothing pins (reduced motion, a short screen)
- * the three share the stage box's climb to the top of the screen instead.
+ * S1. The film runs thread → cloth against the copy's scroll, then cloth → bag against the product run
+ * (docs/08 H2, docs/09 F2). Scroll maps to the film piecewise, the film itself is not re-timed: the bag is
+ * made over `change` svh and then rests on the film's last frame for `hold` svh (WEAVE_PACE) while the
+ * product names are lit and the stage sways a little, so the rest is never dead. Where nothing pins
+ * (reduced motion, a short screen) the bag is made over the stage box's climb to the top of the screen
+ * instead.
  */
 function mountWeave(reduced: boolean): () => void {
   const { beats, weights } = TRACKS.weave;
@@ -358,14 +359,15 @@ function mountWeave(reduced: boolean): () => void {
   const credit = craft.querySelector<HTMLElement>('[data-credit]');
   const wide = matchMedia('(min-width: 64rem)');
   const pace = () => (wide.matches ? WEAVE_PACE.wide : WEAVE_PACE.phone);
-  const v = { cloth: 0, p0: 0, p1: 0, p2: 0 };
+  const v = { cloth: 0, bag: 0 };
   const push = () => {
-    const now = [...beatsAt('weave', (made * v.cloth) / total).slice(0, 4), v.p0, v.p1, v.p2];
+    const now = [...beatsAt('weave', (made * v.cloth) / total).slice(0, 4), v.bag];
     useMotionStore.setState({ weave: Object.fromEntries(beats.map((b, i) => [b, now[i]])) as Record<WeaveBeat, number> });
     credit?.toggleAttribute('data-on', now[3] > 0); // from the drape: the cloth is becoming a product
-    tiles.forEach((li, i) => {
-      // A name is lit from the moment its product is more in than out, until the next one is.
-      const on = now[4 + i] >= 0.5 && (now[5 + i] ?? 0) < 0.5;
+    // The film shows one product, the bag, and the list names the collection's two: the names light
+    // together from the moment the bag is more in than out. Nothing lights for a product not on the stage.
+    const on = now[4] >= 0.5;
+    tiles.forEach((li) => {
       if ((li.dataset.active === 'true') === on) return; // written only on change
       if (on) li.dataset.active = 'true';
       else delete li.dataset.active;
@@ -386,29 +388,25 @@ function mountWeave(reduced: boolean): () => void {
     const from = y(box, 'top') - 0.6 * window.innerHeight; // the stage is whole on screen from here to its top at 0
     return from + k * 0.6 * window.innerHeight;
   };
-  // Product i is made between mark(i, 0) and mark(i, 1), and rests from there to mark(i + 1, 0).
-  const mark = (i: number, done: 0 | 1) => () => {
-    const { hold, change } = pace();
-    return point(i * (hold + change) - (done ? 0 : change), (i + done) / 3);
-  };
+  // The bag is made between mark(0) and mark(1), and rests from there to the end of the run.
+  const mark = (done: 0 | 1) => () => point(done ? 0 : -pace().change, done);
   const scrub = (vars: gsap.TweenVars, scrollTrigger: ScrollTrigger.Vars) =>
     gsap.to(v, { ...vars, ease: 'none', scrollTrigger: { scrub: SCRUB, ...scrollTrigger }, onUpdate: push });
-  scrub({ cloth: 1 }, { id: 'weave', trigger: craft, start: 'top 80%', end: mark(0, 0) });
-  [0, 1, 2].forEach((i) => scrub({ [`p${i}`]: 1 }, { trigger: run, start: mark(i, 0), end: mark(i, 1) }));
+  scrub({ cloth: 1 }, { id: 'weave', trigger: craft, start: 'top 80%', end: mark(0) });
+  scrub({ bag: 1 }, { trigger: run, start: mark(0), end: mark(1) });
 
   const stage = craft.querySelector<HTMLElement>('[data-film]');
   if (!reduced && stage) {
-    // While a product rests the stage still answers the scroll: a slow sway, 6 px and under a degree each way.
+    // While the bag rests the stage still answers the scroll: a slow sway, 6 px and under a degree, and back.
     // Custom properties, not rotation/y: GSAP would fold the stage's CSS `translate` into an inline transform.
     gsap
       .timeline({
         defaults: { ease: 'sine.inOut' },
-        scrollTrigger: { trigger: run, start: mark(0, 1), end: () => point(weaveRun(pace()), 1), scrub: SCRUB },
+        scrollTrigger: { trigger: run, start: mark(1), end: () => point(weaveRun(pace()), 1), scrub: SCRUB },
       })
-      // down first: the tote rests first, and from 1280 its handles stand 6 px under the top of the screen
+      // down only: from 1280 the bag's handles stand 6 px under the top of the screen
       .to(stage, { '--sway-r': '0.9deg', '--sway-y': '6px' })
-      .to(stage, { '--sway-r': '-0.9deg', '--sway-y': '-6px' })
-      .to(stage, { '--sway-r': '0.9deg', '--sway-y': '6px' });
+      .to(stage, { '--sway-r': '0deg', '--sway-y': '0px' });
   }
   // The quote arrives word by word. Split on spaces in the markup; it is still one sentence to a screen reader.
   const quote = document.querySelector('#craft blockquote');

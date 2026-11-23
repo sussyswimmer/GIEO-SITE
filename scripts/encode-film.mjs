@@ -49,10 +49,12 @@ const FILMS = {
     ],
   },
   weave: {
-    frames: 170, alpha: true, bg: 'plum-ink', keys: [0, 50, 89, 129, 149, 169],
-    // 5.5 %, not 7: the tote's handles top out 5.6 % from the edge and the mug's handle 6.3 %, and stay solid
+    // The film ends on the bag (docs/09 F2). The published s.mp4 is frames 0 to 129 of the earlier 170-frame
+    // encode, stream-copied (every frame is a keyframe); a fresh render from blender/film/weave.py has these 130.
+    frames: 130, alpha: true, bg: 'plum-ink', keys: [0, 50, 89, 129],
+    // 5.5 %, not 7: the bag's handles top out 5.6 % from the edge, and stay solid
     feather: { edges: 'ltrb', width: 0.055, shadow: 0.2 },
-    beats: { thread: [0, 30], warps: [30, 50], weave: [50, 89], drape: [89, 109], tote: [109, 129], mug: [129, 149], coaster: [149, 169] },
+    beats: { thread: [0, 30], warps: [30, 50], weave: [50, 89], drape: [89, 109], bag: [109, 129] },
     sets: [{ id: 's', from: 's', aspect: 'square', w: 960, h: 960, max: 5e6, focus: [0.5, 0.5] }],
   },
   lotus: {
@@ -340,7 +342,7 @@ async function art() {
     return buf;
   };
 
-  for (const name of ['tote', 'mug', 'coaster']) {
+  for (const name of ['tote']) {
     // the shadow is plain --plum-ink here: a portrait may sit on plum, where the still-lifes' warmed shadow is a pale smudge
     const { data, w, h, fill } = await cutout(master(name), name, ART.edge, { ...SHADOW, warm: 0 });
     const buf = await publish(data, w, h, 'products', name, ART.max, ART.small, `fills ${fill}`);

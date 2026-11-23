@@ -7,8 +7,11 @@ blender/
   scripts/            Python that builds each scene from scratch (re-runnable, no hand-only steps)
     common.py         palette (from tokens), render settings, bake helpers, GLB export helper
     seed.py           Animation 1 scene
-    weave.py          Animation 2 scene (panel, threads, tote, mug, coaster)
+    weave.py          Animation 2 scene for the real-time build (panel, threads, products). No page mounts
+                      it now; it still builds a mug and a coaster that nobody can see (09-feedback.md F2)
     lotus.py          Animation 3 scene
+  film/               Python that builds what ships: the three films, the stills and the art (07-redesign.md §4)
+    weave.py          the weave film: 130 frames, thread to cloth to bag, ends on the bag at frame 129
   scenes/             .blend outputs (gitignored if large; keep scripts as source of truth)
   renders/            stills + video plates for fallbacks and the launch video
 public/models/        optimized .glb (meshopt + KTX2) used by the site
@@ -36,7 +39,7 @@ public/posters/       Still-tier key frames
 
 **Scene notes:**
 - `seed.py`: seed = deformed UV sphere with a crease, warm brown gradient. Soil mound = displaced disc, stylized, not realistic dirt. Sprout = curve with bevel + two leaf meshes with shape keys (closed → open). Stem extends to a long thin curve ending in a glowing thread.
-- `weave.py`: tote (rectangular box + handles via curve bevel, slight cloth sag via short cloth sim baked), mug (lathe/screw profile + handle torus segment), coaster (rounded cylinder). UV-unwrap each so a single brocade texture maps without stretching on the printed/woven area. Brocade panel = subdivided plane; drape = cloth sim onto tote baked to shape keys (≤ 30 frames).
+- `weave.py`: one product, a bag (rectangular box + handles via curve bevel, slight cloth sag via short cloth sim baked). UV-unwrap it so a single brocade texture maps without stretching on the woven area. Brocade panel = subdivided plane; drape = cloth sim onto the bag baked to shape keys (≤ 30 frames). GIEO has no mug and no coaster (`09-feedback.md` F2), so the film script `blender/film/weave.py` models neither and ends on the bag. The bag is stylised, not a likeness of the Nối Bag (`00-open-questions.md` #19); the real products are shown in photographs. Do not model the Nếp Keychain or re-model the bag without a reference from GIEO.
 - `lotus.py`: 3 rings of petals (outer 3 = pillar petals, slightly larger), each petal a sculpted plane with solidify, origin at base, keyed rotation closed → open. Vertex colors `--petal-soft` at base → `--lotus-pink` at tip. Stem in `--stem-mint`.
 
 **Optimize after export:**
@@ -81,6 +84,9 @@ Claude Code can script AE with ExtendScript (`.jsx`): write the script to `ae/`,
 
 ## 4. Photos
 
-- Originals go in `assets/photos/{products,journal,artisans,team}/` untouched.
-- `scripts/process-images.mjs` (sharp) outputs AVIF + WebP at 640/1024/1600/2400 widths into `public/img/`, strips EXIF (location data!), and writes a manifest with dimensions and blur placeholders.
+- Source photos go in `assets/photos/{products,journal,artisans,team,brocade}/`. Today there are thirteen, chosen from the 663 frames GIEO shared in November 2026; `assets/photos/SOURCES.md` lists the album, the original and the crop of each.
+- **The rule (`09-feedback.md` F3):** a real GIEO photo may be used when no person in it can be recognised. Hands and a back view are fine. No face of a child or a teenager, ever, without GIEO's consent for that photo; the team are minors too. A frame that fails this does not enter the repo.
+- **Every photo needs a row in `assets/consent.csv`**, products and cloth included, not only photos with people. `scripts/process-images.mjs` treats a missing row, or anything other than `yes`, as no.
+- `scripts/process-images.mjs` (sharp, `npm run images`) outputs AVIF + WebP at 640/1024/1600/2400 widths into `public/img/`, strips all metadata (location data!), and writes the manifest `src/lib/photos-manifest.json` with dimensions and blur placeholders. A photo without consent gets a manifest entry and no file.
 - Every photo entry in the manifest has `consent: true|false`. Components refuse to render `false` in production.
+- A photo's id is its path under the collection folder without the extension (`products/bag-rows.jpg` is `bag-rows`). Pages look photos up by that id, not by a `tote-` / `mug-` / `coaster-` file-name prefix. Its alt text is `photos.<id>.alt` in both content files; without it the photo is not shown.

@@ -1,6 +1,6 @@
 # GIEO Brand Reference
 
-**Sources used:** GIEO Org Info Google Doc (EN + VI tabs, team job descriptions), GIEO Facebook page (logo avatar, 20/10 Vietnamese Women's Day post, "Nhìn lại một mùa GIEO" season recap video post).
+**Sources used:** GIEO Org Info Google Doc (EN + VI tabs, team job descriptions), GIEO Facebook page (logo avatar, 20/10 Vietnamese Women's Day post, "Nhìn lại một mùa GIEO" season recap video post). Added in November 2026 (`09-feedback.md`): GIEO's first feedback message, their printed Nối Nếp leaflet as photographed on the stall table, and three photo albums (the Lotte Mall Tây Hồ stall, the Mai Châu trip, the inspection trip to Mai Châu).
 
 **Not accessible:** the Canva pitch deck (`DAG_bPa2c2o`) returned "permission denied" both through the Canva API and in the browser. Every hex value below is eyedropped from screenshots of the logo and the 20/10 post, so treat them as close estimates. GIEO's own doc says all public work MUST follow their branding guidelines: before launch, compare these tokens against the deck or their brand kit and correct them in `src/styles/tokens.css` only.
 
@@ -16,13 +16,15 @@
 | Support | Selected for the **IB Global Youth Action Fund** (International Baccalaureate) |
 | Product partner | **Chie Dù Pù Dù Pà**, an enterprise founded in 2011 that works with ethnic minority communities on traditional handicrafts (doc also spells it "Chie Dupudupa"; use "Chie Dù Pù Dù Pà") |
 | Community | H'mong women brocade artisans and their children, especially daughters |
-| Products | Contemporary lifestyle products using traditional H'mong brocade: tote bags, ceramic mugs, coasters. Each collection uses one ethnic group's pattern; profits from it go back to that group |
+| Products | Contemporary lifestyle products made with traditional brocade weaving. Today that is one collection, **Nối Nếp**, made with Chie Dù Pù Dù Pà: the **Nối Bag** / Túi Nối (brocade handbag) and the **Nếp Keychain** / Móc Nếp (lipstick holder). The names come from GIEO's printed leaflet (`09-feedback.md` F2) and are DRAFT until GIEO confirms them for the web. There is no mug and no coaster. The leaflet also lists a zip wallet, a fold wallet and prices; none of them is on the site until GIEO asks. Each collection uses one ethnic group's pattern; profits from it go back to that group |
 | Email | gieovietnam2026@gmail.com |
 | Instagram | @gieo.vietnam |
 | Facebook | facebook.com/gieo.vietnam (page: "GIEO - Girls' Initiative for Education and Opportunities") |
 | Hashtags | #gieovietnam #socialenterprise #nonprofit #womenempowerment #educationempowerment |
 
 Spelling: English copy uses **H'mong**, Vietnamese copy uses **H'Mông** (both as in GIEO's doc). Keep each language consistent.
+
+**Open, for GIEO (`00-open-questions.md` #13):** GIEO's Org Info doc says H'mong throughout, and so does the site copy taken from it. The Nối Nếp leaflet and GIEO's info sheet say the patterns come from the weaving of the Thái people in Chiềng Châu, Mai Châu. Until GIEO settles it, their own sentences stay exactly as they wrote them, and anything new about the products (collection copy, labels, alt text) names no ethnic group.
 
 Pronunciation (for voiceover): "gieo" is one syllable. Hanoi accent: roughly "zeh-oo" said fast.
 
@@ -73,7 +75,7 @@ Web choice (all must render Vietnamese diacritics perfectly):
 Diacritics test string (render it at 96 px and 16 px, check stacked marks do not clip or collide):
 `Ngày Phụ Nữ Việt Nam · thổ cẩm H'Mông · Chie Dù Pù Dù Pà · Gieo mầm hy vọng · ỗ ữ ặ ẫ ợ`
 
-Scale (fluid, `clamp`): hero 64 to 168 px, h2 40 to 88 px, h3 24 to 36 px, body 16 to 18 px, caption 13 px. Line length 60 to 72 characters.
+Scale (fluid, `clamp`, from a 375 px to a 1440 px screen), as of `09-feedback.md` F1: the hero word is sized from the content width (content width / 2.75, capped on short screens: about 122 px on a 375 px phone, 477 px at 1440×900), mega 48 to 160 px, h2 44 to 104 px, quote 28 to 60 px, h3 22 to 30 px, h4 18 to 22 px, lead 18 to 24 px, body 16 to 17 px, UI 14 to 15 px, caption 14 px. Floors: 14 px for any text, 16 px in a paragraph, 18 px for weight 300, 44 px for anything you tap. `src/styles/tokens.css` holds the values; `DESIGN.md` §3 has the full table. Line length 60 to 72 characters.
 
 ## 5. Visual language
 
@@ -81,8 +83,8 @@ Scale (fluid, `clamp`): hero 64 to 168 px, h2 40 to 88 px, h3 24 to 36 px, body 
 - **Soft blurred glows** (peach to blush radial gradients) as atmosphere, like the "sun" in the 20/10 post.
 - **Three motifs, one story:** the seed/sprout (GIEO opens every post with a sprout), the thread/brocade (the craft), the lotus (the logo; the girls' future in bloom).
 - **3D style = the 20/10 lotus made real:** soft, matte, airbrushed gradients, gentle rim light, pastel. Think "illustration with depth", not chrome, not photoreal, not neon. No black backgrounds.
-- **Photos:** warm, natural light, real people and real hands at work. Never staged poverty.
-- **Brocade:** only real H'mong brocade from GIEO / Chie Dù Pù Dù Pà photos or scans. Credit it.
+- **Photos:** warm, natural light, real hands at work. Never staged poverty. A real GIEO photo may be used when no person in it can be recognised (§7.1). Frames are calm: `--round-frame` corners, no shadow heavier than the site already uses, at most 60vw wide.
+- **Brocade:** only real cloth from GIEO / Chie Dù Pù Dù Pà photos or scans. Credit it. The 3D films show plain weave only, never an invented pattern.
 
 ## 6. Voice
 
@@ -96,8 +98,8 @@ Scale (fluid, `clamp`): hero 64 to 168 px, h2 40 to 88 px, h3 24 to 36 px, body 
 
 ## 7. Ethics guardrails (non-negotiable)
 
-1. **Minors.** Many of the girls are children. Only use photos GIEO confirms have consent. Never pair a child's face with her full name, village or school. Default to hands, backs, group shots and artisans.
+1. **Minors.** Many of the girls are children, and the GIEO team are minors too. The rule (`09-feedback.md` F3, which replaces `08-fuller.md`'s "no photos of people"): a real GIEO photo may be used when no person in it can be recognised. Hands and a back view are fine. No face of a child or a teenager, ever, without GIEO's consent for that photo. Never pair a child's face with her full name, village or school. Every photo in the repo has a row in `assets/consent.csv` and a source in `assets/photos/SOURCES.md`; a frame that fails the rule does not enter the repo. Alt text says what is visible and nothing else: no place names, no ethnic group, no "our artisans". Product photos carry the partner credit; there are no other captions.
 2. **No invented numbers.** No "500 girls supported" unless GIEO provides it. Use `TODO(stat)` placeholders that render nothing in production.
-3. **Cultural accuracy.** Say "inspired by traditional H'mong brocade" (GIEO's phrasing). Do not claim patterns mean things unless GIEO or the artisans say so.
+3. **Cultural accuracy.** Say "inspired by traditional H'mong brocade" (GIEO's phrasing) only where GIEO's own copy says it. For the Nối Nếp products name no ethnic group until GIEO answers `00-open-questions.md` #13. Do not claim patterns mean things unless GIEO or the artisans say so.
 4. **IB.** Mention "IB Global Youth Action Fund" in text. Do not use the IB logo unless GIEO confirms permission.
 5. **Partner credit.** Chie Dù Pù Dù Pà is named wherever products appear.

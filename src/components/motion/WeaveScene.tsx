@@ -265,7 +265,10 @@ diffuseColor.a *= (1. - smoothstep(vH - .012, vH, vS)) * (1. - smoothstep(uClipY
   useFrame(() => {
     const p = place.current;
     if (!p) return;
-    const { weave: w, progress } = useMotionStore.getState();
+    const { weave, progress } = useMotionStore.getState();
+    // This scene is not mounted by any page (MotionBoot). The film it predates now ends on the bag
+    // (docs/09 F2), so the store has no beat for its second and third stations: they stay at rest.
+    const w = { ...weave, tote: weave.bag, mug: 0, coaster: 0 };
     const stage = document.querySelector('[data-scene-stage="weave"]');
     const exit = Math.min(1, (1 - progress.weave) / SCENE_FADE);
     p.visible = ready.current && !!stage && w.thread > 0 && exit > 0;

@@ -16,7 +16,7 @@ type Picture = {
 
 type StillLifeProps = {
   still: Picture;
-  /** `collections.hmong.credit`: shown under a still that has products in it. */
+  /** `collections.noinep.credit`: shown under a still that has products in it. */
   credit: string;
   sizes: string;
   /** Position in a group, for the staggered unveil. */

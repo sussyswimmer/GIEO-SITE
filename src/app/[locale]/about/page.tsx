@@ -8,8 +8,9 @@ import { DepartmentList } from '@/components/pages/DepartmentList';
 import { DictionaryEntry } from '@/components/pages/DictionaryEntry';
 import { PartnerBlock } from '@/components/pages/PartnerBlock';
 import { art, still } from '@/components/pages/art';
-import { Container, Grid, Heading, PillarCard, Prose, Section, Todo } from '@/components/ui';
+import { Container, Grid, Heading, PhotoFrame, PillarCard, Prose, Section, Todo } from '@/components/ui';
 import { routing } from '@/i18n/routing';
+import { photo } from '@/lib/photos';
 import { alternates } from '@/lib/seo';
 
 export function generateStaticParams() {
@@ -35,7 +36,7 @@ export default async function AboutPage({ params }: Props) {
   setRequestLocale(locale);
   const t = await getTranslations();
   const tp = await getTranslations('home.pillars');
-  const seeds = still('lotus-seeds');
+  const sewing = photo('sewing-cloth', t);
   const buds = art('objects/buds');
 
   return (
@@ -56,10 +57,8 @@ export default async function AboutPage({ params }: Props) {
               className="relative z-1 col-span-full lg:col-end-8"
             />
             <div className="col-span-full mt-8 lg:col-start-8 lg:col-end-13 lg:mt-0">
-              {seeds && (
-                <ArtLife art={seeds} sizes="(min-width: 1024px) 40vw, 80vw" className="-mr-gutter ml-auto w-4/5 lg:-mt-8 lg:w-auto" />
-              )}
-              <Prose variant="lead" className="relative z-1 mt-4 lg:-mt-6">
+              <PhotoFrame photo={sewing} ratio="3 / 2" sizes="(min-width: 1024px) 36vw, 92vw" />
+              <Prose variant="lead" className="relative z-1 mt-6">
                 {t('home.craft.beat1')}
               </Prose>
               <small className="mt-4 block text-caption text-fg-body">{t('footer.supportedBy')}</small>

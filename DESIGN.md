@@ -4,6 +4,8 @@ Read this before changing any UI. Tokens live in `src/styles/tokens.css`, which 
 
 **The home page was rebuilt on 2026-11-16 to `docs/07-redesign.md`. §10 at the end of this file describes it and wins over §1, §5 and §6 wherever they describe the home page.** The token tables in §3 and §4 are current. The inner pages still follow §1–§9.
 
+**GIEO's first feedback (`docs/09-feedback.md`, November 2026) changed three things: the type and spacing came down a step, the products are the bag and the lipstick holder (no mug, no coaster), and real photographs came in. §3 and §4 carry the new numbers, §11 lists the rest, and §11 wins over everything before it.**
+
 ---
 
 ## 1. Art direction: "First light"
@@ -24,7 +26,7 @@ What makes it GIEO and not a template:
 | # | Moment | Section | Phase 1 (static) | Later phase |
 |---|---|---|---|---|
 | 1 | **Gieo**: seed sown, sprouts, stem becomes a thread | H0 Hero | `SceneStage scene="seed"`: right half at ≥1024, below the text on mobile, painted with `--still-seed` | Phase 4 (built): hero grows to 200svh (motion-safe); only the stage pins, via a sticky wrapper (a pinned Container would cut the seed off on phones and freeze the text), and the canvas draws the seed inside the stage's rect |
-| 2 | **Thread → brocade → product** | H2 Craft | Sticky `SceneStage scene="weave"` in cols 7–12 at ≥1024 while three beats (50svh, 50svh, 85svh) scroll in cols 1–5; inline on mobile; painted with `--still-loom` | Phase 5: thread, plain weave and products scrub over about 109svh of sticky travel (beat 3 is 85svh); product names in the HTML get `data-active` |
+| 2 | **Thread → brocade → product** | H2 Craft | Sticky `SceneStage scene="weave"` in cols 7–12 at ≥1024 while three beats (50svh, 50svh, 85svh) scroll in cols 1–5; inline on mobile; painted with `--still-loom` | Phase 5: thread, plain weave and products scrub over about 109svh of sticky travel (beat 3 is 85svh); product names in the HTML get `data-active`. Now a film that ends on the bag (§10, §11) |
 | 3 | **Lotus of three** | H5 Pillars | Sticky `SceneStage scene="lotus"` in cols 1–6 at ≥1024 while three pillar cards (each ≥50svh) pass in cols 8–12; inline on mobile; painted with `--still-bloom` | Phase 3: petals open in sync with the cards; at the end the bloom flattens to the logo's line lotus (needs GIEO's SVG) and seeds drift into H6 |
 
 A `SceneStage` never contains text, never holds an invented drawing (no CSS seed, no fake brocade, no traced lotus) and always keeps its box so nothing shifts when the 3D arrives. In the Full tier it turns transparent and the canvas reads its rect. In Lite and Still it holds a media box (the scrubbed video's compositor canvas, or the key-frame posters) and its gradient fades out once that media is ready.
@@ -152,18 +154,29 @@ Set `font-synthesis: none` globally (no faux bold or italic on Vietnamese). Neve
 
 | Token / utility | clamp() | 375 | 768 | 1280 | 1440+ | Font, weight | Line-height EN / VI | Tracking |
 |---|---|---|---|---|---|---|---|---|
-| `--fs-hero` / `text-hero` | `max(4rem, min(content width / 2.34, (100svh − 18rem) / 0.95))` | 143 | 297 | 498 | 561 (at 900 high) | serif 400 | 0.95 (only the word "GIEO") | -0.02em |
-| `--fs-mega` / `text-mega` | `clamp(3.5rem, 0.331rem + 13.5211vw, 12.5rem)` | 56 | 109 | 178 | 200 | serif italic 400 | 1.04 / 1.30 | -0.02em |
-| `--fs-h2` / `text-h2` | `clamp(3.5rem, 1.8275rem + 7.1362vw, 8.25rem)` | 56 | 84 | 121 | 132 | serif 400 | 1.06 / 1.26 | -0.02em |
-| `--fs-quote` / `text-quote` | `clamp(2rem, 1.1197rem + 3.7559vw, 4.5rem)` | 32 | 47 | 66 | 72 | serif italic 400 | 1.18 / 1.30 | -0.01em |
-| `--fs-h3` / `text-h3` | `clamp(1.5rem, 1.2359rem + 1.1268vw, 2.25rem)` | 24 | 28 | 34 | 36 | serif 500 (or italic 400) | 1.15 / 1.30 | -0.01em |
-| `--fs-h4` / `text-h4` | `clamp(1.25rem, 1.162rem + 0.3756vw, 1.5rem)` | 20 | 21.5 | 23 | 24 | serif 500 | 1.20 / 1.26 | -0.01em |
-| `--fs-lead` / `text-lead` | `clamp(1.125rem, 0.949rem + 0.7512vw, 1.625rem)` | 18 | 21 | 25 | 26 | sans 300, colour `--fg-strong` | 1.55 / 1.60 | 0 |
-| `--fs-body` / `text-body` | `clamp(1rem, 0.956rem + 0.1878vw, 1.125rem)` | 16 | 16.7 | 17.7 | 18 | sans 400 | 1.65 / 1.70 | 0 |
+| `--fs-hero` / `text-hero` | `max(4rem, min(content width / 2.75, (100svh − 21rem) / 0.95))` | 122 | 253 | 424 (404 at 720 high) | 477 (at 900 high) | serif 400 | 0.95 (only the word "GIEO") | -0.02em |
+| `--fs-mega` / `text-mega` | `clamp(3rem, 0.5352rem + 10.5164vw, 10rem)` | 48 | 89 | 143 | 160 | serif italic 400 | 1.04 / 1.30 | -0.02em |
+| `--fs-h2` / `text-h2` | `clamp(2.75rem, 1.4296rem + 5.6338vw, 6.5rem)` | 44 | 66 | 95 | 104 | serif 400 | 1.06 / 1.26 | -0.02em |
+| `--fs-quote` / `text-quote` | `clamp(1.75rem, 1.0458rem + 3.0047vw, 3.75rem)` | 28 | 40 | 55 | 60 | serif italic 400 | 1.18 / 1.30 | -0.01em |
+| `--fs-h3` / `text-h3` | `clamp(1.375rem, 1.1989rem + 0.7512vw, 1.875rem)` | 22 | 25 | 29 | 30 | serif 500 (or italic 400) | 1.15 / 1.30 | -0.01em |
+| `--fs-h4` / `text-h4` | `clamp(1.125rem, 1.037rem + 0.3756vw, 1.375rem)` | 18 | 19.5 | 21.4 | 22 | serif 500 | 1.20 / 1.26 | -0.01em |
+| `--fs-lead` / `text-lead` | `clamp(1.125rem, 0.993rem + 0.5634vw, 1.5rem)` | 18 | 20 | 23 | 24 | sans 300, colour `--fg-strong` | 1.55 / 1.60 | 0 |
+| `--fs-body` / `text-body` | `clamp(1rem, 0.978rem + 0.0939vw, 1.0625rem)` | 16 | 16.4 | 16.8 | 17 | sans 400 | 1.65 / 1.70 | 0 |
 | `--fs-ui` / `text-ui` | `clamp(0.875rem, 0.853rem + 0.0939vw, 0.9375rem)` | 14 | 14.4 | 14.8 | 15 | sans 500 | 1.25 | 0.01em |
 | `--fs-caption` / `text-caption` | `0.875rem` | 14 | 14 | 14 | 14 | sans 400 | 1.5 | 0.02em |
 
-These are the redesign v2 values (docs/07 §2: the scale went up, 01-brand.md §4's sizes no longer apply to hero, h2, quote and lead). The hero word is sized to span the content width (the word "GIEO" is 2.34 em wide in Playfair) and capped so it leaves room for the eyebrow and the sub line on a short screen. `text-mega` is the partner name, the dictionary headword, the kinetic band and the cap of the footer's closing line. **Floors: no text under 14 px anywhere, no paragraph under 16 px** (`scripts/qa-density.mjs` fails the page otherwise). Two sizes are set outside the scale, both in `home/Weave.tsx` and `home/Sow.tsx` and commented there: the Weave quote is 56 px from 1280 (a five-column measure), and the hero's dictionary entry is capped in `svh` so it fits the film's text box on short screens. Weight 300 is only for `text-lead` (≥ 18 px).
+These are the first-feedback values (docs/09 F1). Redesign v2 (docs/07 §2) had taken the scale up; GIEO then asked for it "smaller, like a bit", so display type came down by about a fifth and lead and body by a step: hero divisor 2.34 → 2.75, mega 56 → 200 became 48 → 160, h2 56 → 132 became 44 → 104, quote 32 → 72 became 28 → 60, h3 24 → 36 became 22 → 30, h4 20 → 24 became 18 → 22, lead 18 → 26 became 18 → 24, body 16 → 18 became 16 → 17. `--fs-ui`, `--fs-caption` and every line-height are as they were. The hero word is sized to span about 84 % of the content width (the word "GIEO" advances 2.31 em in Playfair, and the divisor is 2.75) and capped so it leaves room for the nav, the eyebrow, the sub line with its buttons and the band on a short screen. `text-mega` is the partner name, the dictionary headword, the kinetic band and the cap of the footer's closing line. **Floors: no text under 14 px anywhere, no paragraph under 16 px** (`scripts/qa-density.mjs` fails the page otherwise), **weight 300 only at 18 px or more** (so only `text-lead` and the pillar card body), **and 44 px for anything you tap.**
+
+Sizes set outside the scale came down with it (docs/09 F1):
+
+| Where | Size |
+|---|---|
+| `home/Weave.tsx` quote; `home/Hands.tsx` first sentence | 48 px from 1280 (`xl:text-[3rem]`, a five-column measure) |
+| `home/VisionMission.tsx` headings | `clamp(3.75rem,5.3vw,5.25rem)` from 1280 |
+| `ui/PillarCard.tsx` title / body | `clamp(1.375rem,5.8cqw,2.75rem)` / `clamp(1.125rem,3cqw,1.375rem)` |
+| `layout/PageHeader.tsx` sub-page h1 | `fit(title, 0.6, '3rem', '12rem')`: 48 to 192 px, from the title's length |
+| `pages/CollectionBlock.tsx`, `pages/PartnerBlock.tsx` name | never under 48 px (`'3rem'`), up to `text-mega` |
+| `home/Sow.tsx` dictionary entry | capped in `svh` so it fits the film's text box on short screens (unchanged) |
 
 ### Why the Vietnamese line-heights (measured, not guessed)
 
@@ -204,8 +217,8 @@ Fluid rhythm:
 
 | Token / utility | 375 | 768 | 1280 | 1440+ | Use |
 |---|---|---|---|---|---|
-| `--space-section` / `py-section` | 56 | 77 | 104 | 112 | Section padding-block (inner pages) |
-| `--space-section-sm` / `py-section-sm` | 32 | 47 | 66 | 72 | Home sections' padding-block (some go tighter; see the components) |
+| `--space-section` / `py-section` | 48 | 66 | 89 | 96 | Section padding-block (inner pages) |
+| `--space-section-sm` / `py-section-sm` | 28 | 40 | 55 | 60 | Home sections' padding-block (some go tighter; see the components) |
 | `--gutter` / `px-gutter` | 20 | 36 | 57 | 64 | Page side padding |
 | `--grid-gap` / `gap-x-gap` | 16 | 22 | 30 | 32 | Column gap |
 | `--handoff` | 48 | 66 | 89 | 96 | Height of the tone gradient at a section's top |
@@ -213,7 +226,7 @@ Fluid rhythm:
 | `--stage-phone-weave` | `min(102.7vw + nav-offset, 64svh)` | | | | Height of the sticky weave band below 1024 |
 | `--stage-phone-lotus` | `40svh` | | | | Height of the sticky lotus band below 1024 |
 
-Redesign v2 values (docs/07 §2). `--beat-min` is gone: a beat is as tall as its copy. `--space-section-sm` starts at 32, not the brief's 40, to keep the Vietnamese phone page under 12.5 screens.
+`--space-section` and `--space-section-sm` are the first-feedback values (docs/09 F1: `clamp(3rem, 1.9437rem + 4.507vw, 6rem)` and `clamp(1.75rem, 1.0458rem + 3.0047vw, 3.75rem)`; redesign v2 had 56 → 112 and 32 → 72). The gutter, the grid gap, the handoff, the wrap width, the nav pill and the stage heights did not move. `--beat-min` is gone (docs/07 §2): a beat is as tall as its copy.
 
 Inner rhythm (use these, nothing in between):
 - eyebrow → headline: `space-3`
@@ -367,7 +380,7 @@ Shared rules for every interactive element:
 - **Other locale**: a next-intl `Link` to the same pathname (keep the hash) with `locale`, `hrefLang`, `lang`, and `aria-label` = `nav.switchTo` ("Tiếng Việt" / "English"). Rest: plum text. Hover: a `--petal-soft-a40` chip. Focus-visible: the outline with `rounded-pill`. Active: press scale.
 
 ### Button / ButtonLink (`src/components/ui/Button.tsx`)
-- **Base**: inline-flex, centred, `min-height: 48px`, `px-6`, `rounded-pill`, `text-ui` 500, text centred and **allowed to wrap** (Vietnamese labels), no fixed height. No icons, no arrows.
+- **Base**: inline-flex, centred, `min-height: 44px` (`min-h-11 py-2.5`; the touch floor, down from 48 in docs/09 F1), `px-6`, `rounded-pill`, `text-ui` 500, text centred and **allowed to wrap** (Vietnamese labels), no fixed height. No icons, no arrows.
 - `variant="primary"`: `bg-plum-ink text-cream`. Hover: translateY(`--lift`) + `shadow-lift`. Focus: outline + `--elev-halo`. Active: translateY(0) plus press scale.
 - `variant="secondary"`: transparent, 1 px plum border, plum text. Hover: `--petal-soft-a40` fill + lift + `shadow-lift`.
 - `variant="quiet"`: renders as a TextLink with a 44 px minimum hit area.
@@ -397,7 +410,8 @@ Inline links in copy: plum text, underline always on, `text-decoration-color: va
 ### ProductTile (`src/components/ui/ProductTile.tsx`)
 - `variant="compact"` (home H2): an `<li>` holding only the product name, `font-serif text-h4` 500 plum, with a 1 px `--line-hair` top rule and `pt-3`. Phase 5 adds `data-active` while its 3D product is on screen: the name gains a 1.5 px plum underline.
 - `variant="full"` (/collections): `<li>` → image frame (`aspect-[4/5]`, `rounded-frame`, `bg-paper`, real product photo via next/image) → name (`text-h4`, `mt-4`). **Until a real photo exists the image frame is not rendered**: the tile shows the name only, plus `<Todo tag="products">` in dev. Never a mock or generated product image.
-- Never a price. The partner credit (`footer.madeWith` / `collections.hmong.credit`) is shown once per product group, not per tile. Not interactive in Phase 1.
+- Never a price. The partner credit (`footer.madeWith` / `collections.noinep.credit`) is shown once per product group, not per tile. Not interactive in Phase 1.
+- No page uses `ProductTile` now. The home page lists the two product names beside the weave stage, and Collections shows two slabs with photographs (§11).
 
 ### InvolveCard (`src/components/ui/InvolveCard.tsx`)
 - An index row, not a boxed card. `<li>` with a 1 px `--line-hair` top rule (the last item also gets a bottom rule) holding a full-width `<a class="relative block">`: padding-block `space-8` (375) / `space-12` (≥1024), no padding-inline (the label lines up with the h2), label in `font-serif text-quote` roman (not italic), plum.
@@ -411,7 +425,7 @@ Inline links in copy: plum text, underline always on, `text-decoration-color: va
 
 ### Form fields (`src/components/ui/Field.tsx`: `TextField`, `TextArea`)
 - `<label>` above: `text-ui` 500, `--fg-strong`, `mb-2`. All fields are required. No placeholders and no floating labels.
-- Control: full width, `min-height: 52px` (textarea `min-height: 10rem`, `resize: vertical`), `px-4 py-3`, `bg-cream` (fields sit on paper), 1 px `--line-field` border (4.70:1), `rounded-field`, `text-body` `--fg-strong`.
+- Control: full width, `min-height: 48px` (`min-h-12`, down from 52 in docs/09 F1; textarea `min-height: 10rem`, `resize: vertical`), `px-4 py-3`, `bg-cream` (fields sit on paper), 1 px `--line-field` border (4.70:1), `rounded-field`, `text-body` `--fg-strong`.
 - **Hover**: border plum. **Focus-visible**: border plum plus the global outline at 2 px offset. **Invalid** (`aria-invalid="true"`, only after a submit attempt): 2 px plum border plus a message below in `text-caption` `--fg-strong`, linked by `aria-describedby`. Phase 1 uses the browser's `validationMessage`; translated keys are requested in PLAN.md. **Disabled**: `opacity:.45`. Autofill: keep the cream background with `box-shadow: inset 0 0 0 100px var(--cream)`.
 - Submit: Button primary. `contact.form.note` sits under it in `text-caption` `--fg-body`.
 
@@ -420,6 +434,7 @@ Inline links in copy: plum text, underline always on, `text-decoration-color: va
 - **If `photo?.consent !== true`, it renders `null` in production.** In dev it renders the empty frame in `--petal-soft-a24` with `<Todo tag="photos">`.
 - Frame: `<figure>` → a `div` with `position:relative; overflow:hidden; aspect-ratio: ratio; border-radius: var(--round-frame); background: var(--paper)` → next/image `fill`, `object-cover`. The frame holds **no text** (it clips). Optional `<figcaption>` below: `text-caption` `--fg-body`, `mt-3`. A caption must never pair a child's name with her face, village or school.
 - EXIF is stripped in the image pipeline before files reach `public/`. Phase 2: the inner image layer is scaled 1.12 and translated 6–10% for parallax (transform only).
+- **Which photos** (docs/09 F3, which replaces docs/08's "no photos of people"): a real GIEO photo may be used when no person in it can be recognised. Hands and a back view are fine. No face of a child or a teenager, ever, without GIEO's consent for that photo; the team are minors too. Every photo has a `yes` row in `assets/consent.csv` and a source in `assets/photos/SOURCES.md`. Alt text says what is visible and nothing else. The only caption is the partner credit under a product photo. §11 lists the slots.
 
 ### SceneStage (`src/components/ui/SceneStage.tsx`)
 - `<div data-scene-stage="seed|weave|lotus" aria-hidden="true">` with the size and position given in PLAN.md. The still is painted on `.scene-stage::before` from an inline `--still` custom property (no `backgroundImage`). No children, no text, no drawing.
@@ -488,7 +503,7 @@ Rules:
 - Don't add black or dark sections, chrome, glass cards, neon, grain overlays, grey drop shadows or 1 px grey borders.
 - Don't use identical-card grids. Use asymmetric placements, index rows and marginal notes.
 - Don't use pity framing, "saving" language, staged-poverty imagery, or invented statistics, prices, testimonials, team members or pattern meanings.
-- Don't put a face with a name together, or use any photo without `consent: true`.
+- Don't put a face with a name together, or use any photo without `consent: true`. Don't use a photo in which a person can be recognised, and never the face of a child or a teenager, without GIEO's consent for that photo (`assets/consent.csv`, `assets/photos/SOURCES.md`). Don't name a place, an ethnic group or "our artisans" in alt text.
 - Don't use `overflow:hidden` around text, letter-splitting, scroll snap, scroll locking, popups, cookie bars or a preloader.
 - Don't use Tailwind colour opacity modifiers, `ease-in`, `linear` or `transition: all`.
 
@@ -518,7 +533,7 @@ Brief: `docs/07-redesign.md`. Same palette, same two typefaces, same ethics rule
 
 ### What is different from §1
 
-- **Bigger type, less air.** "It whispers" now means calm, not empty. The hero word spans the content width; h2 is 56 → 132 px; the partner name, the dictionary headword, the kinetic band and the footer line use `text-mega` (56 → 200 px). Section padding is roughly half what it was (§4). A screen that is mostly blank cream is a bug: `scripts/qa-density.mjs` fails any screen with under 12 % ink (10 % on phones) or an empty band over 35 % of its height.
+- **Bigger type, less air.** "It whispers" now means calm, not empty. The hero word spans most of the content width; h2 is 44 → 104 px; the partner name, the dictionary headword, the kinetic band and the footer line use `text-mega` (48 → 160 px). These are the sizes after GIEO's first feedback (§3, §11); the redesign shipped h2 at 56 → 132 and mega at 56 → 200. Section padding is roughly half what it was (§4). A screen that is mostly blank cream is a bug: `scripts/qa-density.mjs` fails any screen with under 12 % ink (10 % on phones) or an empty band over 35 % of its height.
 - **One dark section.** Weave is `tone="plum"`: plum-ink ground, cream type. Everything inside takes its colours from the `[data-tone="plum"]` scope (§2), so no component has a dark variant.
 - **Films, not a live canvas.** The three scenes are Blender renders scrubbed as video by scroll (`ui/FilmStage.tsx`, `src/lib/film-stage.ts`, files in `public/film/`, contract in docs/07 §4). The R3F canvas is no longer mounted on the home page; its files and dependencies are still in the repo. The `--z-canvas` layer of the layering contract (§1) now holds the page thread.
 - **Two ornaments.** The page thread and the running stitch (below). Still no icons, badges or 01/02/03 markers.
@@ -535,11 +550,11 @@ Brief: `docs/07-redesign.md`. Same palette, same two typefaces, same ethics rule
 - 1024–1279: `min(100 %, 100svh − nav)` square, centred in cols 7–12;
 - from 1280: `min(109svh, 68.5vw)` square, running off the top, bottom and right of the screen, with a soft mask on its left edge where it meets the copy.
 
-**Partner credit in the stage.** The film shows the products, so `collections.hmong.credit` sits at the foot of the sticky stage, under them, in `text-caption` cream on plum. It is the section's only copy of the credit. The runtime lights it (`data-on`) at the drape beat, when the cloth starts to become a product, and it stays lit; without the runtime it is simply visible. No product is on screen without it.
+**Partner credit in the stage.** The film shows a product (the bag), so `collections.noinep.credit` sits at the foot of the sticky stage, under it, in `text-caption` cream on plum. It is the section's only copy of the credit. The runtime lights it (`data-on`) at the drape beat, when the cloth starts to become a product, and it stays lit; without the runtime it is simply visible. No product is on screen without it.
 
-The numbers come from the measured boxes of the three products in the film (tote, mug, coaster), so each stays fully on screen from 1280 to 1920 wide. `scripts/qa-redesign.mjs` (`weave`) re-measures this from the key frames; re-run it if the film is re-rendered with different framing.
+The numbers were measured from the product boxes of the first film, which ran on past the bag to a mug and a coaster. GIEO has neither, so the film now ends on the bag (docs/09 F2, §11). The stage geometry was left exactly as it was, and the bag stays fully on screen from 1280 to 1920 wide. `scripts/qa-redesign.mjs` (`weave`) re-measures this from the key frames; re-run it if the film is re-rendered with different framing.
 
-**StillLife** (`home/StillLife.tsx`, data in `src/lib/stills.ts`). One Blender still: empty alt text, no caption that states a fact. Its box takes the render's own proportions (read from the file). A still that shows products carries `collections.hmong.credit` as its `figcaption`. Sizes: the Hands stills are 40–50 % of the content width on desktop; the three in Journal are a third of the screen each. It unveils with a `clip-path` wipe on entering view (`data-enter`) and its layers drift at different speeds (`data-drift`). The runtime fetches and decodes a held still a screen and a half before it unveils: the clip hides it from the browser's lazy loading, so without that the image arrived after its own wipe and its first paint dropped a frame.
+**StillLife** (`home/StillLife.tsx`, data in `src/lib/stills.ts`). One Blender still: empty alt text, no caption that states a fact. Its box takes the render's own proportions (read from the file). A still that shows products carries `collections.noinep.credit` as its `figcaption`; none does now, because the products still (`products.webp`, which showed a mug and a coaster) is gone and photographs of the real products stand where it stood (§11). The Hands stills and the Journal stills described in this paragraph are replaced by photographs too (§11); where a still remains it is 40–50 % of the content width on desktop. It unveils with a `clip-path` wipe on entering view (`data-enter`) and its layers drift at different speeds (`data-drift`). The runtime fetches and decodes a held still a screen and a half before it unveils: the clip hides it from the browser's lazy loading, so without that the image arrived after its own wipe and its first paint dropped a frame.
 
 **Thread** (`home/Thread.tsx`). One SVG path from the seed film's `threadExit` point to the end of the page, drawn by scroll with `stroke-dashoffset`, stem mint shifting to lotus pink. Loose S-curves down one gutter; at a seam between sections it leans further in, deepest in the gap between their copy, taking the same half wave as any other sway to get there and back (a swing made inside the gap alone is too tight and reads as a kink); it stays in the gutter and never crosses text. Its first point is exactly under the film's stem, including on a phone, where the crop puts the stem at the screen's edge. It sits on `--z-canvas`: above section backgrounds, under copy, films and stills. `Section` takes a `thread="left|right"` prop to say which gutter.
 
@@ -549,9 +564,9 @@ The numbers come from the measured boxes of the three products in the film (tote
 
 **KineticBand** (`home/KineticBand.tsx`). The three pillar titles as one line of `text-mega` italic, once filled and once in 1.5 px outline, sliding sideways with scroll. `aria-hidden`; static under reduced motion. The clip (`overflow-x: clip`) is on its own wrapper.
 
-**Weave quote.** Split on spaces (never letters) into `data-word` spans that light up with scroll; still one sentence for a screen reader. Product names take `data-active` in step with the film.
+**Weave quote.** Split on spaces (never letters) into `data-word` spans that light up with scroll; still one sentence for a screen reader. The two product names stand in one list beside the stage, name large and kind small, and take `data-active` together once the bag is at least half in. Nothing lights for a product the film does not show.
 
-**InvolveCard** (replaces the §5 entry). Still an index row; the label is now `text-h2` (56 → 132 px) and the row padding is `py-4` / `lg:py-5`, so the three rows read as one large list.
+**InvolveCard** (replaces the §5 entry). Still an index row; the label is now `text-h2` (44 → 104 px) and the row padding is `py-4` / `lg:py-5`, so the three rows read as one large list.
 
 **Footer** (replaces the §5 entry; site-wide). Above the small print the page ends on `home.journal.heading`, set as a `<p>` (the Journal section owns the heading) in italic serif, sized from its length to run the content width in one line on desktop (about 130 px in English and 91 px in Vietnamese at 1440) and wrapping on phones, never under 44 px. Five seeds fall towards it in the space above the line. They stop short of the letters: next to Vietnamese type a seed touching the line reads as a tone mark.
 
@@ -566,4 +581,64 @@ The numbers come from the measured boxes of the three products in the film (tote
 
 ### Checks
 
-`node scripts/qa-density.mjs` (density, page length, type floors) and `node scripts/qa-redesign.mjs` (overflow at 375, reduced motion, no JS, LCP at 4× CPU, hero text box, hero strip of 11 shots per run, weave frames 45 / 120 / 140 / 169 with the credit on screen under each product, pillar titles whole in the deck, scroll trace) against a production build on port 3101; both write to `qa/redesign/`. `scripts/qa-motion.mjs` and `scripts/render-fallbacks.mjs` belong to the R3F build and no longer describe the home page.
+`node scripts/qa-density.mjs` (density, page length, type floors) and `node scripts/qa-redesign.mjs` (overflow at 375, reduced motion, no JS, LCP at 4× CPU, hero text box, hero strip of 11 shots per run, weave frames from the thread to the bag's rest at frame 129, the last frame of the film, with the credit on screen under the bag, pillar titles whole in the deck, scroll trace) against a production build on port 3101; both write to `qa/redesign/`. `scripts/qa-motion.mjs` and `scripts/render-fallbacks.mjs` belong to the R3F build and no longer describe the home page.
+
+---
+
+## 11. First feedback: smaller, the real products, real photographs (November 2026)
+
+Brief: `docs/09-feedback.md`. GIEO liked the site and asked for two things: elements and type "smaller, like a bit", and the right products (the bag and the lipstick holder, not a mug and coasters). They also shared three photo albums. This section wins over §1–§10 wherever they disagree. Everything else in §10 still stands: the three films, the fallback tiers, the scroll rules, the footer.
+
+### Smaller, a bit
+
+- Display type came down by about a fifth, lead and body by a step, section padding by about a seventh. The numbers are in §3 and §4.
+- Nothing goes under the floors: 14 px for any text, 16 px in a paragraph, 18 px for weight 300, 44 px for anything you tap.
+- Buttons are 44 px high (were 48), form inputs 48 px (were 52).
+- `--fs-ui`, `--fs-caption`, the gutters, the wrap width, the nav pill, the line-heights and the film stage geometry did not move.
+- The home page is also about a screen and a half shorter, because the product run now rests once (below).
+
+### The products
+
+There is no mug and no coaster. The collection is **Nối Nếp**, made with Chie Dù Pù Dù Pà. The names come from GIEO's own printed leaflet and are `DRAFT` until GIEO confirms them for the web.
+
+| id | EN name | EN kind | VI name | VI kind |
+|---|---|---|---|---|
+| `bag` | Nối Bag | Brocade handbag | Túi Nối | Túi xách vải thủ công |
+| `lipstick` | Nếp Keychain | Lipstick holder | Móc Nếp | Móc đựng son dưỡng |
+
+- A product is always shown as name plus kind: the name large, the kind small.
+- The label over the products is "Nối Nếp". The collection copy names no ethnic group: the leaflet says Thái, GIEO's own site copy says H'mong, and GIEO has not settled it (`docs/00-open-questions.md` #13). GIEO's own sentences are left exactly as they wrote them.
+- No prices and no wallets, although the leaflet lists both.
+- The partner credit (`collections.noinep.credit`) rides with every picture of a product, film or photograph.
+- Copy and its sources: `docs/02-content.md`, "the Nối Nếp collection".
+
+### The weave film
+
+- The film ends on the bag: 130 frames (0 to 129). Beats: thread 0-30, warps 30-50, weave 50-89, drape 89-109, bag 109-129. Key frames, which the Still tier and reduced motion show: 0, 50, 89, 129.
+- The bag in the film is the stylised bag the film has always had, not a likeness of the Nối Bag (`docs/00-open-questions.md` #19). The real products are shown in photographs.
+- The product run rests once: one hold of 54svh on wide screens and 48svh on phones (it was three holds and two changes, 214svh and 172svh). `scripts/timeline.test.mjs` holds the rest to at least 45svh.
+- Both product names stand beside the stage in one list. They light together when the bag is at least half in. Nothing lights for a product the film does not show: the lipstick holder has no beat of its own.
+
+### Photographs
+
+**The rule** (replaces docs/08's "no photos of people"): a real GIEO photo may be used when no person in it can be recognised. Hands and a back view are fine. No face of a child or a teenager, ever, without GIEO's consent for that photo; the team are minors too. Thirteen frames, chosen from 663, are in `assets/photos/`, each with a row in `assets/consent.csv` and a source in `assets/photos/SOURCES.md`. `npm run images` writes them to `public/img/` with all metadata stripped. Pages look a photo up by its id.
+
+**Frames are calm:** `--round-frame` corners, no shadow heavier than the site already uses, at most 60vw wide.
+
+**Words:** alt text (`photos.<id>.alt`, both languages) says what is visible and nothing else. No place names, no ethnic group, no "our artisans": we do not know who is in each frame. Product photos carry the partner credit. No other captions.
+
+| Slot | Photo id | Notes |
+|---|---|---|
+| Home, Journal grid | `01-loom-weaver` to `06-valley` | The six-slot grid `Journal.tsx` already has; it replaces the rail of stills |
+| Home, Hands, beside the partner name | `bag-pink`, with `lipstick-on-bag` as a smaller second frame | Replaces the products still. Each frame is labelled with the product name and kind; one credit line |
+| Home, Hands, lower | `loom-cloth` | Replaces the cloth still |
+| Collections, Nối Nếp swatch | `nep-cloth` | The 16/9 slot that was empty |
+| Collections, slabs | `bag-rows`, `lipstick-rows` | Two slabs, one per product: photograph, name and kind, credit. There is no third tile |
+| About, story | `sewing-cloth` | Replaces the lotus-seeds still |
+| About, partner block | `bag-rows` | Replaces the products still, with the credit |
+
+Get involved and Contact take no photo: a trip picture beside "what we're building" would read as a result.
+
+### Checks
+
+`npm run typecheck`, `lint`, `content:check`, `test:motion`, `test:images` and `build` clean. No "mug", "coaster", "ceramic", "cốc" or "lót ly" in `src/`, in `public/film/weave/manifest.json` or in the built HTML. Screenshots at 375 and 1440 of every route in both languages, and of the weave stage at each beat end. Vietnamese diacritics intact on "Nối Nếp", "Túi Nối", "Móc Nếp" and "Móc đựng son dưỡng" at every size. No horizontal overflow at 320, 375, 390, 768, 1024 or 1440.

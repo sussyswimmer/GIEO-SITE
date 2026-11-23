@@ -1,9 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { Container, Grid, Heading, PhotoFrame, Prose, Section, Todo } from '@/components/ui';
-import { journalPhotos } from '@/lib/photos';
-import { art } from '@/components/pages/art';
-import { HOME_STILLS, listStills } from '@/lib/stills';
-import { StillLife } from './StillLife';
+import { journalPhotos, withAlt } from '@/lib/photos';
 
 const SIZES = '(min-width: 1024px) 40vw, (min-width: 768px) 60vw, 90vw';
 
@@ -18,37 +15,22 @@ const SLOT = [
   'col-start-2 col-end-5 md:col-start-4 md:col-end-9 lg:col-start-3 lg:col-end-11',
 ] as const;
 
-// The rail: still-lifes in one row that slides sideways with scroll, the picture version of the kinetic
-// band. They stand on one ground line and differ in size, so the row has a rhythm.
-const RAIL_SIZES = '(min-width: 1024px) 30vw, 62vw';
-const RAIL_SLOT = ['w-[62vw] lg:w-[30vw]', 'w-[54vw] lg:w-[25vw]', 'w-[58vw] lg:w-[27vw]'] as const;
-
 /**
- * S5. GIEO's season. Consented photos when GIEO sends them; until then a rail of still-lifes (the Blender
- * stills Hands does not use, then the illustrated ones from public/art/pages) that slides sideways with
- * scroll, on a horizon of pale ridges behind the heading (docs/08 H3). A still carries no caption that
- * states a fact; one that shows products carries the partner credit.
+ * S5. GIEO's season: GIEO's own photographs in a loose grid (docs/09 F3; it replaces the rail of stills), on
+ * a horizon of pale ridges behind the heading (docs/08 H3). Only frames in which nobody can be recognised,
+ * each with consent and alt text. No captions: the alt text says what is visible and nothing else.
  */
 export async function Journal() {
   const t = await getTranslations('home.journal');
   const tAll = await getTranslations();
 
   // Alt text is the content key photos.<id>.alt; a photo without it is not shown (PLAN.md §5, §6).
-  const photos = journalPhotos.flatMap((p) => {
-    const key = `photos.${p.id}.alt`;
-    const alt = p.consent && tAll.has(key) ? tAll(key) : '';
-    return alt ? [{ ...p, alt }] : [];
-  });
-  const stills =
-    photos.length > 0
-      ? []
-      : [...listStills(HOME_STILLS).slice(2, 5), ...['get-involved', 'about', 'contact'].flatMap((name) => art(`pages/${name}`) ?? [])];
-  const credit = tAll('collections.hmong.credit');
+  const photos = journalPhotos.flatMap((p) => withAlt(p, tAll) ?? []);
   const closing = t('closing');
 
   return (
     <Section tone="cream" pad="none" id="journal" labelledBy="journal-title" thread="right" className="pt-section-sm pb-section-sm lg:pb-10">
-      {/* A horizon behind the heading and the rail: an illustration on the section's own cream, eased out at
+      {/* A horizon behind the heading and the first photographs: an illustration on the section's own cream, eased out at
           its top and bottom so it has no edge. Lazy, so it can never be the LCP element. */}
       {/* eslint-disable-next-line @next/next/no-img-element -- one sized WebP, drawn as the section's ground */}
       <img
@@ -84,16 +66,6 @@ export async function Journal() {
 
         </Grid>
       </Container>
-
-      {stills.length > 0 && (
-        <div className="relative mt-8 overflow-x-auto [html[data-motion=on]_&]:overflow-x-clip lg:mt-10">
-          <div data-band className="flex w-max items-end gap-[4vw] pl-gutter lg:gap-[2.5vw]">
-            {stills.map((still, i) => (
-              <StillLife key={still.src} still={still} credit={credit} index={i % 3} sizes={RAIL_SIZES} className={RAIL_SLOT[i % 3]} />
-            ))}
-          </div>
-        </div>
-      )}
 
       <Container className="relative">
         <Grid>

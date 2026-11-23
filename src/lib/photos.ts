@@ -25,20 +25,26 @@ const all = (manifest.photos as Photo[]).slice();
 const visible = (list: Photo[]): Photo[] =>
   list.filter((p) => process.env.NODE_ENV !== 'production' || p.consent === true);
 
-const pick = (collection: Photo['collection'], prefix?: string): Photo | undefined =>
-  visible(all).find((p) => p.collection === collection && (!prefix || p.id.startsWith(prefix)));
-
 export const journalPhotos: Photo[] = visible(all.filter((p) => p.collection === 'journal'));
 
+/** next-intl's translator, as far as a photo needs it. */
+type Translator = { (key: string): string; has: (key: string) => boolean };
+
+/** A photo with its alt text, ready for a PhotoFrame. */
+export type ShownPhoto = Photo & { alt: string };
+
+/** Adds the alt text. A photo renders only with consent and its content key photos.<id>.alt (PLAN.md §5, §6). */
+export function withAlt(p: Photo | undefined, t: Translator): ShownPhoto | undefined {
+  if (!p?.consent) return undefined;
+  const key = `photos.${p.id}.alt`;
+  const alt = t.has(key) ? t(key) : '';
+  return alt ? { ...p, alt } : undefined;
+}
+
 /**
- * Product and brocade images. Product files are matched by name prefix: tote-*, mug-*, coaster-*.
- * A missing entry stays undefined and its PhotoFrame renders nothing (dev: Todo).
+ * One photo by its id: the file's path under assets/photos/<collection>/, slugified (docs/09 F3 says which
+ * id goes in which slot). Nothing when the photo is missing, has no consent or has no alt text: the slot
+ * then lays out without it.
  */
-export const collectionPhotos = {
-  hmong: {
-    brocade: pick('brocade'),
-    tote: pick('products', 'tote'),
-    mug: pick('products', 'mug'),
-    coaster: pick('products', 'coaster'),
-  },
-};
+export const photo = (id: string, t: Translator): ShownPhoto | undefined =>
+  withAlt(visible(all).find((p) => p.id === id), t);

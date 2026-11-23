@@ -177,8 +177,9 @@
      the band it shows in and never reads as a square: on phones it runs off both sides, its top tucked
      under the nav pill; from 1280 it runs off the top, bottom and right of the pinned screen and fades
      out on the left, towards the copy. In between it is a square that fits its column.
-     The offsets come from the film: the tote spans 5 to 87 % of the canvas height, and the mug, as it
-     turns, reaches 94.5 % of its width, so the canvas sits a little left of where it would be centred. */
+     The offsets come from the film: the bag spans 5 to 87 % of the canvas height. The canvas sits a little
+     left of where it would be centred; that offset was measured on a wider product the film no longer
+     shows, and docs/09 F1 keeps the stage geometry where it was. */
   .weave-stage {
     --s: calc((var(--stage-phone-weave) - var(--nav-offset)) / 0.955);
     position: absolute; bottom: 0; left: 48.5%; translate: -50% 0; width: var(--s); aspect-ratio: 1;
@@ -221,22 +222,25 @@
   [data-credit] { transition: opacity var(--dur-fade) var(--curve-out); }
   html[data-motion="on"] [data-credit]:not([data-on]) { opacity: 0; }
 
-  /* The weave's product run (docs/08 H2, Weave.tsx). In flow it is a list of three large names. With the
-     runtime up, on a screen tall enough to pin, the names stick beside the stage (below it under 1024) for
-     --weave-run, which the runtime sets from WEAVE_PACE, and only the product resting on the stage is lit:
-     the others are drawn in outline, like the second run of a kinetic band. */
+  /* The weave's product run (docs/08 H2, docs/09 F2; Weave.tsx). In flow it is a list of the two products,
+     name large and kind small. With the runtime up, on a screen tall enough to pin, the list sticks beside
+     the stage (below it under 1024) for --weave-run, which the runtime sets from WEAVE_PACE. The names are
+     drawn in outline, like the second run of a kinetic band, and fill together while the bag rests on the
+     stage. The kind under each name is plain copy and is always readable. */
   .weave-names {
     font-size: min(var(--fs-h2), (100svh - var(--stage-phone-weave)) / 4.6);
     line-height: var(--lh-h2); letter-spacing: var(--ls-display);
   }
-  .weave-names > li {
+  .weave-names > li + li { margin-top: 0.22em; }
+  .weave-name {
     -webkit-text-stroke: 1.5px transparent;
     transition: color var(--dur-fade) var(--curve-out), -webkit-text-stroke-color var(--dur-fade) var(--curve-out),
       translate var(--dur-reveal) var(--curve-out);
   }
   [data-weave-names] { --names-top: var(--stage-phone-weave); }
   @media (min-width: 64rem) {
-    .weave-names { font-size: min(var(--fs-h2), 14svh); }
+    /* the third term keeps the longest name (Nếp Keychain) on one line in the copy column, five columns wide from 1280 */
+    .weave-names { font-size: min(var(--fs-h2), 14svh, min(100vw - 2 * var(--gutter), var(--wrap-max)) / 16.5); }
     [data-weave-names] { --names-top: 0px; }
   }
   @media (min-height: 37.5rem) {
@@ -246,10 +250,10 @@
       position: sticky; top: var(--names-top); min-height: calc(100svh - var(--names-top));
     }
   }
-  html[data-motion="on"] .weave-names > li:not([data-active]) {
+  html[data-motion="on"] .weave-names > li:not([data-active]) > .weave-name {
     color: transparent; -webkit-text-stroke-color: color-mix(in srgb, var(--cream) 60%, transparent);
   }
-  html[data-motion="on"] .weave-names > li[data-active] { translate: 0.12em 0; }
+  html[data-motion="on"] .weave-names > li[data-active] > .weave-name { translate: 0.12em 0; }
 
   /* The running stitch (docs/07 §3): every hairline on the site. .stitch-y is the vertical one. */
   .stitch, .stitch-y { display: block; border: 0; flex: none; }

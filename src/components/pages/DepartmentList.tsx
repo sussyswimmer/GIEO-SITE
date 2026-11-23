@@ -16,7 +16,7 @@ const DEPARTMENTS: { key: string; teams?: string }[] = [
 /** The departments as large rows under running stitches (the home page's Involve rows, not links), still-lifes beside them. */
 export async function DepartmentList() {
   const t = await getTranslations('about');
-  const credit = (await getTranslations('collections.hmong'))('credit');
+  const credit = (await getTranslations('collections.noinep'))('credit');
   const spools = still('spools');
   const cloth = still('cloth');
 

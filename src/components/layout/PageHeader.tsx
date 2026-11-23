@@ -19,7 +19,7 @@ type PageHeaderProps = {
   intro?: string;
   /** The page's still-life (public/art/pages). The header lays out without it. */
   art?: Art;
-  /** `collections.hmong.credit`, shown under art that has products in it. */
+  /** `collections.noinep.credit`, shown under art that has products in it. */
   credit?: string;
   /** Actions under the intro. */
   children?: ReactNode;
@@ -43,7 +43,7 @@ export async function PageHeader({ title, intro, art, credit = '', children }: P
       <Container className="relative flex flex-col pt-[calc(var(--nav-offset)+var(--space-6))] pb-6 lg:min-h-svh lg:pt-[calc(var(--nav-offset)+var(--space-12))] lg:pb-8">
         <h1
           className="word-in relative z-1 font-serif text-mega italic text-fg-heading lg:order-2 lg:mt-auto"
-          style={{ fontSize: fit(title, 0.5, '3.5rem', '15rem') }}
+          style={{ fontSize: fit(title, 0.6, '3rem', '12rem') }}
         >
           {title}
         </h1>

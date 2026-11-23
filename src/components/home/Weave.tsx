@@ -4,22 +4,25 @@ import { ButtonLink, Container, FilmStage, Grid, Prose, Section } from '@/compon
 import { BandLine } from './KineticBand';
 
 const BEAT = 'mt-10 motion-safe:lg:mt-[12svh]';
-const PRODUCTS = ['tote', 'mug', 'coaster'] as const;
+const PRODUCTS = ['bag', 'lipstick'] as const;
 
 /**
  * S1 Weave: thread, cloth, product. The one dark section; every colour inside comes from the
  * [data-tone="plum"] scope. From 1024 the weave film sticks for the whole section on the right while three
  * beats scroll beside it; below that it sticks at the top, under the nav pill, and the copy scrolls beneath
  * its plum backdrop. The stage's size and bleed are the .weave-stage rule in globals.css: the canvas is
- * larger than the band it shows in, and every product stays inside the screen.
+ * larger than the band it shows in, and the bag stays inside the screen.
  * The quote is split on spaces for the scroll reveal; it stays one sentence for screen readers.
- * The section ends on the product run: the three names, large, each lit while its product rests on the stage
- * (docs/08 H2; the pacing is WEAVE_PACE in fallback-timeline.ts), then a band of the names running sideways.
+ * The section ends on the product run (docs/08 H2, docs/09 F2): the film ends on the bag and rests there
+ * once, and the collection's two products stand beside the stage in one list, name large and kind small,
+ * lit together while the bag rests (the pacing is WEAVE_PACE in fallback-timeline.ts). Then a band of the
+ * names runs sideways. The film's bag is a stylised one, not a likeness; the real products are photographs
+ * (Hands, /collections).
  * No visible heading: there is no key for one (PLAN.md §6).
  */
 export async function Weave() {
   const t = await getTranslations('home.craft');
-  const tCollection = await getTranslations('collections.hmong');
+  const tCollection = await getTranslations('collections.noinep');
   const words = t('quote').split(' ');
 
   return (
@@ -39,7 +42,7 @@ export async function Weave() {
             ].join(' ')}
           >
             <FilmStage scene="weave" className="weave-stage" />
-            {/* The film shows the products, so the partner credit rides with it, under them (01-brand,
+            {/* The film shows a product, so the partner credit rides with it, under it (01-brand,
                 docs/07 §1): in the stage, not the copy, or a product would be on screen without it. The
                 runtime holds it back until the cloth starts to become one. */}
             <small data-credit className="absolute inset-x-0 bottom-2 px-2 text-center text-caption text-fg-body lg:bottom-6">
@@ -57,7 +60,7 @@ export async function Weave() {
               <blockquote
                 className={[
                   // from 1280 the copy column is five columns wide: a smaller size keeps the sentence to seven lines
-                  'relative text-balance font-serif text-quote italic text-fg-heading xl:text-[3.5rem]',
+                  'relative text-balance font-serif text-quote italic text-fg-heading xl:text-[3rem]',
                   // decorative opening mark with empty alt text, so assistive tech reads only the quote
                   "before:mb-1 before:block before:text-[1.6em] before:leading-none before:text-lotus-pink before:content-['“'_/_'']",
                 ].join(' ')}
@@ -74,16 +77,19 @@ export async function Weave() {
               {t('beat3')}
             </Prose>
 
-            {/* The product run (docs/08 H2). In flow this is a list of three names. With the runtime up, on a
-                screen tall enough, the names stick beside (below, on a phone) the stage for the length the
-                runtime gives the run, and each is lit while its product rests on the stage. */}
+            {/* The product run (docs/08 H2, docs/09 F2). In flow this is a list of the two products. With
+                the runtime up, on a screen tall enough, the list sticks beside (below, on a phone) the stage
+                for the length the runtime gives the run, and the names are lit while the bag rests there. */}
             <div data-weave-run className={BEAT}>
               <div data-weave-names className="flex flex-col justify-center pb-section-sm lg:pt-(--nav-offset)">
                 <p className="text-body font-medium text-fg-body">{tCollection('name')}</p>
                 <ul role="list" className="weave-names mt-2 font-serif italic text-fg-heading lg:mt-4">
-                  <li>{t('products.tote')}</li>
-                  <li>{t('products.mug')}</li>
-                  <li>{t('products.coaster')}</li>
+                  {PRODUCTS.map((key) => (
+                    <li key={key}>
+                      <span className="weave-name block">{t(`products.${key}.name`)}</span>
+                      <span className="block font-sans text-body not-italic tracking-normal text-fg-body">{t(`products.${key}.kind`)}</span>
+                    </li>
+                  ))}
                 </ul>
                 <ButtonLink variant="primary" href="/collections" className="mt-6 self-start lg:mt-10">
                   {t('cta')}
@@ -93,11 +99,11 @@ export async function Weave() {
           </div>
         </Grid>
       </Container>
-      {/* The second sideways band (docs/08 H2): the three products, running against the pillar band below. */}
+      {/* The second sideways band (docs/08 H2): the product names, running against the pillar band below. */}
       <BandLine reverse className="pt-2 pb-6 text-fg-heading lg:pb-10" outline="var(--cream)">
         {PRODUCTS.map((key) => (
           <Fragment key={key}>
-            {t(`products.${key}`)}
+            {t(`products.${key}.name`)}
             <span className="mx-[0.35em] not-italic text-lotus-pink">·</span>
           </Fragment>
         ))}
