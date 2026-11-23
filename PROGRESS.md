@@ -683,3 +683,13 @@ Open:
 - Encode: `node scripts/encode-film.mjs --scenes weave --raw <frames> --sheets <dir> --tmp <dir>` (pass all three, or the Windows defaults make a stray `D:` folder), CRF 26, 4 772 591 bytes (ceiling 5 000 000), edge matte 0/255; then `node scripts/index-film.mjs` (150 frames, avc1.641028).
 - Checked decoded on `--plum-ink`: the join at 88/89 shows no step in colour, texture or shadow (the old frames are a touch softer, from their second encode); keys s-0089 cloth, s-0129 the bag, s-0149 the keychain; the pan 129-140 lands on the keychain at 140, where the wipe ends. `test:motion` 56/56.
 - Not reproducible from the repo alone: frames 0-88 depend on the previous mp4. A full re-render (`blender -b --factory-startup -P blender/film/weave.py -- --quality final`) replaces them.
+
+### QA after the feedback pass, and the preview (23 November 2026)
+
+- `qa-redesign.mjs` against this tree: 20 pass, 13 fail; against f22ec97 (the showroom design, live at the root) built in the same container: 18 pass, 15 fail. Same failures plus two 375 px overflows this pass fixed. Nothing regressed.
+- The script brought up to date (no page change): the weave check no longer asks for frame 45, which the film has not shown since the vine pass (it opens on the laid warps, 50, or the cloth, 89, under the roots seam), and checks the cloth where the stage sticks instead; the hero and strip name four beats; on software GL (SwiftShader here) the trace is reported, not judged, with the tier. Now 26 pass, 6 fail on the static export, in Lite (this container has 4 CPUs).
+- The 6 left are in the showroom design since the vine pass (59d41b9), not this one, and are Maxwell's call:
+  - hero /en and /vi at 375x667: beat 4 (the sub line and the two buttons, stacked under 26rem) ends 11 px (EN, at rest) below the film's textSafe box. Candidate: the buttons side by side under 45rem tall (`Sow.tsx`).
+  - strip at 1440 and 390, EN and VI: the initiative line is whole for 0.09 of the run, so one 10 % shot. Candidate: `HERO_BEATS` [[0.28,0.42],[0.5,0.6],[0.68,0.85],[0.89,1]] in `motion-runtime.ts` (tested by patching the served chunk; changes the choreography Maxwell chose).
+  - Also standing: the hero pin is 190svh at lg (370svh with the vine), over CLAUDE.md's 150vh.
+- Preview published: gh-pages `8f4df89`, https://sussyswimmer.github.io/GIEO-SITE/feedback/ (built at 9cae0ef with `GIEO_BASE_PATH=/GIEO-SITE/feedback`). All 8 routes at 1440 and 390 load with no failed request or page error; the film streams from `feedback/film/weave/`. The old preview's wallet photos and readable sign are gone from the live tip (still in git history). The root is still f22ec97 until Maxwell approves.
