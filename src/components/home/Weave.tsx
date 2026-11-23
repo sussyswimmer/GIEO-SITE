@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import { getTranslations } from 'next-intl/server';
-import { ButtonLink, Container, FilmStage, Grid, Prose, Section } from '@/components/ui';
+import { ButtonLink, Container, FilmStage, Grid, Prose, Section, ViWords } from '@/components/ui';
 import { BandLine } from './KineticBand';
 
 const BEAT = 'mt-10 motion-safe:lg:mt-[12svh]';
@@ -78,17 +78,19 @@ export async function Weave() {
 
             {/* The product run (docs/08 H2). In flow this is a list of the two names. With the runtime up, on a
                 screen tall enough, the names stick beside (below, on a phone) the stage for the length the
-                runtime gives the run, and each is lit while its product rests on the stage. The names are
-                Vietnamese on every page (lang="vi"); what each product is sits under it in caption type,
+                runtime gives the run, and each is lit while its product rests on the stage. Their Vietnamese
+                words carry lang="vi" (ViWords); what each product is sits under it in caption type,
                 outside the outline effect (.weave-kind, globals.css). */}
             <div data-weave-run className={BEAT}>
               <div data-weave-names className="flex flex-col justify-center pb-section-sm lg:pt-(--nav-offset)">
-                <p className="text-body font-medium text-fg-body">{tCollection('name')}</p>
+                <p className="text-body font-medium text-fg-body">
+                  <ViWords text={tCollection('name')} />
+                </p>
                 <ul role="list" className="weave-names mt-2 font-serif italic text-fg-heading lg:mt-4">
                   {PRODUCTS.map((id) => (
                     <li key={id}>
-                      <span lang="vi" className="weave-name block">
-                        {t(`products.${id}.name`)}
+                      <span className="weave-name block">
+                        <ViWords text={t(`products.${id}.name`)} />
                       </span>
                       <span className="weave-kind block font-sans text-caption not-italic text-fg-body">{t(`products.${id}.kind`)}</span>
                     </li>
@@ -108,7 +110,9 @@ export async function Weave() {
       <BandLine reverse className="pt-[0.2em] pb-6 text-fg-heading lg:pb-10" outline="var(--cream)">
         {[...PRODUCTS, ...PRODUCTS].map((id, i) => (
           <Fragment key={i}>
-            <span lang="vi">{t(`products.${id}.name`)}</span>
+            <span>
+              <ViWords text={t(`products.${id}.name`)} />
+            </span>
             <span className="mx-[0.35em] not-italic text-lotus-pink">·</span>
           </Fragment>
         ))}

@@ -678,7 +678,4 @@
   }
   .print-sheet[data-enter="pending"] { opacity: 0; translate: 0 1.25rem; rotate: calc(var(--tilt, 0deg) * 2.5); }
   .print-cap { margin-top: 0.875rem; }
-  /* A short sideways strip of prints for narrow screens: scrolls by touch, never snaps, no bar. */
-  .print-strip { overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: none; }
-  .print-strip::-webkit-scrollbar { display: none; }
 }

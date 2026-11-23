@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { type CSSProperties, Fragment } from 'react';
-import { ButtonLink, type FramePhoto, type ProductPhoto, Prose, Section, Todo } from '@/components/ui';
+import { ButtonLink, type FramePhoto, type ProductPhoto, Prose, Section, Todo, ViWords } from '@/components/ui';
 import type { ProductKey } from '@/lib/showroom';
 import { EMAIL, INSTAGRAM_URL } from '@/lib/site';
 import type { Art } from './art';
@@ -85,7 +85,7 @@ export function Showroom({ name, tagline, body, credit, cloth, swatch, products,
           <ul role="list" data-showroom-track className="showroom-track">
             <li data-showroom-slot="intro" className="showroom-slot showroom-intro">
               <h2 id={titleId} className="showroom-title font-serif italic text-fg-heading">
-                {name}
+                <ViWords text={name} />
               </h2>
               {tagline && <p className="mt-3 max-w-[30ch] font-serif text-h4 italic text-fg-heading">{tagline}</p>}
               <Prose variant="lead" className="mt-5 max-w-[30ch]">
@@ -97,10 +97,12 @@ export function Showroom({ name, tagline, body, credit, cloth, swatch, products,
 
             {products.map((p) => (
               <li key={p.key} data-showroom-slot={p.key} className="showroom-slot showroom-product">
-                <h3
-                  aria-label={p.kind ? `${p.name}, ${p.kind}` : p.name}
-                  className="showroom-name font-serif italic text-balance text-fg-heading"
-                >
+                <h3 className="showroom-name font-serif italic text-balance text-fg-heading">
+                  {/* read whole, with its Vietnamese words marked: an aria-label could not carry lang="vi" */}
+                  <span className="sr-only">
+                    <ViWords text={p.name} />
+                    {p.kind && `, ${p.kind}`}
+                  </span>
                   <Letters text={p.name} />
                   {p.kind && (
                     // What it is, small under the name, arriving with the name's last letters (--f).

@@ -23,7 +23,7 @@ Components read strings by key. Never hard-code copy in components.
 | `common` | shared labels |
 | `photos` | alt text, one `photos.<id>.alt` per photo in `src/lib/photos-manifest.json` |
 
-The products are named in one place, `home.craft.products.<id>.name` and `.kind`, with ids `bag` (Nối Bag) and `lipstick` (Nếp Keychain). The home page and the collections page both read them from there. GIEO makes nothing else today: the tote, mug and coaster keys and the older `collections.hmong` block are gone.
+The products are named in one place, `home.craft.products.<id>.name` and `.kind`, with ids `bag` (Nối Bag) and `lipstick` (Nếp Keychain). The home page and the collections page both read them from there. GIEO makes nothing else today, so these two are the only product keys.
 
 Contact details (email, Instagram and Facebook addresses) are not copy. They live in code as constants.
 

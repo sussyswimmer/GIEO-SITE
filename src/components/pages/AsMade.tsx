@@ -1,5 +1,5 @@
 import { getTranslations } from 'next-intl/server';
-import { Container, Grid, PhotoPrint, type PrintCrop, Section } from '@/components/ui';
+import { Container, Grid, PhotoPrint, type PrintCrop, Section, ViWords } from '@/components/ui';
 import { photo } from '@/lib/photos';
 
 // GIEO's own photographs of the two products, cropped to the product: the stall tables they were taken on
@@ -28,8 +28,8 @@ export async function AsMade() {
 
   const label = (item: (typeof items)[number]) => (
     <>
-      <span lang="vi" className="block font-serif text-h4 italic text-fg-heading">
-        {item.name}
+      <span className="block font-serif text-h4 italic text-fg-heading">
+        <ViWords text={item.name} />
       </span>
       <span className="mt-1 block text-caption text-fg-body">{item.kind}</span>
     </>

@@ -17,3 +17,4 @@ export { Section, type SectionProps } from './Section';
 export { TextLink } from './TextLink';
 export { Todo } from './Todo';
 export { Eyebrow, Hairline, Heading, Prose } from './Typography';
+export { ViWords } from './ViWords';

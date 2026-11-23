@@ -481,7 +481,7 @@ for name, deg in STATION_DEG.items():
 # ---- panel -------------------------------------------------------------------
 def drape(tau, u, v):
     """Closed-form pose of the cloth, glTF axes. tau 0 is the flat loom pose, 1 a smaller settled cloth in front of the
-    bag's station (it was the print on the old tote; the legacy WeaveScene fades it out as the bag comes in)."""
+    bag's station (the legacy WeaveScene fades it out as the bag comes in)."""
     e = smoother(tau)
     s = lerp(1, 0.667, e)
     fl = math.sin(math.pi * tau)

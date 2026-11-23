@@ -50,9 +50,8 @@ const FILMS = {
   },
   weave: {
     frames: 150, alpha: true, bg: 'plum-ink', keys: [0, 50, 89, 129, 149],
-    // 5.5 %: set for the earlier film, whose tote's handles topped out 5.6 % from the edge. At rest the Nối Bag's
-    // handle tops out 17 % from the edge and the Nếp Keychain 19 %, clear of it; only the camera's travel between
-    // them crosses the edges, and the feather fades it there.
+    // 5.5 %: at rest the Nối Bag's handle tops out 17 % from the edge and the Nếp Keychain 19 %, clear of it; only
+    // the camera's travel between them crosses the edges, and the feather fades it there.
     feather: { edges: 'ltrb', width: 0.055, shadow: 0.2 },
     beats: { thread: [0, 30], warps: [30, 50], weave: [50, 89], drape: [89, 109], bag: [109, 129], lipstick: [129, 149] },
     sets: [{ id: 's', from: 's', aspect: 'square', w: 960, h: 960, max: 5e6, focus: [0.5, 0.5] }],

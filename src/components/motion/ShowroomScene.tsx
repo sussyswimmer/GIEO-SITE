@@ -45,7 +45,7 @@ const CLOTH = '/models/weave-cloth.webp';
 // Each product's size in its box (box units: one is the box's shorter side), so the two read alike: the
 // holder, a few centimetres in life, hangs as large as the bag: it is the hero of its slot.
 const SIZE: Record<ProductKey, number> = { bag: 1.06, lipstick: 0.93 };
-// The model height (weave.py units) hung at the box's centre, so each sits in its box as the old tote did; where
+// The model height (weave.py units) hung at the box's centre, so each sits in the middle of its box; where
 // its shadow lies (its foot, a little below); its phase in the float.
 const CENTRE: Record<ProductKey, number> = { bag: 0.1, lipstick: 0.04 };
 const FLOOR: Record<ProductKey, number> = { bag: -0.32, lipstick: -0.48 };

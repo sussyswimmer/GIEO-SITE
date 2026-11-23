@@ -111,7 +111,7 @@ fades, rises and turns to its tilt as it enters; the picture drifts a little ins
 
 | Where | Photo id |
 |---|---|
-| Home, Journal | `01-loom-weaver` … `06-valley`: a loose two-row cluster beside the heading from 1024 px, a short sideways strip that scrolls by touch below (no snap, no scrollbar). The still-life rail stays |
+| Home, Journal | `01-loom-weaver` … `06-valley`: a loose two-row cluster beside the heading from 1024 px, two loose rows of three under the paragraph below that (all in view: a sideways strip could not be moved by keyboard or mouse). The still-life rail stays |
 | Home, Hands | `loom-cloth`, under the partner paragraph |
 | Collections, "As made" (`AsMade.tsx`, on plum after the gallery) | `bag-pink` and `lipstick-on-bag`, cropped to the products with no wallet in frame, each labelled with name and kind; `nep-cloth` between them from 1024 px; the credit once |
 | About, partner block | `02-stilt-house` |

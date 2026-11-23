@@ -7,10 +7,11 @@ import { HOME_STILLS, listStills } from '@/lib/stills';
 import { StillLife } from './StillLife';
 
 // GIEO's season in six photographs, laid as prints: from 1024 a loose cluster beside the heading (two rows,
-// overlapping a little, tilts alternating), under that a short sideways strip under the paragraph. Per print:
-// the photo's id, the picture's proportions, where the picture sits in the frame, the tilt, and its place in
-// the cluster's box (left, top and width in % of the box; the box is 7 / 5). The strip sizes each print by
-// its proportions: an upright one narrower than a wide one, so they stand about the same height.
+// overlapping a little, tilts alternating), under that the same six in two loose rows of three under the
+// paragraph, all in view: no sideways strip, which a keyboard or a mouse without a trackpad could not move.
+// Per print: the photo's id, the picture's proportions, where the picture sits in the frame, the tilt, and its
+// place in the cluster's box (left, top and width in % of the box; the box is 7 / 5). Under 1024 an upright
+// print is narrower than a wide one, so they stand about the same height.
 type JournalPrint = { id: string; ratio: string; focus?: string; tilt: number; at: [l: number, t: number, w: number]; wide: boolean };
 const PRINTS: JournalPrint[] = [
   { id: '01-loom-weaver', ratio: '3 / 4', focus: '50% 42%', tilt: 2, at: [33, 0, 21], wide: false },
@@ -21,9 +22,9 @@ const PRINTS: JournalPrint[] = [
   { id: '06-valley', ratio: '3 / 2', tilt: -1, at: [31, 56, 31], wide: true },
 ];
 // What each print is drawn at: in the cluster (its share of a box half the page wide from 1280, beside a
-// heading that needs a column more before that), in the strip.
+// heading that needs a column more before that), in the rows.
 const printSizes = (w: number, wide: boolean) =>
-  `(min-width: 1280px) ${Math.round(w / 2.2)}vw, (min-width: 1024px) ${Math.round(w / 2.7)}vw, (min-width: 768px) ${wide ? 28 : 21}vw, ${wide ? 44 : 31}vw`;
+  `(min-width: 1280px) ${Math.round(w / 2.2)}vw, (min-width: 1024px) ${Math.round(w / 2.7)}vw, (min-width: 768px) ${wide ? 26 : 19}vw, ${wide ? 30 : 22}vw`;
 
 // The rail: still-lifes in one row that slides sideways with scroll, the picture version of the kinetic
 // band. They stand on one ground line and differ in size, so the row has a rhythm.
@@ -74,16 +75,16 @@ export async function Journal() {
           </Prose>
 
           {prints.length > 0 && (
-            // One list, two layouts: under 1024 a strip that scrolls sideways by touch (bleeding to the
-            // screen's edges, with room for the shadows), from 1024 the cluster's box beside the heading.
+            // One list, two layouts: under 1024 two loose rows of three under the paragraph, from 1024 the
+            // cluster's box beside the heading.
             <ul
               role="list"
-              className="print-strip col-span-full -mx-gutter mt-4 -mb-6 flex items-center gap-[3vw] px-gutter py-8 md:gap-[2vw] lg:relative lg:col-start-8 lg:col-end-13 xl:col-start-7 lg:row-start-1 lg:row-end-3 lg:m-0 lg:block lg:aspect-[7/5] lg:self-center lg:overflow-visible lg:p-0"
+              className="col-span-full mt-10 flex flex-wrap items-center justify-center gap-x-[4%] gap-y-8 md:gap-x-[3%] lg:relative lg:col-start-8 lg:col-end-13 xl:col-start-7 lg:row-start-1 lg:row-end-3 lg:m-0 lg:block lg:aspect-[7/5] lg:self-center"
             >
               {prints.map(({ id, photo, ratio, focus, tilt, at: [l, t, w], wide }) => (
                 <li
                   key={id}
-                  className={`shrink-0 ${wide ? 'w-[44vw] md:w-[28vw]' : 'w-[31vw] md:w-[21vw]'} lg:absolute lg:top-(--t) lg:left-(--l) lg:w-(--w)`}
+                  className={`${wide ? 'w-[32%] md:w-[29%]' : 'w-[23%] md:w-[21%]'} lg:absolute lg:top-(--t) lg:left-(--l) lg:w-(--w)`}
                   style={{ '--l': `${l}%`, '--t': `${t}%`, '--w': `${w}%` } as CSSProperties}
                 >
                   <PhotoPrint photo={photo} ratio={ratio} focus={focus} tilt={tilt} sizes={printSizes(w, wide)} />
