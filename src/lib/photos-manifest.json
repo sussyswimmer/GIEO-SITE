@@ -67,9 +67,9 @@
       "collection": "products",
       "src": "/img/products/lipstick-on-bag-1600.webp",
       "width": 1600,
-      "height": 637,
+      "height": 1026,
       "consent": true,
-      "blurDataURL": "data:image/webp;base64,UklGRloAAABXRUJQVlA4IE4AAADwAQCdASoQAAYAA4BaJZgCdAEf4keI04AA/tKBuMi+6Rh0R1TvhXT3E4cgmiZXfm3Rn42Ju7ru2JxxetRNWYzyGt3i0UAkqLUKN7cAAAA=",
+      "blurDataURL": "data:image/webp;base64,UklGRnAAAABXRUJQVlA4IGQAAAAQAgCdASoQAAoAA4BaJbACdAEfoUbPxWwAAPa8RqrG41naKDMd4Q4cbvaBdnvFepjNce8d2tYQRKij2LLyQoH/3czZZ7UdyWv01jPHqESM4GoQSy7ZqRE0BydmKKbS/sSVAAAA",
       "variants": [
         {
           "w": 640,
