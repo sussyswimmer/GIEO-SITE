@@ -59,6 +59,12 @@ try {
       // Median run by performance score, so one noisy run does not decide.
       results.sort((a, b) => a.categories.performance.score - b.categories.performance.score);
       const lhr = results[Math.floor(results.length / 2)];
+      if (lhr.runtimeError) {
+        failures++;
+        rows.push({ form: f, route, fails: [`page did not load: ${lhr.runtimeError.code}`] });
+        console.log(`FAIL ${f.padEnd(7)} ${route.padEnd(17)} page did not load: ${lhr.runtimeError.code}`);
+        continue;
+      }
       const slug = `${f}${route.replace(/\//g, '_') || '_'}`;
       fs.writeFileSync(path.join(out, `${slug}.json`), JSON.stringify(lhr));
       const score = (k) => Math.round((lhr.categories[k]?.score ?? 0) * 100);
