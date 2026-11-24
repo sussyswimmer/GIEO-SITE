@@ -633,3 +633,24 @@ Not run:
 Notes:
 - npm 10 (this container) reads `package-lock.json` as out of sync (`@swc/helpers@0.5.24`); npm 11 reads it as valid. Installed with `npx npm@11 ci`; lockfile untouched. Noted in `HANDOFF.md`.
 - The Phase 7 Check (every open question answered or listed in `HANDOFF.md`) is met: all twelve, plus `video`, `volunteer`, `copy-vi` and the draft copy, are in HANDOFF §9.
+
+## 2026-11-24 · Motion runtime start-up, time-sliced ✅ on this container (Chromium, software WebGL); a real phone still to feel it
+
+The Phase 7 entry found one long task when the motion runtime starts: 380 to 940 ms on the phone home page at 4x CPU. Traced (`Emulation.setCPUThrottlingRate` 4 and a Chrome timeline trace):
+- `mountPage()` built everything in one synchronous pass: 445 ms on the phone home page. Splitting headings into lines (SplitText) was 101 ms, the parallax, drift, band and zoom triggers 45 ms, the scenes 13 to 19 ms each. The rest went on Lenis, `data-motion="on"` (a full restyle and re-layout, about 110 ms) and evaluating the libraries' chunk.
+- Evaluating GSAP, ScrollTrigger, SplitText and Lenis together was a further 86 ms in the same task.
+
+Changed:
+- **`mountPage()` is a queue** (`src/lib/motion-runtime.ts`). Every heading's split, every draw path and every parallax, drift, band and zoom element is its own step; tilt, enters, the three scenes, the thread and the clips are one step each. Steps run **in the same order as before**, so triggers are created and measured in the same sequence; they run in slices of 8 ms with the main thread handed back between slices (`scheduler.yield()`, or a `MessageChannel` hop in Safari and Firefox, which is never clamped like `setTimeout`). A teardown between slices stops the queue and reverts what ran. The end-of-boot `ScrollTrigger.refresh()` now runs only if a font finished loading during the boot.
+- **`data-motion-ready`** is set on `<html>` when every step has run, and the `?tier=` QA hook (`window.__gieoMotion`) is set only then. `data-motion="on"` is still set first, because the CSS pins hang on it and triggers must be measured with them. `qa-fuller-nav`, `qa-fuller-pages` and `qa-redesign` now wait for `data-motion-ready`.
+- **`MotionBoot`** imports GSAP, Lenis, ScrollTrigger and SplitText one per task before the runtime, which then finds them in the module cache.
+- The older QA scripts (`qa-fuller-*`, `qa-density`, `qa-redesign`) take `CHROME_PATH` to run anywhere; without it they launch Chrome on D3D11 as before.
+- New: `scripts/qa-boot.mjs` (long tasks after load at 4x CPU, on five cases) and `scripts/record-showcase.mjs` (the home page scrolled top to bottom as MP4, desktop and phone, from Chrome's screencast).
+
+Checks (production build, `next start -p 3101`):
+- **Long tasks after load, 4x CPU** (worst single task): phone home 92 to 101 ms (was 380 to 940), `/en/about` on a phone none at all (was 181), desktop home 116 ms (was 268). A trace of what is left on the phone home page: the hero film's first frame uploaded to WebGL (82 ms) and the compositor commit after it (74 ms). This container has no GPU and draws WebGL in software (SwiftShader); on a phone's GPU that upload is a few ms. The runtime's own steps no longer appear as a long task.
+- `qa-fuller-b.mjs all` (CHROME_PATH, Chromium): all checks passed: pace, the walk, contrast on the dusk picture (lowest 6.08:1), reduced motion, reduced products.
+- `qa-fuller-nav.mjs`: EN 32 of 32, VI 32 of 32. `qa-a11y.mjs`: 20 of 20.
+- `test:motion` 37 of 37, typecheck clean, lint 0 errors.
+- Recordings sent to Maxwell: `qa/showcase/home-{desktop,phone}.mp4` and contact sheets (not in git; `qa/` is ignored). Software rendering, so motion there is less smooth than on a device.
+- Lighthouse mobile with real throttling (`--throttling devtools`), rerun on this build: still running at this commit; the result is appended below when it lands.

@@ -29,7 +29,10 @@ const PHONE = [390, 844];
 
 const { chromium } = await import('playwright');
 const { default: sharp } = await import('sharp');
-const browser = await chromium.launch({ channel: 'chrome', args: ['--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch(
+  // CHROME_PATH: any other machine (e.g. Linux Chromium). Default: Chrome on the Windows PC, on its GPU.
+  process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : { channel: 'chrome', args: ['--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist'] },
+);
 let failed = 0;
 const check = (ok, line) => {
   if (!ok) failed++;

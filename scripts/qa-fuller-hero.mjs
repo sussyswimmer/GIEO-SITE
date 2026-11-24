@@ -10,7 +10,10 @@ fs.mkdirSync(OUT, { recursive: true });
 const modes = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const want = (m) => !modes.length || modes.includes(m);
 
-const browser = await chromium.launch({ channel: 'chrome', args: ['--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch(
+  // CHROME_PATH: any other machine (e.g. Linux Chromium). Default: Chrome on the Windows PC, on its GPU.
+  process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : { channel: 'chrome', args: ['--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist'] },
+);
 
 async function open(route, w, h, opts = {}) {
   const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 1, ...opts });

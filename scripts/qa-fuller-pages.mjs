@@ -9,7 +9,10 @@ import { chromium } from 'playwright';
 const i = process.argv.indexOf('--base');
 const BASE = i !== -1 ? process.argv[i + 1] : 'http://localhost:3101';
 const PAGES = ['collections', 'about', 'get-involved', 'contact'];
-const browser = await chromium.launch({ channel: 'chrome', args: ['--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch(
+  // CHROME_PATH: any other machine (e.g. Linux Chromium). Default: Chrome on the Windows PC, on its GPU.
+  process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : { channel: 'chrome', args: ['--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist'] },
+);
 let failed = 0;
 
 console.log('TYPE: smallest computed font size in <main> (p, li, small, label, input, textarea, a)');
@@ -47,7 +50,7 @@ console.log('\nOVERFLOW: scrollWidth at a 375 px viewport, /vi');
 for (const name of PAGES) {
   const page = await browser.newPage({ viewport: { width: 375, height: 667 } });
   await page.goto(`${BASE}/vi/${name}`, { waitUntil: 'networkidle' });
-  await page.waitForFunction(() => document.documentElement.dataset.motion, null, { timeout: 10000 }).catch(() => {});
+  await page.waitForFunction(() => 'motionReady' in document.documentElement.dataset, null, { timeout: 10000 }).catch(() => {});
   // Walk the page so everything that enters on scroll has entered.
   const total = await page.evaluate(() => document.documentElement.scrollHeight);
   for (let y = 0; y < total; y += 500) {

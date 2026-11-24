@@ -11,7 +11,10 @@ const LOCALE = arg('locale', 'en');
 const PAGES = ['collections', 'about', 'get-involved', 'contact'];
 const SIZES = [[1440, 900], [390, 844]];
 
-const browser = await chromium.launch({ channel: 'chrome', args: ['--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch(
+  // CHROME_PATH: any other machine (e.g. Linux Chromium). Default: Chrome on the Windows PC, on its GPU.
+  process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : { channel: 'chrome', args: ['--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist'] },
+);
 let failed = 0;
 
 for (const [w, h] of SIZES) {
@@ -26,7 +29,7 @@ for (const [w, h] of SIZES) {
         const href = LOCALE === 'vi' ? `/${name}` : `/${LOCALE}/${name}`;
         const homePath = LOCALE === 'vi' ? '/' : `/${LOCALE}`; // the server redirects /vi to /
         await page.goto(home, { waitUntil: 'networkidle' });
-        await page.waitForFunction(() => document.documentElement.dataset.motion, null, { timeout: 10000 }).catch(() => {});
+        await page.waitForFunction(() => 'motionReady' in document.documentElement.dataset, null, { timeout: 10000 }).catch(() => {});
         await page.mouse.move(w / 2, h / 2);
 
         let startY = 0;

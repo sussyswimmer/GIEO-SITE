@@ -77,7 +77,10 @@ function probe() {
 }
 
 const { chromium } = await import('playwright');
-const browser = await chromium.launch({ channel: 'chrome', args: ['--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch(
+  // CHROME_PATH: any other machine (e.g. Linux Chromium). Default: Chrome on the Windows PC, on its GPU.
+  process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : { channel: 'chrome', args: ['--use-angle=d3d11', '--enable-gpu', '--ignore-gpu-blocklist'] },
+);
 const results = [];
 const check = (name, ok, detail) => {
   results.push({ name, ok, detail });
@@ -152,7 +155,7 @@ for (const route of ROUTES) {
 for (const route of ROUTES) {
   for (const size of [...SIZES, [375, 667]]) {
     const page = await open(route, size);
-    await page.waitForFunction(() => document.documentElement.dataset.motion, null, { timeout: 15000 }).catch(() => {});
+    await page.waitForFunction(() => 'motionReady' in document.documentElement.dataset, null, { timeout: 15000 }).catch(() => {});
     await page.waitForTimeout(1500);
     const r = await page.evaluate(() => {
       const hero = document.querySelector('#hero');
@@ -178,7 +181,7 @@ for (const route of ROUTES) {
 for (const route of ROUTES) {
   for (const size of SIZES) {
     const page = await open(route, size);
-    await page.waitForFunction(() => document.documentElement.dataset.motion, null, { timeout: 15000 }).catch(() => {});
+    await page.waitForFunction(() => 'motionReady' in document.documentElement.dataset, null, { timeout: 15000 }).catch(() => {});
     await page.waitForTimeout(1500);
     const alone = []; // per shot: which of word, beat 1, beat 2, beat 3 is whole with the others gone
     for (let k = 0; k <= 10; k++) {
@@ -234,7 +237,7 @@ for (const route of ROUTES) {
   for (const [route, size] of [...[...SIZES, [1280, 720], [1920, 1080]].map((s) => ['/en', s]), ...SIZES.map((s) => ['/vi', s])]) {
     const tag = route === '/en' ? '' : `${route.slice(1)}-`;
     const page = await open(route, size);
-    await page.waitForFunction(() => document.documentElement.dataset.motion, null, { timeout: 15000 }).catch(() => {});
+    await page.waitForFunction(() => 'motionReady' in document.documentElement.dataset, null, { timeout: 15000 }).catch(() => {});
     const frameAt = async (y) => {
       await page.evaluate((yy) => window.scrollTo(0, yy), y);
       await page.waitForTimeout(900); // the scrub's catch-up, then the seek
@@ -297,7 +300,7 @@ for (const route of ROUTES) {
 // above it. The stack has to form (all three overlapping) for the check to mean anything.
 for (const route of ROUTES) {
   const page = await open(route, SIZES[0]);
-  await page.waitForFunction(() => document.documentElement.dataset.motion, null, { timeout: 15000 }).catch(() => {});
+  await page.waitForFunction(() => 'motionReady' in document.documentElement.dataset, null, { timeout: 15000 }).catch(() => {});
   await page.waitForTimeout(1500);
   const [from, to] = await page.evaluate(() => {
     const r = document.querySelector('#pillars').getBoundingClientRect();
@@ -330,7 +333,7 @@ for (const route of ROUTES) {
 
 for (const cpu of [1, 4]) {
   const page = await open('/en', SIZES[0], {}, cpu);
-  await page.waitForFunction(() => document.documentElement.dataset.motion, null, { timeout: 15000 }).catch(() => {});
+  await page.waitForFunction(() => 'motionReady' in document.documentElement.dataset, null, { timeout: 15000 }).catch(() => {});
   await page.waitForTimeout(1500);
   const step = (await page.evaluate(() => document.documentElement.scrollHeight - innerHeight)) / 100;
   await page.mouse.move(700, 450);

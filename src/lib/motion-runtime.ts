@@ -24,6 +24,25 @@ ScrollTrigger.config({ ignoreMobileResize: true });
 
 let lenis: Lenis | null = null;
 
+type Step = () => void;
+
+/**
+ * Boot is time-sliced (PROGRESS 2026-11-24): built in one go, the page's triggers, split headings and
+ * scenes held the main thread 400 to 900 ms on a phone at 4x CPU, so a first tap could freeze. Steps run
+ * in their original order, a few at a time, and hand the thread back between slices.
+ */
+const SLICE_MS = 8;
+const yieldToMain = (): Promise<void> => {
+  const s = (globalThis as { scheduler?: { yield?: () => Promise<void> } }).scheduler;
+  if (s?.yield) return s.yield();
+  // Safari and Firefox: a message hop, which (unlike setTimeout) is never clamped to 4 ms.
+  return new Promise((resolve) => {
+    const { port1, port2 } = new MessageChannel();
+    port1.onmessage = () => resolve();
+    port2.postMessage(null);
+  });
+};
+
 const token = (name: string) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 // The production CSS minifier rewrites 700ms as .7s, so the unit has to be read.
 const seconds = (name: string) => {
@@ -33,11 +52,12 @@ const seconds = (name: string) => {
 const belowFold = (el: Element) => el.getBoundingClientRect().top > window.innerHeight;
 const all = <T extends Element = HTMLElement>(selector: string) => [...document.querySelectorAll<T>(selector)];
 
-function mountReveals() {
+// One boot step per heading: splitting a heading into lines lays it out, about 10 ms each on a slow phone.
+function revealSteps(): Step[] {
   const y = parseFloat(token('--reveal-distance'));
   const duration = seconds('--dur-reveal');
   const stagger = seconds('--stagger');
-  all('main h2').forEach((el) => {
+  return all('main h2').map((el) => () => {
     if (!belowFold(el)) return; // never hide text the reader can already see
     SplitText.create(el, {
       type: 'lines',
@@ -62,8 +82,8 @@ function mountReveals() {
   });
 }
 
-function mountDraws() {
-  all<SVGPathElement>('svg[data-draw="view"] path').forEach((path) => {
+function drawSteps(): Step[] {
+  return all<SVGPathElement>('svg[data-draw="view"] path').map((path) => () => {
     if (!belowFold(path)) return;
     gsap.fromTo(
       path,
@@ -78,8 +98,11 @@ function mountDraws() {
   });
 }
 
-function mountParallax() {
-  all('[data-parallax]').forEach((inner) => {
+// One boot step per element: each trigger measures its box as it is created.
+function parallaxSteps(): Step[] {
+  const steps: Step[] = [];
+  const each = (selector: string, fn: (el: HTMLElement) => void) => all(selector).forEach((el) => steps.push(() => fn(el)));
+  each('[data-parallax]', (inner) => {
     const frame = inner.parentElement!;
     gsap.fromTo(
       inner,
@@ -100,7 +123,7 @@ function mountParallax() {
       });
   });
   // Layers that drift against the page: data-drift is the travel each way, in % of the parent's height.
-  all('[data-drift]').forEach((el) => {
+  each('[data-drift]', (el) => {
     const box = el.parentElement!;
     const reach = () => (Number(el.dataset.drift) / 100) * box.offsetHeight;
     gsap.fromTo(
@@ -115,7 +138,7 @@ function mountParallax() {
   });
   // Sideways bands, of type or of still-lifes: each slides by a third of its own width as it crosses the
   // screen; data-band="reverse" runs the other way.
-  all('[data-band]').forEach((band) => {
+  each('[data-band]', (band) => {
     const [from, to] = band.dataset.band === 'reverse' ? [-38, -4] : [-4, -38];
     gsap.fromTo(
       band,
@@ -124,13 +147,14 @@ function mountParallax() {
     );
   });
   // A full-bleed picture settles as it crosses the screen (docs/08 H3: 1.08 → 1). Its wrapper clips it.
-  all('[data-zoom]').forEach((el) => {
+  each('[data-zoom]', (el) => {
     gsap.fromTo(
       el,
       { scale: 1.08 },
       { scale: 1, ease: 'none', scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: SCRUB } },
     );
   });
+  return steps;
 }
 
 // Stitches and still-lifes are visible by default; only the ones still below the fold are held back to sew in.
@@ -689,28 +713,47 @@ export function mountPage(): () => void {
 
   const controller = new AbortController();
   const undo: (() => void)[] = [];
-  const ctx = gsap.context(() => {
-    mountReveals();
-    if (!reduced) {
-      mountDraws();
-      mountParallax();
-      mountTilt(controller.signal);
-      undo.push(mountEnters());
-    }
-    if (document.querySelector('#hero [data-film]')) undo.push(mountSow(reduced));
-    if (document.querySelector('#craft [data-film]')) undo.push(mountWeave(reduced));
-    if (document.querySelector('#pillars [data-deck]')) undo.push(mountBloom(reduced));
-    undo.push(mountThread(reduced));
-    undo.push(mountClips(reduced));
-  });
-  // QA hook; production readers never pass ?tier. pose() sets one film to timeline t.
-  if (location.search.includes('tier='))
-    Object.assign(window, { __gieoMotion: { store: useMotionStore, ScrollTrigger, timeOf, TRACKS, pose } });
-  // Late fonts move every trigger; a page torn down before they settle must not be refreshed.
+  const ctx = gsap.context(() => {});
+  const keep = (fn: () => () => void): Step => () => void undo.push(fn());
+  const steps: Step[] = [...revealSteps()];
+  if (!reduced) {
+    steps.push(...drawSteps(), ...parallaxSteps(), () => mountTilt(controller.signal), keep(mountEnters));
+  }
+  if (document.querySelector('#hero [data-film]')) steps.push(keep(() => mountSow(reduced)));
+  if (document.querySelector('#craft [data-film]')) steps.push(keep(() => mountWeave(reduced)));
+  if (document.querySelector('#pillars [data-deck]')) steps.push(keep(() => mountBloom(reduced)));
+  steps.push(keep(() => mountThread(reduced)), keep(() => mountClips(reduced)));
+
   let live = true;
-  void document.fonts.ready.then(() => live && ScrollTrigger.refresh());
+  // A font that lands while the steps run moves the triggers already made; one refresh at the end fixes them.
+  let fontsMoved = document.fonts.status !== 'loaded';
+  const onFont = () => (fontsMoved = true);
+  document.fonts.addEventListener('loadingdone', onFont);
+  void (async () => {
+    // First hop: the runtime's chunk has just been evaluated in this task.
+    await yieldToMain();
+    for (let i = 0; i < steps.length && live; ) {
+      const t0 = performance.now();
+      ctx.add(() => {
+        do steps[i++]();
+        while (i < steps.length && performance.now() - t0 < SLICE_MS);
+      });
+      await yieldToMain();
+    }
+    document.fonts.removeEventListener('loadingdone', onFont);
+    if (!live) return;
+    // Every step has run: QA scripts wait for this (not data-motion, which is set before the first step).
+    root.dataset.motionReady = '';
+    // QA hook; production readers never pass ?tier. pose() sets one film to timeline t.
+    if (location.search.includes('tier='))
+      Object.assign(window, { __gieoMotion: { store: useMotionStore, ScrollTrigger, timeOf, TRACKS, pose } });
+    // Late fonts move every trigger; a page torn down before they settle must not be refreshed.
+    if (fontsMoved) void document.fonts.ready.then(() => live && ScrollTrigger.refresh());
+  })();
   return () => {
     live = false;
+    document.fonts.removeEventListener('loadingdone', onFont);
+    delete root.dataset.motionReady;
     controller.abort();
     undo.forEach((fn) => fn());
     ctx.revert();

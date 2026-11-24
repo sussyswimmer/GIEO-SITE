@@ -6,6 +6,9 @@ import { useMotionTier } from '@/hooks/useMotionTier';
 import { afterLoad } from '@/lib/after-load';
 import { BOOT_DELAY_MS } from '@/lib/motion';
 
+// Imported (and so evaluated) one at a time before the runtime, which then finds them in the module cache.
+const WARM = [() => import('gsap'), () => import('lenis'), () => import('gsap/ScrollTrigger'), () => import('gsap/SplitText')];
+
 export function MotionBoot() {
   const pathname = usePathname(); // covers the locale prefix
   const [ready, setReady] = useState(false);
@@ -40,9 +43,16 @@ export function MotionBoot() {
     if (!tier) return;
     let cancelled = false;
     let cleanup = () => {};
-    void import('@/lib/motion-runtime').then(({ mountPage }) => {
+    void (async () => {
+      // The libraries are evaluated one per task: together they held the main thread about 90 ms at 4x CPU.
+      for (const load of WARM) {
+        await load();
+        await new Promise((r) => setTimeout(r, 0));
+        if (cancelled) return;
+      }
+      const { mountPage } = await import('@/lib/motion-runtime');
       if (!cancelled) cleanup = mountPage();
-    });
+    })();
     return () => {
       cancelled = true;
       cleanup();
