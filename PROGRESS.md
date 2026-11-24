@@ -822,6 +822,8 @@ Checked on the merged build (`next start -p 3101`, Chromium, software WebGL):
 - **Long tasks after load at 4x CPU** (`qa-boot.mjs`): `/about` 77 ms, `/en/collections` 57 ms; the home page still has tasks of 94 to 178 ms. Traced: they are the vine's live 3D, which boots 100 ms after load on this branch: evaluating three.js (140 ms), building the R3F scene (about 100 ms, in microtasks), GPU commits after it (50 to 87 ms, inflated by software GL) and image decodes. Not the runtime. Open.
 - Recordings of the merged site at `?tier=full` (vine on), desktop and phone: `qa/showcase/` (not in git), sent to Maxwell.
 
-Not re-run on the merged site yet: Lighthouse (any column), `qa-a11y`, `qa-fuller-*`. The Phase 7 numbers above belong to the old site.
+- `qa-a11y.mjs`: 20 of 20 clean (the loader and the custom cursor take no focus and trap nothing).
+
+Not re-run on the merged site yet: Lighthouse (any column), `qa-fuller-*`. The Phase 7 numbers above belong to the old site.
 
 Noted, not changed: three.js appears in three async chunks over 160 KB each (`WebGLRenderer` in each); worth checking that a page never loads two.
