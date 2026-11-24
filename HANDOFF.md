@@ -117,4 +117,5 @@ Decisions for Maxwell, carried from `PROGRESS.md`:
 - **Pins over 150vh.** `CLAUDE.md` caps a pin at 150vh; the hero runs 190svh and the product run 215svh (docs/08). Scroll is never blocked and nothing pins under reduced motion. Approve the exception or ask for it to be cut.
 - **Home length.** About 15 screens at 1440×900 against docs/07's 12-screen cap.
 - **Not tested here:** Safari (macOS and iOS), Firefox, Samsung Internet (common in Vietnam), a real phone, a real trackpad. This build machine has Chromium only. These need a person and real devices before launch.
-- **Lighthouse on the real host.** Local HTTP/2 numbers pass with 21 to 27 ms to spare on two Vietnamese sub-pages; the deciding run is against the Vercel preview.
+- **Lighthouse on the real host.** Sub-page LCP on phones sits at the 2.5 s limit locally (passes and misses between runs); the deciding run is against the Vercel preview.
+- **Motion runtime boot.** Under real 4x CPU throttling the runtime starts in one 300 to 600 ms task (GSAP, ScrollTrigger, Lenis), so the first tap on a mid-range phone can stall. Needs the boot split up before launch.

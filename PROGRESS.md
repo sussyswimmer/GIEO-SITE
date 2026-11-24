@@ -612,7 +612,11 @@ New scripts:
 - `HANDOFF.md`: editing copy, swapping photos, adding a collection (needs a developer), the logo, deploying, the checks, and every open question.
 
 Checks:
-- **Lighthouse mobile, HTTP/2 + brotli, median of 3, Lantern:** scores 93 to 99 Performance, 100 Accessibility, Best Practices and SEO on all ten routes; CLS 0 to 0.002. LCP is **not reliably within budget on the Vietnamese sub-pages**: one run of the final build passed 10 of 10 (worst `/collections` 2479 ms, `/get-involved` 2473 ms), the next passed 8 of 10 (`/about` 2500 ms, `/collections` 3155 ms). The LCP image arrives early and at High priority; Lantern shares the slow-4G link evenly with about 220 KB of lazy images below it (basket and the three product tiles) that start inside Chrome's lazy-load margin. A run with `--throttling devtools` (real throttling, HTTP/2 priorities apply) was started to separate that from a real problem; its result goes in the next entry. Reports: `qa/lighthouse/final/`, `qa/lighthouse/h2b/`.
+- **Lighthouse mobile, HTTP/2 + brotli, median of 3, Lantern:** scores 93 to 99 Performance, 100 Accessibility, Best Practices and SEO on all ten routes; CLS 0 to 0.002. LCP is **not reliably within budget on the Vietnamese sub-pages**: one run of the final build passed 10 of 10 (worst `/collections` 2479 ms, `/get-involved` 2473 ms), the next passed 8 of 10 (`/about` 2500 ms, `/collections` 3155 ms). The LCP image arrives early and at High priority; Lantern shares the slow-4G link evenly with about 220 KB of lazy images below it (basket and the three product tiles) that start inside Chrome's lazy-load margin. Reports: `qa/lighthouse/final/`, `qa/lighthouse/h2b/`.
+- **Lighthouse mobile, HTTP/2, `--throttling devtools` (Chrome really throttles CPU 4x and the link), median of 3: 3 of 10 within budget.** Host benchmark index 1730 to 2050, so the container is not unusually slow. Two findings:
+  - **LCP on sub-pages is still 2.4 to 3.0 s.** The header image's own load takes 1.8 to 2.3 s although it is requested first at High priority. The throwaway Node HTTP/2 proxy does not honour stream priorities, so this run cannot say whether Vercel's edge would serve it ahead of the lazy images. Inconclusive until measured on the preview. If it still misses there: load the products' and basket's pictures only once the page has loaded, or cut the header stills further.
+  - **A real long task this column exposes and Lantern hides.** TBT 400 to 1060 ms (Lantern: 50 to 150 ms). The worst single task, 300 to 600 ms, is chunk `262.*.js`: the motion runtime starting GSAP, ScrollTrigger and Lenis in one go. Home scores Performance 77, sub-pages 81 to 88. A mid-range Android would feel this as a frozen first tap. Not fixed in this entry: it needs the runtime's boot split into idle-time slices, which is its own piece of work.
+  Reports: `qa/lighthouse/final-devtools/`.
 - **Lighthouse mobile, local HTTP/1.1 + gzip:** LCP 2.7 to 3.8 s everywhere, as in Phase 1 (connection queueing that HTTP/2 removes). Not the deciding column.
 - **Lighthouse desktop, HTTP/2:** 100 / 100 / 100 / 100 on all ten routes, LCP 0.41 to 0.56 s.
 - **JS:** 173 KB transferred on home, `?tier=full` and default alike. three.js and R3F never load since the redesign (films, no live canvas), so the 220 KB budget passes outright and the Phase 2 R3F ruling is moot.
@@ -623,6 +627,7 @@ Checks:
 Not run:
 - Safari (macOS, iOS), Firefox, Samsung Internet, a real phone: Chromium only here.
 - The Vercel preview deploy (needs Maxwell's go-ahead) and Lighthouse against it, which decides the LCP question above.
+- The runtime's boot long task, above: found, not fixed.
 - The older `qa-fuller-*`, `qa-density`, `qa-redesign` scripts: they launch Chrome with D3D11 for Maxwell's Windows PC. This entry changes no layout, only image widths, priorities and `<main>`'s tabindex.
 
 Notes:
