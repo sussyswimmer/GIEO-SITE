@@ -852,3 +852,7 @@ Maxwell asked to redo About with more pictures, using 21st.dev's "Sticky Scroll"
 Checks (production build): middle-print hold 93vh at 1440×900; `qa-a11y` on `/about` and `/en/about`, 1440 and 390: 4 of 4 (26 and 23 Tab stops); the viewer opens at the clicked photo ("8 of 8" for the valley) and Esc closes it; typecheck, lint clean. Screenshots: `qa/about/`.
 
 All eleven consented photos are now on the site somewhere; any more need the albums and, for faces, GIEO's consent (entry above).
+
+## 2026-11-24 · Published to the `/feedback/` preview
+
+`scripts/build-pages.mjs` with `GIEO_BASE_PATH=/GIEO-SITE/feedback`, built from c814109, replaced `feedback/` on `gh-pages` (539d049, Maxwell's go-ahead); the root preview is unchanged. Checked before pushing, served under the same path: `/vi/`, `/en/`, `/vi/about/`, `/en/about/`, `/en/collections/` load with no 4xx and the viewer opens a loaded image. Checked live after the deploy (about 40 s): `/vi/` (7 prints) and `/en/about/` (8 prints), viewer image loaded, no 4xx.
