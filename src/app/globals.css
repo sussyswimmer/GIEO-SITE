@@ -678,4 +678,104 @@
   }
   .print-sheet[data-enter="pending"] { opacity: 0; translate: 0 1.25rem; rotate: calc(var(--tilt, 0deg) * 2.5); }
   .print-cap { margin-top: 0.875rem; }
+
+  /* An interactive print (PhotoPrint `view`): picked up under the pointer or keyboard focus. It rises, turns
+     most of the way square, its shadow loosens and the picture eases in. The print's own tilt stays in
+     `rotate`; the lift is a `transform` on top, so the two never fight. */
+  .print-sheet:has(.print-hit) {
+    position: relative;
+    transition: opacity var(--dur-sew) var(--curve-out), translate var(--dur-sew) var(--curve-out),
+      rotate var(--dur-sew) var(--curve-out), transform var(--dur-reveal) var(--curve-out),
+      box-shadow var(--dur-reveal) var(--curve-out);
+  }
+  .print-hit {
+    position: absolute; inset: 0; z-index: 1;
+    border-radius: var(--round-print);
+    cursor: zoom-in;
+  }
+  .print-window img { transition: scale var(--dur-reveal) var(--curve-out); }
+  .print:has(.print-hit:focus-visible) { z-index: 3; }
+  .print:has(.print-hit:focus-visible) .print-sheet {
+    transform: translateY(-0.375rem) rotate(calc(var(--tilt, 0deg) * -0.7)) scale(1.04);
+    box-shadow: var(--elev-print-lift);
+  }
+  .print:has(.print-hit:focus-visible) .print-window img { scale: 1.04; }
+  @media (hover: hover) {
+    .print:has(.print-hit:hover) { z-index: 3; }
+    .print:has(.print-hit:hover) .print-sheet {
+      transform: translateY(-0.375rem) rotate(calc(var(--tilt, 0deg) * -0.7)) scale(1.04);
+      box-shadow: var(--elev-print-lift);
+    }
+    .print:has(.print-hit:hover) .print-window img { scale: 1.04; }
+  }
+  .print:has(.print-hit:active) .print-sheet { transform: translateY(-0.125rem) rotate(calc(var(--tilt, 0deg) * -0.7)) scale(1.015); }
+  @media (prefers-reduced-motion: reduce) {
+    .print-sheet:has(.print-hit) { transition: box-shadow var(--dur-hover) var(--curve-out); }
+    .print .print-sheet:has(.print-hit) { transform: none !important; }
+    .print-window img { transition: none; scale: 1 !important; }
+  }
+
+  /* The photo viewer (PhotoViewer.tsx): a native modal dialog over the whole screen, on plum, the photo as a
+     large print on its mat, round buttons in cream. */
+  .viewer {
+    position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none;
+    margin: 0; padding: 0; border: 0;
+    display: none; place-items: center;
+    background: color-mix(in srgb, var(--plum-ink) 97%, transparent);
+    -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+    color: var(--cream);
+    /* A scroll container that never has anything to scroll, so overscroll-behavior stops a swipe or a wheel
+       from reaching the page behind (phones ignore overflow: hidden on <html>). */
+    overflow: auto; overscroll-behavior: contain;
+    touch-action: pan-y pinch-zoom;
+  }
+  .viewer[open] { display: grid; animation: viewer-in var(--dur-fade) var(--curve-out); }
+  .viewer::backdrop { background: transparent; }
+  @keyframes viewer-in { from { opacity: 0; } }
+  .viewer-print {
+    margin: 0;
+    padding: clamp(0.375rem, 1.2vmin, 0.875rem);
+    border-radius: var(--round-print);
+    background-color: var(--print-mat);
+    box-shadow: var(--elev-print-plum);
+    animation: viewer-print-in var(--dur-reveal) var(--curve-out);
+  }
+  @keyframes viewer-print-in { from { opacity: 0; translate: 0 0.75rem; scale: 0.985; } }
+  .viewer-print img {
+    display: block; width: auto; height: auto;
+    max-width: min(88vw, 100rem); max-height: 80svh;
+    border-radius: calc(var(--round-print) * 0.45);
+    background-color: var(--paper);
+  }
+  .viewer-btn {
+    position: absolute; z-index: 1;
+    display: grid; place-items: center;
+    width: 2.75rem; height: 2.75rem; border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--cream) 35%, transparent);
+    background: color-mix(in srgb, var(--cream) 8%, transparent);
+    color: var(--cream);
+    transition: background-color var(--dur-hover) var(--curve-out), border-color var(--dur-hover) var(--curve-out);
+  }
+  .viewer-btn:hover { background: color-mix(in srgb, var(--cream) 18%, transparent); border-color: var(--cream); }
+  .viewer-btn:focus-visible { outline-color: var(--cream); }
+  .viewer-btn svg { width: 1.25rem; height: 1.25rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+  .viewer-close { top: max(1rem, env(safe-area-inset-top)); right: max(1rem, env(safe-area-inset-right)); }
+  .viewer-prev, .viewer-next { top: 50%; translate: 0 -50%; }
+  .viewer-prev { left: max(1rem, env(safe-area-inset-left)); }
+  .viewer-next { right: max(1rem, env(safe-area-inset-right)); }
+  /* Phones: the arrows sit under the photo, beside the count, where a thumb is. */
+  @media (max-width: 47.99rem) {
+    .viewer-prev, .viewer-next { top: auto; bottom: max(1rem, env(safe-area-inset-bottom)); translate: none; }
+    .viewer-prev { left: calc(50% - 7rem); }
+    .viewer-next { right: calc(50% - 7rem); }
+  }
+  .viewer-count {
+    position: absolute; left: 50%; translate: -50% 0; bottom: max(1.75rem, calc(env(safe-area-inset-bottom) + 0.75rem));
+    margin: 0; font-family: var(--font-sans); font-size: var(--text-caption, 0.875rem); letter-spacing: 0.04em;
+    color: color-mix(in srgb, var(--cream) 80%, transparent);
+    font-variant-numeric: tabular-nums;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .viewer[open], .viewer-print { animation: none; }
+  }
 }

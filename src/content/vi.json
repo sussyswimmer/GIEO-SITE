@@ -78,7 +78,14 @@
     "journal": {
       "heading": "Nhìn lại một mùa GIEO vừa qua.",
       "body": "Từ những ý tưởng đầu tiên đến những con người chúng mình gặp trên hành trình, mùa này là một khoảng thời gian của học hỏi, sáng tạo và cùng nhau trưởng thành.",
-      "closing": ""
+      "closing": "",
+      "viewer": {
+        "open": "Xem ảnh",
+        "close": "Đóng",
+        "previous": "Ảnh trước",
+        "next": "Ảnh tiếp theo",
+        "count": "{n} / {total}"
+      }
     },
     "involve": {
       "heading": "Tham gia cùng GIEO",

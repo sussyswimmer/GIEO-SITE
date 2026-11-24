@@ -23,6 +23,11 @@ type PhotoPrintProps = {
   className?: string;
   captionClassName?: string;
   style?: CSSProperties;
+  /**
+   * Makes the print open in a PhotoViewer: `group` names the viewer, `index` is this photo's place in its list,
+   * `label` the button's verb ("Open photo"), read before the photo's alt text.
+   */
+  view?: { group: string; index: number; label: string };
 };
 
 const DRIFT = 3; // % of the picture's height each way, as the still-lifes' back layer (docs/08 H3)
@@ -53,6 +58,7 @@ export function PhotoPrint({
   className,
   captionClassName,
   style,
+  view,
 }: PhotoPrintProps) {
   const shown = photo?.consent === true && !!photo.alt;
   if (!shown && process.env.NODE_ENV === 'production') return null;
@@ -87,6 +93,17 @@ export function PhotoPrint({
             </div>
           )}
         </div>
+        {/* Over the whole mat and inside it, so it turns with the print and its focus ring follows the tilt. */}
+        {view && shown && photo && (
+          <button
+            type="button"
+            className="print-hit"
+            data-view-group={view.group}
+            data-view={view.index}
+            aria-haspopup="dialog"
+            aria-label={`${view.label}: ${photo.alt}`}
+          />
+        )}
       </div>
       {caption && <figcaption className={cx('print-cap', captionClassName)}>{caption}</figcaption>}
     </figure>

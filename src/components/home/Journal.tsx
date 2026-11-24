@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import type { CSSProperties } from 'react';
 import { Container, Grid, Heading, PhotoPrint, Prose, Section, Todo } from '@/components/ui';
+import { PhotoViewer, type ViewerPhoto } from '@/components/ui/PhotoViewer';
 import { photo as photoById } from '@/lib/photos';
 import { art } from '@/components/pages/art';
 import { HOME_STILLS, listStills } from '@/lib/stills';
@@ -21,6 +22,11 @@ const PRINTS: JournalPrint[] = [
   { id: '05-cloth-on-loom', ratio: '4 / 5', tilt: 2.5, at: [70, 50, 22], wide: false },
   { id: '06-valley', ratio: '3 / 2', tilt: -1, at: [31, 56, 31], wide: true },
 ];
+// A seventh print beside the closing line, where its right side is open from 1024: hands at a sewing machine.
+const CLOSING_PRINT = { id: 'sewing-cloth', ratio: '3 / 2', tilt: 2 } as const;
+// The viewer that opens every print of this section, in reading order.
+const VIEW_GROUP = 'journal';
+
 // What each print is drawn at: in the cluster (its share of a box half the page wide from 1280, beside a
 // heading that needs a column more before that), in the rows.
 const printSizes = (w: number, wide: boolean) =>
@@ -47,6 +53,10 @@ export async function Journal() {
     const photo = photoById(p.id, tAll);
     return photo ? [{ ...p, photo }] : [];
   });
+  const closingPhoto = photoById(CLOSING_PRINT.id, tAll);
+  const viewed = [...prints.map((p) => p.photo), ...(closingPhoto ? [closingPhoto] : [])];
+  const viewerPhotos: ViewerPhoto[] = viewed.map(({ id, alt, width, height, src, variants }) => ({ id, alt, width, height, src, variants }));
+  const viewLabel = t('viewer.open');
   const stills = [...listStills(HOME_STILLS).slice(2, 5), ...['get-involved', 'about', 'contact'].flatMap((name) => art(`pages/${name}`) ?? [])];
   const credit = tAll('collections.noinep.credit');
   const closing = t('closing');
@@ -81,13 +91,20 @@ export async function Journal() {
               role="list"
               className="col-span-full mt-10 flex flex-wrap items-center justify-center gap-x-[4%] gap-y-8 md:gap-x-[3%] lg:relative lg:col-start-8 lg:col-end-13 xl:col-start-7 lg:row-start-1 lg:row-end-3 lg:m-0 lg:block lg:aspect-[7/5] lg:self-center"
             >
-              {prints.map(({ id, photo, ratio, focus, tilt, at: [l, t, w], wide }) => (
+              {prints.map(({ id, photo, ratio, focus, tilt, at: [l, t, w], wide }, i) => (
                 <li
                   key={id}
                   className={`${wide ? 'w-[32%] md:w-[29%]' : 'w-[23%] md:w-[21%]'} lg:absolute lg:top-(--t) lg:left-(--l) lg:w-(--w)`}
                   style={{ '--l': `${l}%`, '--t': `${t}%`, '--w': `${w}%` } as CSSProperties}
                 >
-                  <PhotoPrint photo={photo} ratio={ratio} focus={focus} tilt={tilt} sizes={printSizes(w, wide)} />
+                  <PhotoPrint
+                    photo={photo}
+                    ratio={ratio}
+                    focus={focus}
+                    tilt={tilt}
+                    sizes={printSizes(w, wide)}
+                    view={{ group: VIEW_GROUP, index: i, label: viewLabel }}
+                  />
                 </li>
               ))}
             </ul>
@@ -113,15 +130,33 @@ export async function Journal() {
 
           {closing ? (
             <p
-              className="relative z-1 col-span-full mt-8 max-w-[26ch] font-serif text-quote text-balance italic text-plum-ink lg:col-end-11 lg:mt-12"
+              className="relative z-1 col-span-full mt-8 max-w-[26ch] font-serif text-quote text-balance italic text-plum-ink lg:col-end-8 lg:mt-12 lg:self-center"
             >
               {closing}
             </p>
           ) : (
-            <Todo tag="copy-vi" className="col-span-full mt-8 lg:mt-6" />
+            <Todo tag="copy-vi" className="col-span-full mt-8 lg:col-end-8 lg:mt-6" />
+          )}
+
+          {closingPhoto && (
+            <PhotoPrint
+              photo={closingPhoto}
+              ratio={CLOSING_PRINT.ratio}
+              tilt={CLOSING_PRINT.tilt}
+              sizes="(min-width: 1024px) 30vw, 64vw"
+              view={{ group: VIEW_GROUP, index: prints.length, label: viewLabel }}
+              className="col-span-full mx-auto mt-10 w-[64%] md:w-[44%] lg:col-start-9 lg:col-end-13 lg:mt-12 lg:w-full"
+            />
           )}
         </Grid>
       </Container>
+      {viewerPhotos.length > 0 && (
+        <PhotoViewer
+          group={VIEW_GROUP}
+          photos={viewerPhotos}
+          labels={{ close: t('viewer.close'), previous: t('viewer.previous'), next: t('viewer.next'), count: t.raw('viewer.count') as string }}
+        />
+      )}
     </Section>
   );
 }

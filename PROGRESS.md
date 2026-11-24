@@ -827,3 +827,16 @@ Checked on the merged build (`next start -p 3101`, Chromium, software WebGL):
 Not re-run on the merged site yet: Lighthouse (any column), `qa-fuller-*`. The Phase 7 numbers above belong to the old site.
 
 Noted, not changed: three.js appears in three async chunks over 160 KB each (`WebGLRenderer` in each); worth checking that a page never loads two.
+
+## 2026-11-24 · Journal prints open in a viewer; a seventh print ✅ on this container (Chromium)
+
+Maxwell asked for the Journal's prints to be interactive, and for more pictures of the work and the people.
+
+- **Prints pick up and open.** `PhotoPrint` takes `view: { group, index, label }` and lays a button over its mat (inside it, so the button turns with the print). Under the pointer or keyboard focus the print rises 6 px, turns most of the way square, its shadow loosens (`--elev-print-lift`) and the picture eases in by 4 % (700 ms, the house curve; no movement under reduced motion, the shadow only). The custom cursor reads it as a button.
+- **The viewer** (`src/components/ui/PhotoViewer.tsx`, client): a native modal `<dialog>` on 97 % plum with an 8 px blur; the photo large on its mat, from the manifest's own AVIF and WebP widths (so it works on the Pages build, whose post-build rewrite catches the srcset paths). Previous and next buttons (beside the photo; under it on phones, by the count), arrow keys, a sideways swipe; Esc, the close button or a click outside closes; focus goes back to the print. The page behind keeps its scroll position and does not move (`overflow: hidden` on html and body, the scrollbar's gutter kept, the dialog a scroll container with `overscroll-behavior: contain`, `data-lenis-prevent`). Neighbouring photos are fetched ahead. No caption, as docs/09 F3 asks; the image carries its alt text, the dialog is named by it, and "3 of 7" is announced politely.
+- **A seventh print:** `sewing-cloth` (hands at a sewing machine; consent and alt text were already in, it was never placed) beside the Journal's closing line from 1024, after the rail on phones. The viewer moves through all seven in reading order.
+- Copy: `home.journal.viewer.{open,close,previous,next,count}` in EN and VI, all DRAFT.
+
+Checks (production build): a scripted walk at 1440 (EN) and 390 (VI, touch): seven buttons, click opens at the right photo, focus inside, wheel leaves the page still, arrow key and previous button step and wrap, alt on the image, Esc closes, focus back on the print, scroll unchanged, overflow restored, Enter on the focused print opens, a click outside closes, no page errors: 30 of 30. Screenshots: `qa/viewer/`. Typecheck, lint, `content:check`, `test:motion` clean.
+
+**More pictures: blocked on GIEO and on the albums.** Every consented frame in the repo is now on the site. The three albums (663 frames) are not in the repo or in the Drive this session can read, and their links were never recorded. Of those frames, 467 show a child's or a teenager's face and need GIEO's consent photo by photo before any can be used (open question 17); frames of hands, looms, cloth and places need only GIEO's yes, which they gave for the albums. Next: Maxwell puts the albums (or a link) where a session can read them, and asks GIEO about faces.

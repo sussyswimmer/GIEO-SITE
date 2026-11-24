@@ -78,7 +78,14 @@
     "journal": {
       "heading": "This is GIEO, so far.",
       "body": "From the first ideas we put together to the people we met along the way, this season has been full of learning, creating, and growing together.",
-      "closing": "Here's to everything we've shared, everything we've learned, and everything still waiting to grow."
+      "closing": "Here's to everything we've shared, everything we've learned, and everything still waiting to grow.",
+      "viewer": {
+        "open": "Open photo",
+        "close": "Close",
+        "previous": "Previous photo",
+        "next": "Next photo",
+        "count": "{n} of {total}"
+      }
     },
     "involve": {
       "heading": "Get involved",

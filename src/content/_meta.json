@@ -91,7 +91,12 @@
     "footer.instagramLabel",
     "footer.facebookLabel",
     "common.seeCollection",
-    "common.signoff"
+    "common.signoff",
+    "home.journal.viewer.open",
+    "home.journal.viewer.close",
+    "home.journal.viewer.previous",
+    "home.journal.viewer.next",
+    "home.journal.viewer.count"
   ],
   "todo": [
     {
