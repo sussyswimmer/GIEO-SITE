@@ -715,6 +715,30 @@
     .print-window img { transition: none; scale: 1 !important; }
   }
 
+  /* The About gallery (StickyGallery.tsx). Phones: two loose columns under the cloth, the right one a little
+     lower. From 1024: three columns, the middle one as tall as the tallest side column, its print held in the
+     middle of the screen (sticky) while the sides scroll past; the right side starts a quarter-screen lower, so
+     the two never move in step. No sticking under reduced motion. */
+  .sticky-gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem 6%; align-items: start; }
+  .sticky-gallery-centre { grid-column: 1 / -1; order: -1; width: min(86%, 32rem); margin-inline: auto; }
+  .sticky-gallery-col { display: flex; flex-direction: column; gap: 2.5rem; }
+  .sticky-gallery-col[data-side="right"] { padding-top: 3.5rem; }
+  .sticky-gallery-col > .print:nth-child(odd) { margin-right: 10%; }
+  .sticky-gallery-col > .print:nth-child(even) { margin-left: 10%; }
+  @media (min-width: 64rem) {
+    .sticky-gallery { grid-template-columns: 1fr 1.3fr 1fr; column-gap: 3.5vw; }
+    .sticky-gallery-centre { grid-column: auto; order: 0; width: auto; margin: 0; align-self: stretch; }
+    .sticky-gallery-hold { position: sticky; top: 0; height: 100svh; display: grid; place-items: center; }
+    .sticky-gallery-hold > .print { width: min(100%, calc((100svh - var(--nav-offset) - 4rem) * 0.85)); }
+    .sticky-gallery-col { gap: 4.5rem; }
+    .sticky-gallery-col[data-side="right"] { padding-top: 25svh; }
+    .sticky-gallery-col > .print:nth-child(odd) { margin-right: 14%; }
+    .sticky-gallery-col > .print:nth-child(even) { margin-left: 14%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sticky-gallery-hold { position: static; height: auto; }
+  }
+
   /* The photo viewer (PhotoViewer.tsx): a native modal dialog over the whole screen, on plum, the photo as a
      large print on its mat, round buttons in cream. */
   .viewer {

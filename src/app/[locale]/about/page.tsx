@@ -8,6 +8,7 @@ import { ArtLife } from '@/components/pages/ArtLife';
 import { DepartmentList } from '@/components/pages/DepartmentList';
 import { DictionaryEntry } from '@/components/pages/DictionaryEntry';
 import { PartnerBlock } from '@/components/pages/PartnerBlock';
+import { StickyGallery } from '@/components/pages/StickyGallery';
 import { art, still } from '@/components/pages/art';
 import type { CSSProperties } from 'react';
 import { Container, Grid, Hairline, Heading, Prose, Section, Todo } from '@/components/ui';
@@ -70,6 +71,10 @@ export default async function AboutPage({ params }: Props) {
           </Grid>
         </Container>
       </Section>
+
+      {/* GIEO's photographs (2026-11-24, Maxwell: "more pictures"): the cloth held in the middle while the work
+          around it scrolls past. Every print opens in the photo viewer. */}
+      <StickyGallery />
 
       {/* The three pillars as three full-width rows: the title very large, sliding up from under its stitch
           as the row is reached, its paragraph beside it. The band below runs the titles sideways. */}

@@ -840,3 +840,15 @@ Maxwell asked for the Journal's prints to be interactive, and for more pictures 
 Checks (production build): a scripted walk at 1440 (EN) and 390 (VI, touch): seven buttons, click opens at the right photo, focus inside, wheel leaves the page still, arrow key and previous button step and wrap, alt on the image, Esc closes, focus back on the print, scroll unchanged, overflow restored, Enter on the focused print opens, a click outside closes, no page errors: 30 of 30. Screenshots: `qa/viewer/`. Typecheck, lint, `content:check`, `test:motion` clean.
 
 **More pictures: blocked on GIEO and on the albums.** Every consented frame in the repo is now on the site. The three albums (663 frames) are not in the repo or in the Drive this session can read, and their links were never recorded. Of those frames, 467 show a child's or a teenager's face and need GIEO's consent photo by photo before any can be used (open question 17); frames of hands, looms, cloth and places need only GIEO's yes, which they gave for the albums. Next: Maxwell puts the albums (or a link) where a session can read them, and asks GIEO about faces.
+
+## 2026-11-24 · About: a sticky-scroll gallery of GIEO's photographs ✅ on this container (Chromium)
+
+Maxwell asked to redo About with more pictures, using 21st.dev's "Sticky Scroll" (`npx shadcn@latest add "https://21st.dev/r/uilayout.contact/sticky-scroll"`). The registry answers `403 authentication_required` (21st.dev needs a signed-in account), and this project has no shadcn setup (`components.json`), whose `init` would rewrite `globals.css` and the Tailwind setup that carry the tokens. So the layout is built natively, on the site's own tokens, prints and Lenis, with no new dependency.
+
+- **`StickyGallery`** (`src/components/pages/StickyGallery.tsx`), placed after the dictionary entry: GIEO's own "This is GIEO, so far." and the Journal paragraph (no new copy), then three columns. The middle holds the nep cloth on its loom in the centre of the screen (CSS `position: sticky`, no scroll hijack) while the work scrolls past on both sides: left the weaver, the heddles, the sewing hands, the valley; right the cloth on the loom, the checked cloth at the machine, the striped cloth. The right column starts a quarter-screen lower, so the sides never move in step. At 1440×900 the middle print holds for 93vh (CLAUDE.md caps a pin at 150vh). Phones, and reduced motion at any width: nothing sticks; the cloth first, then two loose columns. On the story section's paper, so the pillars' handoff is unchanged.
+- **Every print opens in the photo viewer** (eight, in reading order: the cloth, then the columns side by side).
+- The rest of About is as it was.
+
+Checks (production build): middle-print hold 93vh at 1440×900; `qa-a11y` on `/about` and `/en/about`, 1440 and 390: 4 of 4 (26 and 23 Tab stops); the viewer opens at the clicked photo ("8 of 8" for the valley) and Esc closes it; typecheck, lint clean. Screenshots: `qa/about/`.
+
+All eleven consented photos are now on the site somewhere; any more need the albums and, for faces, GIEO's consent (entry above).
