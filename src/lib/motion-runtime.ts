@@ -419,6 +419,8 @@ function mountSow(reduced: boolean): () => void {
  * Where nothing pins (reduced motion, a short screen) the products share the list's passage through the
  * screen instead.
  */
+const WEAVE_SCRUB = 0.35;
+
 function mountWeave(reduced: boolean): () => void {
   const { beats, weights } = TRACKS.weave;
   const made = weights.slice(0, 4).reduce((a, b) => a + b, 0); // thread, warps, weave, drape
@@ -501,8 +503,10 @@ function mountWeave(reduced: boolean): () => void {
     const { hold, change } = pace();
     return point(i * (hold + change) - (done ? 0 : change), (i + done) / n);
   };
+  // A shorter catch-up than the page's SCRUB: Lenis already glides the wheel, and the film trailing that by
+  // another 0.8 s read as lag (2026-11-24). Enough to smooth the steps between frames, not enough to trail.
   const scrub = (vars: gsap.TweenVars, scrollTrigger: ScrollTrigger.Vars) =>
-    gsap.to(v, { ...vars, ease: 'none', scrollTrigger: { scrub: SCRUB, ...scrollTrigger }, onUpdate: push });
+    gsap.to(v, { ...vars, ease: 'none', scrollTrigger: { scrub: WEAVE_SCRUB, ...scrollTrigger }, onUpdate: push });
   push(); // the stage shows the laid warps before any scroll reaches it, never frame 0
   scrub({ cloth: 1 }, { id: 'weave', trigger: craft, start: roots ? FILM_START : 'top 80%', end: mark(0, 0) });
   WEAVE_PRODUCTS.forEach((_, i) => scrub({ [`p${i}`]: 1 }, { trigger: run, start: mark(i, 0), end: mark(i, 1) }));

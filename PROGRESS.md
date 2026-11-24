@@ -866,3 +866,18 @@ Maxwell did not like the About landing (the plum screen with the name set down t
 - The old hero's CSS (`.about-name`, `.about-initial`, `.about-joiner`, `.about-bloom`) is removed; the story section now hands off from cream.
 
 Checks (production build): screenshots at 1440, 2000 and 390 (`qa/about/hero-*`); `qa-a11y` on `/about` and `/en/about`: 4 of 4; a click on a moving print opens the viewer; typecheck, lint clean.
+
+## 2026-11-24 · Weave: the bag forms smoothly ✅ on this container (Chromium); to feel on Maxwell's machine
+
+Maxwell, of the Nối Bag in the weave film: "very laggy, make it super smooth".
+
+Measured first (`next start`, 1440×900, `?tier=full`): the film decodes each frame alone through WebCodecs (the 2026-11-19 fix), 4 to 15 ms a frame here, so seeking was not it. Scroll mapped to frames: the drape (89→109) had 102 px of scroll a frame, but the cloth becoming the bag (109→129) had **12 px a frame**, all 20 frames inside about 240 px (26svh; 14svh on phones, about 6 px a frame). One wheel notch jumped eight frames, and the page's 0.8 s scrub then chased each jump behind Lenis's own glide. That is the lag: big steps, followed late. (The upload of each frame to WebGL is slow in this container, about 9 ms, because it has no GPU; on a machine with hardware decode it is a GPU copy.)
+
+Changed:
+- **`WEAVE_PACE`**: phones `{ hold: 30, change: 50 }` (was 48 + 14; run unchanged at 110svh), wide `{ hold: 47, change: 55 }` (was 54 + 26; run 134 → 149svh, about 135 px more pin at 900 tall, so the keychain's last rest keeps 30svh on a 720 px window). The bag now forms over 54svh: about **25 px of scroll a frame** at 1440×900 (was 12), 20 on a phone (was about 6).
+- **The weave's scrubs catch up in 0.35 s** (`WEAVE_SCRUB`), not the page's 0.8: enough to smooth the steps between frames, not enough to trail the scroll.
+- The rule: docs/08 H2 amended (a product forms over at least 50svh and rests at least 30svh; the original rule kept, struck through in words); `scripts/timeline.test.mjs` and `qa-fuller-b` hold the new floors. The glided change (bag → keychain) plays its film over its second half by design, so its scrubbed part is checked against half the floor.
+
+Checks: `qa-fuller-b pace` at 1280×720, 1366×768, 1536×864, 1440×900, 1920×1080, 1024×768, 390×844: all passed (bag rest 56 to 77svh, keychain rest 30 to 75svh, cloth → bag 49 to 54svh, both products whole on screen wherever they rest or their name is lit, the canvas draws the right frame mid-rest). `test:motion` 56 of 56, typecheck, lint clean.
+
+Not done: the per-frame decode and upload are unchanged. If it still stutters on Maxwell's machine after this, the next step is decoding a few frames ahead of the scroll.

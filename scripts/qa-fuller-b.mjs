@@ -130,15 +130,18 @@ async function pace() {
     holds.forEach((rs, i) => {
       const f = FRAMES[i];
       const lit = [...new Set(rs.map((r) => r.lit))].join('|');
-      check(svh(run(rs)) >= 45, `${names[f].padEnd(8)} at rest on frame ${f} for ${svh(run(rs))}svh (floor 45), name lit: "${lit}"`);
+      check(svh(run(rs)) >= 30, `${names[f].padEnd(8)} at rest on frame ${f} for ${svh(run(rs))}svh (floor 30), name lit: "${lit}"`);
       // whole for all of its rest, and whenever its name is lit (which starts half-way through the change before)
       // while the stage is held: once the section lets go, the stage and the names leave the screen together
       const shown = rows.filter((r) => r.onScreen && (r.frame === f || r.lit === rs[0]?.lit));
       const cut = shown.filter((r) => !whole(r, f));
       check(cut.length === 0, `${names[f].padEnd(8)} whole on screen at all ${shown.length} held positions where it rests or its name is lit${cut.length ? `: cut at ${cut.length}, e.g. y=${Math.round(cut[0].y)} product ${span3(cut[0], f)}` : ` (mid-rest: y ${span3(rs[Math.floor(rs.length / 2)] ?? shown[0], f)})`}`);
     });
-    check(svh(between(109, 129)) <= 30, `cloth → bag takes ${svh(between(109, 129))}svh (ceiling 30)`);
-    check(svh(between(129, 149)) <= 30, `bag → lipstick takes ${svh(between(129, 149))}svh (ceiling 30)`);
+    // docs/08 H2 as amended 2026-11-24: a change is slow enough to scrub smoothly (it was a ceiling of 30)
+    check(svh(between(109, 129)) >= 45, `cloth → bag takes ${svh(between(109, 129))}svh (floor 45)`);
+    // bag → keychain is glided (motion-runtime, mountWeave): the film holds the bag while the stage slides out
+    // over the change's first half and plays the keychain's frames over the second, so half the floor
+    check(svh(between(129, 149)) >= 22, `bag → lipstick plays its frames over ${svh(between(129, 149))}svh (floor 22: half a 45svh change, glided)`);
     // Each product owns the change that brings it on and its rest (scripts/timeline.test.mjs), so the span runs
     // from the cloth's change into the bag to the keychain's last rest; the rests alone (first to last) are
     // printed beside it.

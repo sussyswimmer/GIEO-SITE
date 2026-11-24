@@ -45,8 +45,10 @@ test('weave: the product run meets the brief, and every rest is a Still key', ()
   assert.deepEqual(WEAVE_PRODUCTS, ['bag', 'lipstick']);
   const n = WEAVE_PRODUCTS.length;
   for (const [size, pace] of Object.entries(WEAVE_PACE)) {
-    assert.ok(pace.hold >= 45, `${size} hold ${pace.hold}svh`);
-    assert.ok(pace.change <= 30, `${size} change ${pace.change}svh`);
+    // docs/08 H2 as amended 2026-11-24: a product forms over at least 50svh (its 20 frames at 2.5svh or more
+    // each, so a wheel notch moves a few frames, not eight) and rests for at least 30svh
+    assert.ok(pace.hold >= 30, `${size} hold ${pace.hold}svh`);
+    assert.ok(pace.change >= 50, `${size} change ${pace.change}svh`);
     // the names pin for a rest per product and a change between each two
     assert.equal(weaveRun(pace), n * pace.hold + (n - 1) * pace.change, `${size} run`);
     const each = { wide: 70, phone: 50 }[size];

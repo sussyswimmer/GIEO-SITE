@@ -37,7 +37,11 @@ export const WEAVE_PRODUCTS = WEAVE.slice(4);
  * change between each two) and reads its trigger offsets from these numbers; scripts/timeline.test.mjs
  * holds them to the brief's floors.
  */
-export const WEAVE_PACE = { phone: { hold: 48, change: 14 }, wide: { hold: 54, change: 26 } } as const;
+// Re-paced 2026-11-24 (Maxwell, of the bag: "very laggy, make it super smooth"): a product's 20 frames
+// played over 26svh (14 on phones), about 12 px of scroll a frame, so one wheel notch jumped eight frames.
+// The change now takes most of the run. Phones keep their 110svh; wide screens grow from 134 to 149svh, so the
+// keychain's last rest still has 30svh on a 720 px tall window, where the section lets go sooner.
+export const WEAVE_PACE = { phone: { hold: 30, change: 50 }, wide: { hold: 47, change: 55 } } as const;
 export const weaveRun = ({ hold, change }: { hold: number; change: number }) =>
   WEAVE_PRODUCTS.length * hold + (WEAVE_PRODUCTS.length - 1) * change;
 

@@ -102,6 +102,11 @@ at this seam at any width (check 390, 768, 1024, 1440, 1920).
 ### H2. Weave: the products get time
 "The products move too quickly." Today tote, mug and coaster each get about 29svh of scroll. New rule:
 
+- *Amended 2026-11-24 (Maxwell, of the bag forming: "very laggy, make it super smooth"): a change of at most
+  30svh put a product's 20 frames in about 12 px of scroll each, so one wheel notch jumped eight frames. Now
+  each product forms over **at least 50svh** and rests for **at least 30svh** (`WEAVE_PACE`: phones 30 + 50,
+  run unchanged at 110svh; wide 47 + 55, run 134 → 149svh). A glided change (bag → keychain) plays its film
+  over its second half only, by design, so its scrubbed part is checked against half the floor. The original rule, kept for the record:*
 - each product is on screen, fully formed and still, for **at least 45svh** of scroll before the next one
   starts; the change between two products takes at most 30svh; the three together span at least 210svh at
   1440×900 and 150svh at 390×844. Remap scroll to film frames piecewise (a hold at each product's last
