@@ -4,8 +4,13 @@ import { listStills } from '@/lib/stills';
 
 const PUBLIC = path.join(process.cwd(), 'public');
 
-/** A decorative picture on a transparent ground. `small` is its 800 px version, for phones; `smallW` is that file's real width (800 is its long edge). */
-export type Art = { src: string; small?: string; smallW?: number; w: number; h: number; products: boolean };
+/**
+ * A decorative picture on a transparent ground. `small` is its 800 px version, for phones; `smallW` is that
+ * file's real width (800 is its long edge). `srcSet`, when set, lists every width on disk (-640, -800, -1200
+ * and the full file; scripts/art-variants.mjs makes the extra two), so a phone at any density takes the
+ * nearest file instead of jumping from 800 to the full 1600.
+ */
+export type Art = { src: string; small?: string; smallW?: number; srcSet?: string; w: number; h: number; products: boolean };
 
 /** Canvas size from a WebP header: VP8X (alpha, extended), VP8L (lossless) or VP8 (plain lossy). */
 function webpSize(file: string): [number, number] | undefined {
@@ -34,7 +39,15 @@ export function art(name: string, products = false): Art | undefined {
   const small = `/art/${name}-800.webp`;
   const smallFile = path.join(PUBLIC, small);
   const hasSmall = fs.existsSync(smallFile);
-  return size && { src, small: hasSmall ? small : undefined, smallW: hasSmall ? webpSize(smallFile)?.[0] : undefined, w: size[0], h: size[1], products };
+  if (!size) return undefined;
+  const widths: string[] = [];
+  for (const suffix of ['-640', '-800', '-1200']) {
+    const f = path.join(PUBLIC, `/art/${name}${suffix}.webp`);
+    const w = fs.existsSync(f) ? webpSize(f)?.[0] : undefined;
+    if (w) widths.push(`/art/${name}${suffix}.webp ${w}w`);
+  }
+  const srcSet = widths.length > 1 ? [...widths, `${src} ${size[0]}w`].join(', ') : undefined;
+  return { src, small: hasSmall ? small : undefined, smallW: hasSmall ? webpSize(smallFile)?.[0] : undefined, srcSet, w: size[0], h: size[1], products };
 }
 
 /**

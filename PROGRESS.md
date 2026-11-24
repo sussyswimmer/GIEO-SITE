@@ -595,3 +595,36 @@ Open, added by this entry:
 - Under reduced motion a short stub of the page thread shows through the tote's handle at 1440.
 - **One frame is sometimes dropped about 416 px into the hero** at 1440×900 (33 to 50 ms). 5e81e99 does it too; it was not seen on 2026-11-16 (worst 16.9 ms then). Not traced. The scroll trace should be run again on a quiet PC.
 - Nits from the sub-page screenshot review, not changed: on About at 1440 the tote's handles touch the foot of the partner's name partway through the picture's drift; the Collections header's green thread crosses the title; "Ba trụ cột" and "Các phòng ban" each leave one short word alone on a line; the two lead paragraphs on About start 16 px (VI) to 77 px (EN) apart.
+
+## 2026-11-24 · Phase 7: QA and launch prep ⚠️ scripted checks met in Chromium on a Linux container; real browsers, real devices and the deploy are Maxwell's
+
+Run in a cloud container (Linux, Chromium only, no GPU), not on Maxwell's PC. Everything below is against one production build of this tree on `next start -p 3101`, with a throwaway HTTP/2 + brotli proxy in front of it as the Vercel stand-in (as in the Phase 1 gate; not in the repo).
+
+Fixed:
+- **Sub-page LCP.** Since the fuller pass, the LCP element on every sub-page phone screen is the header still, not text, and it was fetched at Low priority. `ArtLife` now asks for the eager (header) picture with `fetchPriority="high"` and decodes it synchronously.
+- **Header stills had two widths, 800 and 1600.** A Moto G-class phone (412 px at DPR 1.75) needs about 630 px and took the 800 file; an iPhone (DPR 3) skipped to the full 1600 file (140 to 290 KB). `scripts/art-variants.mjs` (new, re-runnable) writes `-640` and `-1200` beside each `public/art/pages/*.webp`, and `art()` lists every width on disk in a `srcSet`. The 640 files are about 30 % lighter than the 800s; the 1200s about half the 1600s. Seen at 375 (DPR 3) and 1440: no visible softening.
+- **Skip link moved the scroll but not focus.** Focus stayed on `<body>`, so screen readers announced nothing. `<main>` has `tabIndex={-1}` (never in the Tab order, no ring).
+- `qa-lighthouse.mjs` sends `Accept-Language: vi` for Vietnamese routes. Lighthouse's Chrome asks for English, and the middleware follows the browser (TODO(lang)), so without it every Vietnamese route had silently been measured as `/en`.
+
+New scripts:
+- `scripts/qa-lighthouse.mjs`: all ten routes, mobile and desktop, median of N runs, against 03 §7 (Performance ≥ 85, the other three ≥ 95, LCP < 2.5 s, CLS < 0.05); fails a run that lands on another URL. `--throttling devtools` uses Chrome's real throttling instead of Lantern.
+- `scripts/qa-a11y.mjs`: skip link moves focus into main; every Tab stop has a ring, is on screen once focused, no trap, no positive tabindex; the phone menu opens with Enter, Tab enters it, Escape closes it and returns focus; one h1, no skipped heading levels, every img has alt, canvas and video aria-hidden, nothing focusable inside aria-hidden, no unnamed links or buttons, no duplicate ids.
+- `HANDOFF.md`: editing copy, swapping photos, adding a collection (needs a developer), the logo, deploying, the checks, and every open question.
+
+Checks:
+- **Lighthouse mobile, HTTP/2 + brotli, median of 3, Lantern:** scores 93 to 99 Performance, 100 Accessibility, Best Practices and SEO on all ten routes; CLS 0 to 0.002. LCP is **not reliably within budget on the Vietnamese sub-pages**: one run of the final build passed 10 of 10 (worst `/collections` 2479 ms, `/get-involved` 2473 ms), the next passed 8 of 10 (`/about` 2500 ms, `/collections` 3155 ms). The LCP image arrives early and at High priority; Lantern shares the slow-4G link evenly with about 220 KB of lazy images below it (basket and the three product tiles) that start inside Chrome's lazy-load margin. A run with `--throttling devtools` (real throttling, HTTP/2 priorities apply) was started to separate that from a real problem; its result goes in the next entry. Reports: `qa/lighthouse/final/`, `qa/lighthouse/h2b/`.
+- **Lighthouse mobile, local HTTP/1.1 + gzip:** LCP 2.7 to 3.8 s everywhere, as in Phase 1 (connection queueing that HTTP/2 removes). Not the deciding column.
+- **Lighthouse desktop, HTTP/2:** 100 / 100 / 100 / 100 on all ten routes, LCP 0.41 to 0.56 s.
+- **JS:** 173 KB transferred on home, `?tier=full` and default alike. three.js and R3F never load since the redesign (films, no live canvas), so the 220 KB budget passes outright and the Phase 2 R3F ruling is moot.
+- **`qa-a11y.mjs`: 20 of 20 clean** (ten routes at 1440 and 390). 12 to 22 Tab stops per page, in reading order; ring checked by eye on `/en/get-involved` (`qa/a11y/ring-sample.png`). The first run failed 20 of 20 on the skip link alone, fixed above.
+- Typecheck, lint (0 errors, the same 2 warnings), `content:check` (109 keys, 79 draft, 4 todo), `test:motion` 37 of 37.
+- Screenshots after the srcset change: `qa/phase7/` (375 at DPR 3 and 1440; `/about`, `/en/collections`, `/get-involved`, `/en/contact`).
+
+Not run:
+- Safari (macOS, iOS), Firefox, Samsung Internet, a real phone: Chromium only here.
+- The Vercel preview deploy (needs Maxwell's go-ahead) and Lighthouse against it, which decides the LCP question above.
+- The older `qa-fuller-*`, `qa-density`, `qa-redesign` scripts: they launch Chrome with D3D11 for Maxwell's Windows PC. This entry changes no layout, only image widths, priorities and `<main>`'s tabindex.
+
+Notes:
+- npm 10 (this container) reads `package-lock.json` as out of sync (`@swc/helpers@0.5.24`); npm 11 reads it as valid. Installed with `npx npm@11 ci`; lockfile untouched. Noted in `HANDOFF.md`.
+- The Phase 7 Check (every open question answered or listed in `HANDOFF.md`) is met: all twelve, plus `video`, `volunteer`, `copy-vi` and the draft copy, are in HANDOFF §9.

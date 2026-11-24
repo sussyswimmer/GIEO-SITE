@@ -6,7 +6,7 @@ type ArtLifeProps = {
   /** `collections.hmong.credit`: shown under a picture that has products in it. */
   credit?: string;
   sizes: string;
-  /** On the first screen: fetched at once instead of lazily. */
+  /** On the first screen: fetched at once, at high priority, instead of lazily. */
   eager?: boolean;
   /** Travel each way against the scroll, in % of the picture's height (the runtime reads data-drift). */
   drift?: number;
@@ -29,13 +29,15 @@ export function ArtLife({ art, credit, sizes, eager, drift = 4, className, credi
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={art.src}
-            srcSet={art.small && `${art.small} ${art.smallW ?? 800}w, ${art.src} ${art.w}w`}
-            sizes={art.small && sizes}
+            srcSet={art.srcSet ?? (art.small && `${art.small} ${art.smallW ?? 800}w, ${art.src} ${art.w}w`)}
+            sizes={(art.srcSet || art.small) && sizes}
             width={art.w}
             height={art.h}
             alt=""
             loading={eager ? 'eager' : 'lazy'}
-            decoding="async"
+            // The header still is the LCP element on every sub-page phone screen: ask for it first.
+            fetchPriority={eager ? 'high' : undefined}
+            decoding={eager ? 'sync' : 'async'}
             className="size-full object-contain"
           />
         </div>
