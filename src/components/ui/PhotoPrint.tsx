@@ -23,11 +23,14 @@ type PhotoPrintProps = {
   className?: string;
   captionClassName?: string;
   style?: CSSProperties;
+  /** Set as data-shape on the print, for layouts that size tall and wide photos differently (PhotoMarquee). */
+  shape?: 'tall' | 'wide';
   /**
    * Makes the print open in a PhotoViewer: `group` names the viewer, `index` is this photo's place in its list,
-   * `label` the button's verb ("Open photo"), read before the photo's alt text.
+   * `label` the button's verb ("Open photo"), read before the photo's alt text. `repeat`: a copy that only
+   * makes a loop seamless (PhotoMarquee): it still opens on a click, but takes no Tab stop.
    */
-  view?: { group: string; index: number; label: string };
+  view?: { group: string; index: number; label: string; repeat?: boolean };
 };
 
 const DRIFT = 3; // % of the picture's height each way, as the still-lifes' back layer (docs/08 H3)
@@ -58,6 +61,7 @@ export function PhotoPrint({
   className,
   captionClassName,
   style,
+  shape,
   view,
 }: PhotoPrintProps) {
   const shown = photo?.consent === true && !!photo.alt;
@@ -71,7 +75,7 @@ export function PhotoPrint({
   const layer: CSSProperties = { left: 0, right: 0, top: `-${OVERHANG}%`, bottom: `-${OVERHANG}%` };
 
   return (
-    <figure data-tone={tone} className={cx('print', className)} style={vars}>
+    <figure data-tone={tone} data-shape={shape} className={cx('print', className)} style={vars}>
       {glow && <div aria-hidden="true" className="print-glow" />}
       <div data-enter className="print-sheet">
         <div className="print-window" style={{ aspectRatio: aspect }}>
@@ -102,6 +106,7 @@ export function PhotoPrint({
             data-view={view.index}
             aria-haspopup="dialog"
             aria-label={`${view.label}: ${photo.alt}`}
+            tabIndex={view.repeat ? -1 : undefined}
           />
         )}
       </div>

@@ -856,3 +856,13 @@ All eleven consented photos are now on the site somewhere; any more need the alb
 ## 2026-11-24 · Published to the `/feedback/` preview
 
 `scripts/build-pages.mjs` with `GIEO_BASE_PATH=/GIEO-SITE/feedback`, built from c814109, replaced `feedback/` on `gh-pages` (539d049, Maxwell's go-ahead); the root preview is unchanged. Checked before pushing, served under the same path: `/vi/`, `/en/`, `/vi/about/`, `/en/about/`, `/en/collections/` load with no 4xx and the viewer opens a loaded image. Checked live after the deploy (about 40 s): `/vi/` (7 prints) and `/en/about/` (8 prints), viewer image loaded, no 4xx.
+
+## 2026-11-24 · About: a new first screen, GIEO's photographs drifting beside the title ✅ on this container (Chromium)
+
+Maxwell did not like the About landing (the plum screen with the name set down the page, 2026-11-19; in git history) and asked for something from 21st.dev, a React component, or anything else. 21st.dev's registry needs a signed-in account, so the image-marquee hero pattern from there is built in CSS alone.
+
+- **`AboutHero`** (rewritten): on cream with the dawn glow, the title in the sub-pages' large italic serif, the intro and the IB line at the left (no new copy); from 1024 two columns of prints over the right of the screen, one drifting up and one down (about 80 s a loop), faded at top and bottom and clear of the nav pill; a column stops under the pointer. Under 1024 one row drifting sideways under the text. Reduced motion: nothing drifts; the row scrolls by hand. Every one of the eleven consented photos is in it, each print opens in the photo viewer.
+- **For the pointer only.** A print that moves and is clipped by its column cannot keep keyboard focus in view (the first `qa-a11y` run failed on exactly that), so the marquee takes no Tab stop and is hidden from assistive tech. Every photo in it is also on the site still and reachable by keyboard: the About gallery right below, the product photos on Collections.
+- The old hero's CSS (`.about-name`, `.about-initial`, `.about-joiner`, `.about-bloom`) is removed; the story section now hands off from cream.
+
+Checks (production build): screenshots at 1440, 2000 and 390 (`qa/about/hero-*`); `qa-a11y` on `/about` and `/en/about`: 4 of 4; a click on a moving print opens the viewer; typecheck, lint clean.

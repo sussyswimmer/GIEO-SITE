@@ -43,11 +43,11 @@ export default async function AboutPage({ params }: Props) {
 
   return (
     <>
-      {/* Redone (Maxwell, 2026-11-19: "too weak"): the name itself is the first screen, on plum. */}
-      <AboutHero title={t('about.title')} name={t('home.hero.eyebrow')} intro={t('about.intro')} art={art('pages/about') ?? still('sprouts')} />
+      {/* Third version (Maxwell, 2026-11-24): GIEO's photographs drifting beside the title. */}
+      <AboutHero />
 
       {/* The word, set large, with what GIEO does beside it. */}
-      <Section tone="paper" from="plum" pad="none" id="story" labelledBy="story-title" className="pt-section-sm pb-section-sm">
+      <Section tone="paper" from="cream" pad="none" id="story" labelledBy="story-title" className="pt-section-sm pb-section-sm">
         <Container>
           <Grid className="items-start">
             <DictionaryEntry

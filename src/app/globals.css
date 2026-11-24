@@ -445,16 +445,6 @@
   .stitch-ring circle { fill: none; stroke: var(--blush-line); stroke-width: 1.25; stroke-dasharray: 5 7; stroke-linecap: round; vector-effect: non-scaling-stroke; }
   .stitch-ring circle + circle { stroke: color-mix(in srgb, var(--stem-mint) 65%, var(--paper)); stroke-dasharray: 2 9; }
 
-  /* The About page's first screen (AboutHero.tsx): GIEO's full name, one line to each capital, as large as
-     the screen's width and height both allow, so the four lines always fit one screen. */
-  .about-name { font-size: clamp(2.5rem, min(9.3vw, 14.2svh), 10rem); line-height: 0.99; letter-spacing: -0.015em; }
-  .about-initial { color: var(--petal-soft); }
-  .about-joiner { color: color-mix(in srgb, var(--cream) 62%, var(--plum-ink)); }
-  .about-bloom {
-    position: absolute; inset: -22%;
-    background-image: radial-gradient(closest-side, color-mix(in srgb, var(--petal-soft) 34%, transparent), color-mix(in srgb, var(--peach-glow) 12%, transparent) 55%, transparent);
-  }
-
   /* Links that slide up (ContactLinks.tsx): a line rises from behind the foot of its own box. The box clips
      top and bottom only, with room for the italic's tails, so a swash still runs out to the side. A row on
      the first screen plays on load, in turn (--i); a row the runtime is holding (data-enter="pending")
@@ -713,6 +703,42 @@
     .print-sheet:has(.print-hit) { transition: box-shadow var(--dur-hover) var(--curve-out); }
     .print .print-sheet:has(.print-hit) { transform: none !important; }
     .print-window img { transition: none; scale: 1 !important; }
+  }
+
+  /* About hero: photo marquee (AboutHero.tsx). Each track holds its prints twice; every print carries its own
+     gap below or after it, so moving the track by exactly half its length lands where it began and the loop
+     has no seam. From 1024 two columns over the right of the screen, one drifting up and one down, fading out
+     at top and bottom; a column stops under the pointer or keyboard focus. Under 1024 one row drifting left,
+     fading at both sides. Reduced motion: nothing drifts, and the row scrolls sideways by hand instead. */
+  .marquee-cols {
+    display: grid; grid-template-columns: 1fr 1fr; column-gap: 2.5vw;
+    height: 100svh; overflow: hidden; padding-inline: 1.25rem;
+    /* Clear of the nav pill: nothing shows behind it, and the prints come in under it. */
+    mask-image: linear-gradient(to bottom, transparent, transparent calc(var(--nav-offset) - 1rem), #000 calc(var(--nav-offset) + 7rem), #000 84%, transparent);
+  }
+  .marquee-track { animation: marquee-up var(--marquee-s, 60s) linear infinite; will-change: translate; }
+  .marquee-col[data-dir="down"] .marquee-track { animation-name: marquee-down; }
+  .marquee-col:hover .marquee-track, .marquee-col:focus-within .marquee-track { animation-play-state: paused; }
+  .marquee-cols .marquee-print { margin-bottom: 2.75rem; }
+  .marquee-cols .marquee-print[data-shape="tall"] { width: 74%; }
+  .marquee-cols .marquee-track > .marquee-print:nth-child(even),
+  .marquee-cols .marquee-track > div > .marquee-print:nth-child(even) { margin-left: auto; }
+  @keyframes marquee-up { to { translate: 0 -50%; } }
+  @keyframes marquee-down { from { translate: 0 -50%; } to { translate: 0 0; } }
+
+  .marquee-row {
+    overflow: hidden; padding-block: 1.5rem;
+    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+  }
+  .marquee-row .marquee-track { display: flex; align-items: center; width: max-content; animation-name: marquee-left; }
+  .marquee-row:hover .marquee-track, .marquee-row:focus-within .marquee-track { animation-play-state: paused; }
+  .marquee-row .marquee-print { flex: none; width: min(46vw, 17rem); margin-right: 1.5rem; }
+  .marquee-row .marquee-print[data-shape="tall"] { width: min(30vw, 11rem); }
+  @keyframes marquee-left { to { translate: -50% 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track { animation: none; }
+    .marquee-row { overflow-x: auto; mask-image: none; }
   }
 
   /* The About gallery (StickyGallery.tsx). Phones: two loose columns under the cloth, the right one a little
