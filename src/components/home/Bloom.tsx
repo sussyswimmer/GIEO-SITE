@@ -35,7 +35,7 @@ export async function Bloom() {
         <Grid className="lg:items-start">
           <Heading
             id="pillars-title"
-            className="relative z-2 col-span-full max-w-(--measure-heading) pt-section-sm lg:col-end-7 lg:row-start-1"
+            className="relative z-2 col-span-full max-w-(--measure-heading) pt-section-sm lg:col-end-6 lg:row-start-1"
           >
             {t('heading')}
           </Heading>

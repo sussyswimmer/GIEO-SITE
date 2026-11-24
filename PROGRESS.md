@@ -885,3 +885,8 @@ Not done: the per-frame decode and upload are unchanged. If it still stutters on
 ## 2026-11-24 · `/feedback/` preview republished
 
 From 4621da9 (new About landing, the weave re-paced) to `gh-pages` db75b2f, root preview unchanged. Checked locally under the real path before pushing (no 4xx, marquee on both About pages), and live after the deploy (about 50 s): two scripts answered 503 in the first seconds and 200 on the next request (GitHub's CDN filling).
+
+## 2026-11-24 · Contact links at one size; the pillars heading clear of the deck ✅
+
+- **Contact** (Maxwell: "make email, insta and facebook all equal sizes"): `ContactLinks` sets all three as the same row (label beside, link in the remaining ten columns from 1024) at one size, fitted to the longest of them (`fit(longest, 0.6, 1.25rem, --fs-quote)`): 65 px at 1440, 23 px at 390, 20 px at 320; each on one line on desktop, no overflow at 320. The email still breaks before its "@" if a screen is too narrow.
+- **Home, Bloom** (Maxwell: "make it so three pillar isn't touching the box"): the heading spanned columns 1 to 6 and the card deck starts at column 6, so "Three pillars" ran into the first card. The heading now ends at column 5, over the lotus. Measured from the heading's text to the card's edge: 293 px at 2000, 240 at 1440, 205 at 1280, 150 at 1024 (EN, now on two lines); 66 px in VI ("Ba trụ cột", one line). Screenshots `qa/pillars/`, `qa/contact/`.
