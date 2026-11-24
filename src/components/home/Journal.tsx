@@ -1,22 +1,30 @@
 import { getTranslations } from 'next-intl/server';
-import { Container, Grid, Heading, PhotoFrame, Prose, Section, Todo } from '@/components/ui';
-import { journalPhotos } from '@/lib/photos';
+import type { CSSProperties } from 'react';
+import { Container, Grid, Heading, PhotoPrint, Prose, Section, Todo } from '@/components/ui';
+import { photo as photoById } from '@/lib/photos';
 import { art } from '@/components/pages/art';
 import { HOME_STILLS, listStills } from '@/lib/stills';
 import { StillLife } from './StillLife';
 
-const SIZES = '(min-width: 1024px) 40vw, (min-width: 768px) 60vw, 90vw';
-
-// Six-photo module for GIEO's own photos. Index i uses slot i % 6; ratio and placement come from the same slot.
-const RATIO = ['4 / 5', '3 / 2', '1 / 1', '4 / 5', '3 / 4', '16 / 9'] as const;
-const SLOT = [
-  'col-start-1 col-end-5 md:col-start-1 md:col-end-6 lg:col-start-1 lg:col-end-6',
-  'col-start-2 col-end-5 md:col-start-4 md:col-end-9 lg:col-start-7 lg:col-end-13 lg:mt-24',
-  'col-start-1 col-end-5 md:col-start-1 md:col-end-6 lg:col-start-2 lg:col-end-5',
-  'col-start-2 col-end-5 md:col-start-4 md:col-end-9 lg:col-start-6 lg:col-end-10 lg:mt-16',
-  'col-start-1 col-end-5 md:col-start-1 md:col-end-6 lg:col-start-10 lg:col-end-13 lg:mt-32',
-  'col-start-2 col-end-5 md:col-start-4 md:col-end-9 lg:col-start-3 lg:col-end-11',
-] as const;
+// GIEO's season in six photographs, laid as prints: from 1024 a loose cluster beside the heading (two rows,
+// overlapping a little, tilts alternating), under that the same six in two loose rows of three under the
+// paragraph, all in view: no sideways strip, which a keyboard or a mouse without a trackpad could not move.
+// Per print: the photo's id, the picture's proportions, where the picture sits in the frame, the tilt, and its
+// place in the cluster's box (left, top and width in % of the box; the box is 7 / 5). Under 1024 an upright
+// print is narrower than a wide one, so they stand about the same height.
+type JournalPrint = { id: string; ratio: string; focus?: string; tilt: number; at: [l: number, t: number, w: number]; wide: boolean };
+const PRINTS: JournalPrint[] = [
+  { id: '01-loom-weaver', ratio: '3 / 4', focus: '50% 42%', tilt: 2, at: [33, 0, 21], wide: false },
+  { id: '02-stilt-house', ratio: '4 / 3', tilt: -2.5, at: [0, 12, 31], wide: true },
+  { id: '03-heddles', ratio: '4 / 3', tilt: 1.5, at: [52, 14, 30], wide: true },
+  { id: '04-sewing-hands', ratio: '4 / 5', focus: '50% 40%', tilt: -1.5, at: [12, 52, 21], wide: false },
+  { id: '05-cloth-on-loom', ratio: '4 / 5', tilt: 2.5, at: [70, 50, 22], wide: false },
+  { id: '06-valley', ratio: '3 / 2', tilt: -1, at: [31, 56, 31], wide: true },
+];
+// What each print is drawn at: in the cluster (its share of a box half the page wide from 1280, beside a
+// heading that needs a column more before that), in the rows.
+const printSizes = (w: number, wide: boolean) =>
+  `(min-width: 1280px) ${Math.round(w / 2.2)}vw, (min-width: 1024px) ${Math.round(w / 2.7)}vw, (min-width: 768px) ${wide ? 26 : 19}vw, ${wide ? 30 : 22}vw`;
 
 // The rail: still-lifes in one row that slides sideways with scroll, the picture version of the kinetic
 // band. They stand on one ground line and differ in size, so the row has a rhythm.
@@ -24,26 +32,23 @@ const RAIL_SIZES = '(min-width: 1024px) 30vw, 62vw';
 const RAIL_SLOT = ['w-[62vw] lg:w-[30vw]', 'w-[54vw] lg:w-[25vw]', 'w-[58vw] lg:w-[27vw]'] as const;
 
 /**
- * S5. GIEO's season. Consented photos when GIEO sends them; until then a rail of still-lifes (the Blender
- * stills Hands does not use, then the illustrated ones from public/art/pages) that slides sideways with
- * scroll, on a horizon of pale ridges behind the heading (docs/08 H3). A still carries no caption that
- * states a fact; one that shows products carries the partner credit.
+ * S5. GIEO's season: the heading and paragraph, GIEO's own photographs laid beside them as prints (consented,
+ * with alt text: a photo without both is left out), then a rail of still-lifes (the Blender stills Hands does
+ * not use, then the illustrated ones from public/art/pages) that slides sideways with scroll, on a horizon of
+ * pale ridges behind the heading (docs/08 H3). Neither carries a caption that states a fact; a still that
+ * shows products carries the partner credit.
  */
 export async function Journal() {
   const t = await getTranslations('home.journal');
   const tAll = await getTranslations();
 
-  // Alt text is the content key photos.<id>.alt; a photo without it is not shown (PLAN.md §5, §6).
-  const photos = journalPhotos.flatMap((p) => {
-    const key = `photos.${p.id}.alt`;
-    const alt = p.consent && tAll.has(key) ? tAll(key) : '';
-    return alt ? [{ ...p, alt }] : [];
+  // Alt text is the content key photos.<id>.alt; a photo without it, or without consent, is not shown.
+  const prints = PRINTS.flatMap((p) => {
+    const photo = photoById(p.id, tAll);
+    return photo ? [{ ...p, photo }] : [];
   });
-  const stills =
-    photos.length > 0
-      ? []
-      : [...listStills(HOME_STILLS).slice(2, 5), ...['get-involved', 'about', 'contact'].flatMap((name) => art(`pages/${name}`) ?? [])];
-  const credit = tAll('collections.hmong.credit');
+  const stills = [...listStills(HOME_STILLS).slice(2, 5), ...['get-involved', 'about', 'contact'].flatMap((name) => art(`pages/${name}`) ?? [])];
+  const credit = tAll('collections.noinep.credit');
   const closing = t('closing');
 
   return (
@@ -69,14 +74,20 @@ export async function Journal() {
             {t('body')}
           </Prose>
 
-          {photos.length > 0 && (
+          {prints.length > 0 && (
+            // One list, two layouts: under 1024 two loose rows of three under the paragraph, from 1024 the
+            // cluster's box beside the heading.
             <ul
               role="list"
-              className="col-span-full mt-16 grid grid-cols-4 items-start gap-x-gap gap-y-8 md:grid-cols-8 md:gap-y-12 lg:mt-24 lg:grid-cols-12 lg:gap-y-16"
+              className="col-span-full mt-10 flex flex-wrap items-center justify-center gap-x-[4%] gap-y-8 md:gap-x-[3%] lg:relative lg:col-start-8 lg:col-end-13 xl:col-start-7 lg:row-start-1 lg:row-end-3 lg:m-0 lg:block lg:aspect-[7/5] lg:self-center"
             >
-              {photos.map((photo, i) => (
-                <li key={photo.id} className={SLOT[i % 6]}>
-                  <PhotoFrame photo={photo} ratio={RATIO[i % 6]} sizes={SIZES} />
+              {prints.map(({ id, photo, ratio, focus, tilt, at: [l, t, w], wide }) => (
+                <li
+                  key={id}
+                  className={`${wide ? 'w-[32%] md:w-[29%]' : 'w-[23%] md:w-[21%]'} lg:absolute lg:top-(--t) lg:left-(--l) lg:w-(--w)`}
+                  style={{ '--l': `${l}%`, '--t': `${t}%`, '--w': `${w}%` } as CSSProperties}
+                >
+                  <PhotoPrint photo={photo} ratio={ratio} focus={focus} tilt={tilt} sizes={printSizes(w, wide)} />
                 </li>
               ))}
             </ul>
@@ -86,7 +97,7 @@ export async function Journal() {
       </Container>
 
       {stills.length > 0 && (
-        <div className="relative mt-8 overflow-x-auto [html[data-motion=on]_&]:overflow-x-clip lg:mt-10">
+        <div className="relative mt-8 overflow-x-clip lg:mt-10">
           <div data-band className="flex w-max items-end gap-[4vw] pl-gutter lg:gap-[2.5vw]">
             {stills.map((still, i) => (
               <StillLife key={still.src} still={still} credit={credit} index={i % 3} sizes={RAIL_SIZES} className={RAIL_SLOT[i % 3]} />

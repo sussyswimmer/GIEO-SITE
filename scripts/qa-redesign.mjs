@@ -3,13 +3,20 @@
 //   reduced    prefers-reduced-motion: no pins (nothing sticky, no data-motion), all copy readable in flow
 //   nojs       JavaScript off: all copy visible
 //   lcp        4× CPU slowdown: the LCP element is hero text and lands under 2.5 s
-//   hero       pinned first screen: the three beats of copy lie inside the film's textSafe box (also at 375x667)
+//   hero       pinned first screen: the four beats of copy lie inside the film's textSafe box (also at 375x667),
+//              each measured in its entrance pose, 12 px low
 //   strip      11 screenshots down the hero's run (every 10 %): the headline, the dictionary entry and the
-//              initiative line are each whole and alone on screen in at least two shots in a row
-//   weave      screenshots at film frames 45, 120, 140, 169; the canvas bleeds off screen, the products do not,
-//              and from frame 120 the one partner credit is on screen, lit, below the product
+//              initiative line are each whole and alone on screen in at least two shots in a row (the body and
+//              the last beat, the sub line and the ways in, are reported, not required)
+//   weave      the film opens on the laid warps (frame 50), or on the woven cloth (89) under the roots seam,
+//              never earlier; where the stage sticks it shows the cloth, and the canvas bleeds off screen;
+//              screenshots there and at frames 120, 149 (the Nối Bag, the Nếp Keychain at rest), each product
+//              wholly on screen with the one partner credit lit below it
 //   deck       pillar cards at 1440: while a card lies under the next, its whole title still shows
-//   trace     10 s wheel scroll: no long task over 50 ms, no frame over 33 ms; repeated at 4× CPU (reported only)
+//   trace     10 s wheel scroll: no long task over 50 ms, no frame over 33 ms; repeated at 4× CPU (reported only).
+//              On software GL (SwiftShader, llvmpipe) both runs are reported only: there the frame times measure
+//              the software compositor, not the page. The detail names the motion tier. (--use-angle=d3d11 takes
+//              effect on Windows only.)
 //
 // Usage: node scripts/qa-redesign.mjs [--base http://localhost:3101] [--films <dir>] [--out qa/redesign]
 // --films serves /film/** from a folder, as in qa-density.mjs. Exit 1 when a check fails.
@@ -170,7 +177,7 @@ for (const route of ROUTES) {
     check(
       `hero ${route} ${size.join('x')}`,
       r.pinned && r.x > 0 && r.out.length === 0,
-      r.pinned ? `textSafe ends at ${r.x},${r.y}; ${r.out.join('; ') || 'all three beats inside it'}` : 'the first screen is not pinned',
+      r.pinned ? `textSafe ends at ${r.x},${r.y}; ${r.out.join('; ') || 'all four beats inside it'}` : 'the first screen is not pinned',
     );
     await page.context().close();
   }
@@ -183,7 +190,7 @@ for (const route of ROUTES) {
     const page = await open(route, size);
     await page.waitForFunction(() => 'motionReady' in document.documentElement.dataset, null, { timeout: 15000 }).catch(() => {});
     await page.waitForTimeout(1500);
-    const alone = []; // per shot: which of word, beat 1, beat 2, beat 3 is whole with the others gone
+    const alone = []; // per shot: which of the word and beats 1 to 4 is whole with the others gone
     for (let k = 0; k <= 10; k++) {
       await page.evaluate((share) => {
         const hero = document.querySelector('#hero');
@@ -205,7 +212,7 @@ for (const route of ROUTES) {
       );
     }
     const held = (i) => alone.some((a, k) => a === i && alone[k + 1] === i);
-    const names = ['headline', 'dictionary entry', 'body', 'initiative line'];
+    const names = ['headline', 'dictionary entry', 'body', 'initiative line', 'sub line and ways in'];
     const missing = [0, 1, 3].filter((i) => !held(i)).map((i) => names[i]);
     check(
       `strip ${route} ${size[0]}`,
@@ -223,7 +230,7 @@ for (const route of ROUTES) {
 {
   const sharp = (await import('sharp')).default;
   const boxes = {}; // frame -> left, top, right, bottom of that product, as shares of the canvas
-  for (const [frame, key] of [[120, 's-0129'], [140, 's-0149'], [169, 's-0169']]) {
+  for (const [frame, key] of [[120, 's-0129'], [149, 's-0149']]) {
     const box = (boxes[frame] = [1, 1, 0, 0]);
     const { data, info } = await sharp(path.resolve(films || 'public/film', 'weave/keys', `${key}.webp`)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
     for (let i = 3, n = 0; i < data.length; i += 4, n++) {
@@ -247,17 +254,8 @@ for (const route of ROUTES) {
       const r = document.querySelector('#craft').getBoundingClientRect();
       return [r.top + scrollY - innerHeight, r.bottom + scrollY];
     });
-    const bad = [];
-    for (const target of [45, 120, 140, 169]) {
-      let [lo, hi] = span;
-      while (hi - lo > 4) {
-        const mid = (lo + hi) / 2;
-        if ((await frameAt(mid)) < target) lo = mid;
-        else hi = mid;
-      }
-      const frame = await frameAt(hi);
-      await page.screenshot({ path: path.join(out, `weave-${tag}f${String(target).padStart(3, '0')}-w${size[0]}.png`) });
-      const g = await page.evaluate(() => {
+    const geometry = () =>
+      page.evaluate(() => {
         const r = document.querySelector('[data-film="weave"]').getBoundingClientRect();
         const s = document.querySelector('#craft').getBoundingClientRect();
         const nav = document.querySelector('header nav, header')?.getBoundingClientRect().bottom ?? 0;
@@ -272,14 +270,38 @@ for (const route of ROUTES) {
         };
         return { l: r.left, t: r.top, w: r.width, h: r.height, vw, top: Math.max(0, s.top), bottom: Math.min(innerHeight, s.bottom), nav, credit };
       });
+    const bleedsOff = (g) => (g.vw >= 1280 ? g.t < g.top && g.t + g.h > g.bottom && g.l + g.w > g.vw : g.l < 0 && g.l + g.w > g.vw);
+    const bad = [];
+    // The cloth. The film never shows the yarn before the laid warps (Maxwell, 17 November): it opens on 50, or
+    // on the woven cloth (89) under the roots seam (Full tier). Checked as the section arrives and where the
+    // stage sticks (#craft's top at the screen's top), before the bag forms at 109.
+    {
+      const opens = (await page.evaluate(() => document.documentElement.dataset.roots === 'on')) ? 89 : 50;
+      const first = await frameAt(span[0]);
+      const cloth = await frameAt(span[0] + size[1]);
+      await page.screenshot({ path: path.join(out, `weave-${tag}cloth-w${size[0]}.png`) });
+      const g = await geometry();
+      if (first !== opens || !(cloth >= opens && cloth < 109) || !bleedsOff(g))
+        bad.push(`cloth: opens on ${first} (want ${opens}), ${cloth} where the stage sticks (want ${opens} to 108)${bleedsOff(g) ? '' : ', canvas edge on screen'}`);
+    }
+    for (const target of [120, 149]) {
+      let [lo, hi] = span;
+      while (hi - lo > 4) {
+        const mid = (lo + hi) / 2;
+        if ((await frameAt(mid)) < target) lo = mid;
+        else hi = mid;
+      }
+      const frame = await frameAt(hi);
+      await page.screenshot({ path: path.join(out, `weave-${tag}f${String(target).padStart(3, '0')}-w${size[0]}.png`) });
+      const g = await geometry();
       const wide = g.vw >= 1280;
-      const bleeds = wide ? g.t < g.top && g.t + g.h > g.bottom && g.l + g.w > g.vw : g.l < 0 && g.l + g.w > g.vw;
-      const box = boxes[target] ?? [0.5, 0.5, 0.5, 0.5]; // frame 45 is the warp: no product yet
+      const bleeds = bleedsOff(g);
+      const box = boxes[target];
       const [l, t, r, b] = [g.l + box[0] * g.w, g.t + box[1] * g.h, g.l + box[2] * g.w, g.t + box[3] * g.h];
       const inside = l >= 0 && r <= g.vw && t >= (wide ? g.top : Math.max(g.top, g.nav)) && b <= g.bottom;
       // A product on screen carries the partner credit: one copy, lit, on screen, under the product.
       const { credit } = g;
-      const credited = !boxes[target] || (credit.n === 1 && credit.lit && credit.inView && credit.top >= b - 1);
+      const credited = (credit.n === 1 && credit.lit && credit.inView && credit.top >= b - 1);
       if (frame !== target || !bleeds || !inside || !credited)
         bad.push(
           `frame ${target}: got ${frame}${bleeds ? '' : ', canvas edge on screen'}${inside ? '' : `, product ${Math.round(l)},${Math.round(t)} to ${Math.round(r)},${Math.round(b)} leaves ${g.vw} wide, ${Math.round(g.top)} to ${Math.round(g.bottom)}`}${
@@ -290,7 +312,7 @@ for (const route of ROUTES) {
     check(
       `weave ${route} ${size[0]}`,
       bad.length === 0,
-      bad.join('; ') || 'frames 45, 120, 140, 169 shot; canvas bleeds off screen, each product inside it; one credit on screen under each product',
+      bad.join('; ') || 'opens on the cloth; frames 120, 149 shot; canvas bleeds off screen, each product inside it; one credit on screen under each product',
     );
     await page.context().close();
   }
@@ -335,6 +357,12 @@ for (const cpu of [1, 4]) {
   const page = await open('/en', SIZES[0], {}, cpu);
   await page.waitForFunction(() => 'motionReady' in document.documentElement.dataset, null, { timeout: 15000 }).catch(() => {});
   await page.waitForTimeout(1500);
+  const env = await page.evaluate(() => {
+    const gl = document.createElement('canvas').getContext('webgl');
+    const info = gl?.getExtension('WEBGL_debug_renderer_info');
+    return { gl: info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : '', tier: document.documentElement.dataset.tier ?? '?' };
+  });
+  const software = /swiftshader|llvmpipe|software/i.test(env.gl);
   const step = (await page.evaluate(() => document.documentElement.scrollHeight - innerHeight)) / 100;
   await page.mouse.move(700, 450);
   await page.evaluate(() => (window.__qa.tracing = true));
@@ -346,12 +374,14 @@ for (const cpu of [1, 4]) {
   const worst = Math.max(0, ...t.frames);
   const over = t.frames.filter((f) => f > 33.4).length;
   const longOver = t.long.filter((d) => d > 50);
-  const detail = `${t.frames.length} frames, worst ${worst.toFixed(1)} ms, ${over} over 33 ms; long tasks over 50 ms: ${longOver.length}${longOver.length ? ` (${longOver.join(', ')} ms)` : ''}; reached y=${t.y}${films ? `; films from ${films}` : ''}`;
-  // 4× is the brief's second, informative run: this PC throttled is not a pass/fail device.
-  if (cpu === 1) check('trace /en 1440, 10 s', over === 0 && longOver.length === 0, detail);
+  const detail = `${t.frames.length} frames, worst ${worst.toFixed(1)} ms, ${over} over 33 ms; long tasks over 50 ms: ${longOver.length}${longOver.length ? ` (${longOver.join(', ')} ms)` : ''}; reached y=${t.y}${films ? `; films from ${films}` : ''}; tier ${env.tier}${software ? `; software GL (${env.gl})` : ''}`;
+  // 4× is the brief's second, informative run: this PC throttled is not a pass/fail device. Nor is a machine
+  // that draws WebGL and composites the page in software: there every frame waits on the compositor.
+  if (cpu === 1 && !software) check('trace /en 1440, 10 s', over === 0 && longOver.length === 0, detail);
   else {
-    console.log(`info  trace /en 1440, 10 s at 4x CPU  ${detail}`);
-    results.push({ name: 'trace at 4x CPU (reported only)', ok: null, detail });
+    const label = `trace /en 1440, 10 s${cpu > 1 ? ' at 4x CPU' : ''}`;
+    console.log(`info  ${label}  ${software ? 'not a pass/fail device: ' : ''}${detail}`);
+    results.push({ name: `${label} (reported only)`, ok: null, detail });
   }
   await page.context().close();
 }

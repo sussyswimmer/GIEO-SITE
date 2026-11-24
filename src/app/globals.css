@@ -177,27 +177,25 @@
      the band it shows in and never reads as a square: on phones it runs off both sides, its top tucked
      under the nav pill; from 1280 it runs off the top, bottom and right of the pinned screen and fades
      out on the left, towards the copy. In between it is a square that fits its column.
-     The offsets come from the film: the tote spans 5 to 87 % of the canvas height, and the mug, as it
-     turns, reaches 94.5 % of its width, so the canvas sits a little left of where it would be centred. */
+     The offsets came from an earlier film, whose widest product reached 94.5 % of the canvas width; they are kept so
+     the stage sits where it did. The Nối Bag and the Nếp Keychain at rest both stay within 17 to 83 % of the
+     canvas, either way (film/weave/keys/s-0129, s-0149). */
   .weave-stage {
     --s: calc((var(--stage-phone-weave) - var(--nav-offset)) / 0.955);
     position: absolute; bottom: 0; left: 48.5%; translate: -50% 0; width: var(--s); aspect-ratio: 1;
     --sway-r: 0deg; --sway-y: 0px; /* explicit start values for the tween */
-    rotate: var(--sway-r); transform: translateY(var(--sway-y)); /* the rest-time sway (motion-runtime) */
+    /* the rest-time sway, and the glide that carries one product out and the next in (motion-runtime) */
+    rotate: var(--sway-r); transform: translate(var(--glide-x, 0%), var(--sway-y)); opacity: var(--glide-o, 1);
     /* The seam (docs/08 H1): the top never cuts. The yarn hangs from the top of the canvas at 53.5 % of its
        width; above --seam (px down the canvas, set by the page thread's runtime, which ends the thread
-       there) nothing shows, from it the yarn widens out of a soft-edged point, and beside the point the
-       warp comes up out of the dark in a long eased rise: a short rise reads as a flat shoulder across the
-       whole canvas. The rise is done 40 % under the point, which is as far up as the runtime lets the point
-       slide (mountThread), so by then the whole canvas is in. The point belongs to the page: once the stage
-       sticks it slides up and out (where the stage cannot stick, as its box climbs the screen). */
-    --seam-point: conic-gradient(from 160deg at 53.5% var(--seam, -100%), transparent 0, #000 7deg, #000 33deg, transparent 40deg);
-    --seam-rise: linear-gradient(to bottom,
-      transparent calc(var(--seam, -100%) + 12%), rgb(0 0 0 / 0.1) calc(var(--seam, -100%) + 19%),
-      rgb(0 0 0 / 0.45) calc(var(--seam, -100%) + 27%), rgb(0 0 0 / 0.85) calc(var(--seam, -100%) + 34%),
-      #000 calc(var(--seam, -100%) + 40%));
+       there) nothing shows, from it the yarn widens out of a point, and 30 % further down the whole canvas
+       is in. The point belongs to the page, so once the stage sticks it slides up and out. */
+    --seam-point: conic-gradient(from 160deg at 53.5% var(--seam, -100%), transparent 0, #000 1.5deg, #000 38.5deg, transparent 40deg);
+    --seam-rise: linear-gradient(to bottom, transparent calc(var(--seam, -100%) + 22%), #000 calc(var(--seam, -100%) + 30%));
   }
-  .weave-stage > canvas { mask-image: var(--seam-point), var(--seam-rise); }
+  /* No point any more (Maxwell, 2026-11-17: the yarn seam is gone and the film starts with its warps laid):
+     the canvas just rises softly out of the plum, over the top fifth of its height. */
+  .weave-stage > canvas { mask-image: linear-gradient(to bottom, transparent 2%, #000 20%); }
   /* the light behind the yarn has no point to come out of: it just rises */
   .weave-stage::before { mask-image: linear-gradient(to bottom, transparent calc(var(--seam, -100%) + 6%), #000 calc(var(--seam, -100%) + 46%)); }
   @media (min-width: 64rem) {
@@ -221,10 +219,12 @@
   [data-credit] { transition: opacity var(--dur-fade) var(--curve-out); }
   html[data-motion="on"] [data-credit]:not([data-on]) { opacity: 0; }
 
-  /* The weave's product run (docs/08 H2, Weave.tsx). In flow it is a list of three large names. With the
-     runtime up, on a screen tall enough to pin, the names stick beside the stage (below it under 1024) for
-     --weave-run, which the runtime sets from WEAVE_PACE, and only the product resting on the stage is lit:
-     the others are drawn in outline, like the second run of a kinetic band. */
+  /* The weave's product run (docs/08 H2, Weave.tsx). In flow it is a list of two large names, each with
+     what it is under it in caption type. With the runtime up, on a screen tall enough to pin, the names
+     stick beside the stage (below it under 1024) for --weave-run, which the runtime sets from WEAVE_PACE,
+     and only the product resting on the stage is lit: the others are drawn in outline, like the second run
+     of a kinetic band. The divisor below keeps the block (label, names and captions, button) under the
+     phone stage. */
   .weave-names {
     font-size: min(var(--fs-h2), (100svh - var(--stage-phone-weave)) / 4.6);
     line-height: var(--lh-h2); letter-spacing: var(--ls-display);
@@ -250,6 +250,11 @@
     color: transparent; -webkit-text-stroke-color: color-mix(in srgb, var(--cream) 60%, transparent);
   }
   html[data-motion="on"] .weave-names > li[data-active] { translate: 0.12em 0; }
+  /* What each product is, under its name: caption type, always solid and readable, never in outline. The
+     name's descenders clear it, and the next name's stacked Vietnamese marks (Nếp) clear it from below. */
+  .weave-names .weave-kind { -webkit-text-stroke-width: 0; }
+  .weave-names .weave-name { padding-bottom: 0.12em; }
+  .weave-names > li + li { margin-top: 0.38em; }
 
   /* The running stitch (docs/07 §3): every hairline on the site. .stitch-y is the vertical one. */
   .stitch, .stitch-y { display: block; border: 0; flex: none; }
@@ -315,6 +320,9 @@
   [data-hero-pin] { position: relative; }
   [data-hero-run] { display: none; height: 150svh; }
   @media (min-width: 64rem) { [data-hero-run] { height: 190svh; } }
+  /* Act 1, the vine (VineScene, Full tier): its 180svh (ACT1_SVH, src/lib/vine.ts) go before the film's run. */
+  html[data-vine="on"] [data-hero-run] { height: calc(150svh + 180svh); }
+  @media (min-width: 64rem) { html[data-vine="on"] [data-hero-run] { height: calc(190svh + 180svh); } }
   [data-hero-beats] {
     display: flex; flex-direction: column; gap: 2.5rem;
     max-width: var(--measure-lead); padding-block: var(--space-section-sm);
@@ -361,6 +369,170 @@
     html[data-motion="on"] #craft > .section-bg { --from: var(--plum-ink) !important; }
   }
 
+  /* The seam, simplified (Maxwell, 2026-11-17): no roots under the hero and no thread running into the
+     weave film; the soil just sinks into plum and the weave stage is there, its warps already laid. */
+  html[data-motion="on"] [data-hero-roots], [data-thread-in] { display: none !important; }
+
+  /* The pointer's dot (Cursor.tsx). The native cursor hides only once the dot is on screen (html[data-cursor]),
+     and text fields keep their caret. Plum with a cream rim, so it reads on cream and on plum alike. */
+  html[data-cursor="on"], html[data-cursor="on"] * { cursor: none !important; }
+  html[data-cursor="on"] :is(input:not([type="submit"], [type="checkbox"], [type="radio"]), textarea, [contenteditable="true"]) { cursor: text !important; }
+  .cursor-dot {
+    position: fixed; left: 0; top: 0; z-index: 90; pointer-events: none;
+    width: 0.625rem; height: 0.625rem; margin: -0.3125rem 0 0 -0.3125rem; border-radius: 50%;
+    background-color: var(--plum-ink); box-shadow: 0 0 0 1.5px var(--cream-a86);
+    transition: scale 220ms var(--curve-out), opacity 200ms var(--curve-out),
+      background-color 220ms var(--curve-out), box-shadow 220ms var(--curve-out);
+  }
+  .cursor-dot[data-state="out"], .cursor-dot[data-state="text"] { opacity: 0; }
+  /* Over something that can be clicked: it opens into a soft pink ring. */
+  .cursor-dot[data-state="hot"] {
+    scale: 3.6; background-color: var(--lotus-pink-a18);
+    box-shadow: 0 0 0 0.6px var(--plum-ink), 0 0 0 1.1px var(--cream-a86);
+  }
+  .cursor-dot[data-down] { scale: 0.7; }
+  .cursor-dot[data-state="hot"][data-down] { scale: 3; }
+  /* A petal the pointer lets fall: tiny, pointed at one end, gone in about a second. */
+  .cursor-petal {
+    position: fixed; z-index: 89; pointer-events: none; width: 0.5rem; height: 0.375rem;
+    border-radius: 80% 0 80% 0; opacity: 0;
+  }
+
+  /* The live seam (RootsScene) draws the weaving itself and hands over to the film's finished cloth: the
+     film's canvases show only as far as --film-in says (RootsScene sets it on the stage; until it has,
+     and without it, the film shows as usual). */
+  html[data-roots="on"] #craft .weave-stage > canvas[data-on] { opacity: var(--film-in, 1); transition: none; }
+
+  /* The page vine (Thread.tsx; motion-runtime's mountThread builds and draws it). Its greens are the hero
+     vine's: the mint deepened with ink. A bud is closed until the growing tip has passed it. */
+  .pvine {
+    --pvine-stem: color-mix(in srgb, var(--stem-mint) 52%, var(--ink-soft));
+    --pvine-leaf: color-mix(in srgb, var(--stem-mint) 74%, var(--ink));
+    --pvine-w: 5px;
+  }
+  .pvine-stem { stroke: var(--pvine-stem); stroke-width: var(--pvine-w); }
+  .pvine-light { stroke: color-mix(in srgb, var(--stem-mint) 45%, var(--cream)); stroke-width: calc(var(--pvine-w) * 0.3); opacity: 0.7; }
+  .pvine-leaf { fill: var(--pvine-leaf); }
+  .pvine-leaf[data-tone="1"] { fill: color-mix(in srgb, var(--stem-mint) 62%, var(--ink)); }
+  .pvine-leaf[data-tone="2"] { fill: color-mix(in srgb, var(--stem-mint) 80%, var(--ink-soft)); }
+  .pvine-rib { fill: none; stroke: color-mix(in srgb, var(--stem-mint) 55%, var(--cream)); stroke-width: 1; stroke-linecap: round; opacity: 0.8; }
+  .pvine-stalk, .pvine-curl { fill: none; stroke: var(--pvine-stem); stroke-width: 1.5; stroke-linecap: round; }
+  .pvine-petal { fill: var(--petal-soft); }
+  [data-deep] > .pvine-petal { fill: color-mix(in srgb, var(--petal-soft) 60%, var(--lotus-pink)); }
+  .pvine-throat { fill: var(--cream); }
+  .pvine-eye { fill: var(--peach-glow); }
+  .pvine-bud { scale: 0; transform-origin: 0 0; transition: scale 700ms var(--curve-out); }
+  .pvine-bud[data-on] { scale: 1; }
+  @media (prefers-reduced-motion: reduce) { .pvine-bud { transition: none; } }
+
+  /* Loose petals and young leaves (Hands.tsx: Flecks). An anchor marks the place; the fleck floats past it
+     (the runtime moves it by data-float). One shape, pointed at one end, like the cursor's petal. */
+  .fleck-anchor { position: absolute; width: 0; height: 0; }
+  .fleck {
+    position: absolute; width: var(--fleck); height: calc(var(--fleck) * 0.72); margin: calc(var(--fleck) * -0.36) 0 0 calc(var(--fleck) * -0.5);
+    border-radius: 85% 0 85% 0; rotate: var(--turn);
+    background-image: linear-gradient(135deg, var(--cream) -10%, var(--petal-soft) 55%);
+    box-shadow: 0 0.35rem 0.6rem -0.3rem color-mix(in srgb, var(--plum-ink) 28%, transparent);
+  }
+  .fleck[data-kind="deep"] { background-image: linear-gradient(135deg, var(--petal-soft), color-mix(in srgb, var(--petal-soft) 45%, var(--lotus-pink))); }
+  .fleck[data-kind="cream"] { background-image: linear-gradient(135deg, #fff, var(--peach-glow)); }
+  .fleck[data-kind="leaf"] {
+    border-radius: 90% 0 90% 0;
+    background-image: linear-gradient(135deg, color-mix(in srgb, var(--stem-mint) 80%, var(--cream)), color-mix(in srgb, var(--stem-mint) 70%, var(--ink)));
+  }
+  /* The ring of running stitch behind the products (Hands.tsx): two circles the runtime turns against each other. */
+  .stitch-ring { position: absolute; inset: 2% 6% auto; width: 88%; aspect-ratio: 1; overflow: visible; }
+  .stitch-ring circle { fill: none; stroke: var(--blush-line); stroke-width: 1.25; stroke-dasharray: 5 7; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+  .stitch-ring circle + circle { stroke: color-mix(in srgb, var(--stem-mint) 65%, var(--paper)); stroke-dasharray: 2 9; }
+
+  /* The About page's first screen (AboutHero.tsx): GIEO's full name, one line to each capital, as large as
+     the screen's width and height both allow, so the four lines always fit one screen. */
+  .about-name { font-size: clamp(2.5rem, min(9.3vw, 14.2svh), 10rem); line-height: 0.99; letter-spacing: -0.015em; }
+  .about-initial { color: var(--petal-soft); }
+  .about-joiner { color: color-mix(in srgb, var(--cream) 62%, var(--plum-ink)); }
+  .about-bloom {
+    position: absolute; inset: -22%;
+    background-image: radial-gradient(closest-side, color-mix(in srgb, var(--petal-soft) 34%, transparent), color-mix(in srgb, var(--peach-glow) 12%, transparent) 55%, transparent);
+  }
+
+  /* Links that slide up (ContactLinks.tsx): a line rises from behind the foot of its own box. The box clips
+     top and bottom only, with room for the italic's tails, so a swash still runs out to the side. A row on
+     the first screen plays on load, in turn (--i); a row the runtime is holding (data-enter="pending")
+     waits under its line and plays when it is let in. The row's own unveil (a wipe) is not used here. */
+  @keyframes slide-up { from { translate: 0 118%; } }
+  .slide-row[data-enter] { clip-path: none; }
+  /* an underline does not reach into an inline-block by itself: both boxes take the link's own */
+  .slide-up, .slide-up > span { text-decoration: inherit; }
+  .slide-up { display: block; overflow-x: visible; overflow-y: clip; padding-block: 0.08em 0.24em; margin-block: -0.08em -0.24em; }
+  .slide-up > span { display: inline-block; animation: slide-up 1000ms var(--curve-out) calc(var(--i, 0) * 110ms + 250ms) both; }
+  .slide-row[data-enter="pending"] .slide-up > span { animation: none; translate: 0 118%; }
+  .slide-row[data-enter="in"] .slide-up > span { animation-delay: calc(var(--i, 0) * 40ms); }
+
+  /* The Collections first screen (ParallaxHero.tsx, after 21st.dev's Parallax Scrolling by Osmo): four layers
+     stacked in one screen, each moved down by the component as the screen scrolls away, the far ones most.
+     The sky covers the screen; the hills and the foreground are 16:9 cut-outs hung from the foot of it, as
+     wide as the screen or wider on a tall one. The fade at the foot runs into the showroom's plum. */
+  .parallax { position: relative; height: 100svh; min-height: 34rem; overflow: clip; background-color: var(--cream); }
+  .parallax__layers { position: absolute; inset: 0; }
+  .parallax__sky { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 100%; }
+  .parallax__ground {
+    position: absolute; bottom: -1px; left: 50%; translate: -50% 0;
+    width: max(100%, 150svh); max-width: none; height: auto; aspect-ratio: 2688 / 1520;
+  }
+  /* On a tall screen the foreground keeps its left corner (the cloths and their vine), not its empty middle. */
+  @media (max-aspect-ratio: 1/1) { .parallax__front { left: -6%; translate: none; width: max(100%, 104svh); } }
+  .parallax__copy {
+    position: absolute; inset: calc(var(--nav-offset) + var(--space-6)) 0 auto; padding-inline: var(--gutter);
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+  }
+  .parallax__title { font-size: clamp(3.75rem, 15.5vw, 15rem); line-height: 0.95; letter-spacing: -0.01em; }
+  .parallax__intro { max-width: 34ch; margin-top: var(--space-4); text-wrap: balance; }
+  .parallax__fade {
+    position: absolute; inset: auto 0 0; height: 22%; pointer-events: none;
+    background-image: linear-gradient(to top, var(--plum-ink) 0%, color-mix(in srgb, var(--plum-ink) 55%, transparent) 38%, transparent);
+  }
+
+  /* The vine's cover (VineStage): the film's backdrop over the film, so the film's seed is not seen until the
+     tree drops it. It appears at once when painted; it only ever fades out. */
+  .vine-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
+  .vine-cover[data-on] { opacity: 1; }
+  .vine-cover[data-off] { opacity: 0 !important; transition: opacity 400ms var(--curve-out); }
+
+  /* The home page's loader (HeroLoader): the whole screen, cream, the word and a bar, from the first paint.
+     It fades when done; the animation is the safety net that takes it away after 12 s whatever the script
+     does. Nothing under it scrolls while it is up (html[data-loading]). Reduced motion: no vine is coming, so no loader. */
+  .site-loader {
+    position: fixed; inset: 0; z-index: 95; display: grid; place-content: center; justify-items: center; gap: 1.5rem;
+    background-color: var(--cream);
+    background-image: radial-gradient(60% 50% at 50% 46%, var(--peach-glow-a35), transparent 70%);
+    transition: opacity 700ms var(--curve-out), visibility 0s 700ms;
+    animation: site-loader-out 600ms var(--curve-out) 12s forwards;
+  }
+  .site-loader > p { font-size: clamp(3rem, 12vw, 7rem); line-height: 1; letter-spacing: 0.02em; }
+  .site-loader-bar {
+    width: min(14rem, 52vw); height: 3px; border-radius: 3px; background-color: var(--plum-ink-a16); overflow: hidden;
+  }
+  .site-loader-bar > span {
+    display: block; height: 100%; border-radius: inherit; background-color: var(--plum-ink);
+    transform-origin: 0 50%; transform: scaleX(var(--p, 0)); transition: transform 500ms var(--curve-out);
+  }
+  .site-loader[data-done] { opacity: 0; visibility: hidden; pointer-events: none; }
+  @keyframes site-loader-out { to { opacity: 0; visibility: hidden; } }
+  /* html[data-loading] is set and cleared by HeroLoader itself, so a page whose script never runs is never
+     left unable to scroll. */
+  html[data-loading] { overflow: hidden; }
+  @media (prefers-reduced-motion: reduce) { .site-loader { display: none; } }
+
+  /* The scroll cue (ScrollCue): an arrow at the foot of the first screen, nodding; it waits for the loader
+     and leaves once the reader scrolls. */
+  @keyframes scroll-cue { 0%, 100% { translate: -50% 0; } 50% { translate: -50% 0.5rem; } }
+  .scroll-cue {
+    position: absolute; left: 50%; bottom: max(1.25rem, 3svh); translate: -50% 0; color: var(--plum-ink);
+    animation: scroll-cue 1.8s ease-in-out infinite; transition: opacity 500ms var(--curve-out); pointer-events: none;
+  }
+  .scroll-cue[data-used], html[data-loading] .scroll-cue { opacity: 0; }
+  @media (prefers-reduced-motion: reduce) { .scroll-cue { animation: none; } }
+
   /* The hero's slim band: the word and its gloss, drifting sideways. The line is there twice, so -50 % loops. */
   @keyframes hero-band { to { transform: translateX(-50%); } }
   .hero-band { animation: hero-band 70s linear infinite; }
@@ -385,6 +557,73 @@
     stroke-dasharray: 1; stroke-dashoffset: 1;
     animation: draw-on var(--dur-draw) var(--curve-out) 200ms forwards;
   }
+
+  /* Collections track (Showroom.tsx, ShowroomDriver.tsx, src/lib/showroom.ts). Default (no JS, reduced
+     motion, print): a plain list, intro then each product with its picture, then how to order. With the
+     driver on (html[data-track]): the run pins for --run, the row is one line wider than the screen and
+     slides left with the scroll; each product slot is about a screen wide, so one product hangs in the
+     middle at a time, its name beside it, brightening as it arrives (--f). */
+  .showroom-run { padding-block: var(--space-section-sm); }
+  .showroom-track {
+    display: flex; flex-direction: column; gap: 3rem;
+    max-width: var(--wrap-max); margin-inline: auto; padding-inline: var(--gutter);
+  }
+  .showroom-product { display: grid; gap: 1rem; }
+  /* Sized so the longest word of each name fits its column whole (no break-word splits). */
+  .showroom-title { font-size: clamp(3rem, 11vw, var(--fs-mega)); line-height: var(--lh-mega); }
+  .showroom-name { font-size: clamp(2.75rem, 11vw, var(--fs-mega)); line-height: var(--lh-mega); }
+  .showroom-box { position: relative; aspect-ratio: 1; width: min(100%, 60svh); }
+  .showroom-still { position: absolute; inset: 0; }
+  .showroom-cloth { aspect-ratio: 1600 / 1338; width: min(100%, 24rem); }
+  .showroom-credit { display: none; }
+
+  /* --run is runLength(2) in src/lib/showroom.ts: the Nối Bag and the Nếp Keychain each keep the scroll a
+     product had in the three-product row (300svh phone, 260svh desktop). */
+  html[data-track="on"] .showroom-run { --run: 219svh; height: calc(100svh + var(--run)); padding: 0; }
+  html[data-track="on"] .showroom-pin {
+    position: sticky; top: 0; height: 100svh; overflow: hidden; display: flex; align-items: center;
+  }
+  html[data-track="on"] .showroom-track {
+    flex-direction: row; align-items: center; gap: 0;
+    width: max-content; max-width: none; margin: 0; padding-inline: var(--gutter) 8vw;
+  }
+  html[data-track="on"] .showroom-slot { flex: 0 0 auto; }
+  html[data-track="on"] .showroom-intro { width: 84vw; padding-top: var(--nav-offset); }
+  html[data-track="on"] .showroom-product {
+    width: 100vw; height: 100svh; grid-template-rows: auto 1fr; gap: 0;
+    padding: var(--nav-offset) 0 3rem;
+  }
+  html[data-track="on"] .showroom-box { width: 100%; height: 100%; aspect-ratio: auto; }
+  /* Each letter rises, turns upright and fades in on its own, a beat after the one before (--i). */
+  .showroom-word { display: inline-block; white-space: nowrap; }
+  .showroom-letter { display: inline-block; }
+  html[data-track="on"] .showroom-letter {
+    --k: clamp(0, calc(var(--f, 1) * 1.7 - var(--i) * 0.06), 1);
+    opacity: var(--k);
+    translate: 0 calc((1 - var(--k)) * 0.5em);
+    rotate: calc((1 - var(--k)) * 10deg);
+  }
+  /* The intro's cloth hangs in the air like the products. */
+  @keyframes showroom-float { 50% { translate: 0 -0.6rem; rotate: -1.5deg; } }
+  html[data-track="on"] .showroom-cloth { animation: showroom-float 6s ease-in-out infinite; }
+  html[data-track="on"] .showroom-order { width: 72vw; padding-left: var(--gutter); }
+  html[data-track="on"] .showroom-credit { display: block; position: absolute; right: var(--gutter); bottom: 1rem; }
+  html[data-track="on"] .showroom-cloth { width: min(100%, 22rem); }
+  @media (min-width: 64rem) {
+    html[data-track="on"] .showroom-run { --run: 171svh; }
+    html[data-track="on"] .showroom-intro { width: min(44vw, 38rem); margin-right: 4vw; padding-top: 0; }
+    html[data-track="on"] .showroom-title { font-size: clamp(3rem, 6vw, var(--fs-mega)); }
+    html[data-track="on"] .showroom-name { font-size: clamp(2.75rem, 5.6vw, 6.5rem); }
+    html[data-track="on"] .showroom-product {
+      width: 76vw; grid-template-columns: 34% 1fr; grid-template-rows: 1fr; align-items: end;
+      padding: var(--nav-offset) 0 0;
+    }
+    html[data-track="on"] .showroom-name { padding-bottom: 18svh; }
+    html[data-track="on"] .showroom-order { width: 36vw; }
+    html[data-track="on"] .showroom-credit { bottom: 1.5rem; }
+  }
+  /* The canvas is drawing the products in their boxes: the pictures step aside (layout unchanged). */
+  html[data-showroom="ready"] .showroom-still { opacity: 0; transition: opacity var(--dur-fade) var(--curve-out); }
 }
 
 /* Reduced motion: tokens.css already zeroes every travel distance. This also drops movement
@@ -400,8 +639,43 @@
   .load-hairline { display: none; }
   .draw-on path { animation: none; stroke-dashoffset: 0; }
   .word-in, .hero-band { animation: none; }
+  .slide-up > span { animation: none !important; translate: none !important; }
 }
 /* A pending line reveal holds its heading at opacity 0; paper never scrolls to fire it. */
 @media print {
   main h2 > span { opacity: 1 !important; transform: none !important; }
+}
+
+/* photo prints */
+/* GIEO's photographs as small printed photographs lying on the page (PhotoPrint.tsx): a thin cream mat, a
+   soft shadow, a slight tilt (--tilt), an optional petal glow behind. Entering view, a print settles: it
+   fades in, rises a little and turns to its tilt (the runtime's data-enter, here without the still-lifes'
+   wipe, which would clip the shadow). The picture drifts in its window (data-drift). */
+@layer components {
+  .print { position: relative; isolation: isolate; }
+  .print-glow {
+    position: absolute; inset: -24%; z-index: -1; pointer-events: none;
+    background-image: var(--still-bloom); opacity: 0.85;
+  }
+  .print[data-tone="plum"] .print-glow { background-image: var(--still-loom); opacity: 1; }
+  .print-sheet {
+    rotate: var(--tilt, 0deg);
+    padding: clamp(0.3125rem, 3.4%, 0.875rem);
+    border-radius: var(--round-print);
+    background-color: var(--print-mat);
+    box-shadow: var(--elev-print);
+  }
+  .print[data-tone="plum"] .print-sheet { box-shadow: var(--elev-print-plum); }
+  .print-window {
+    position: relative; overflow: hidden;
+    border-radius: calc(var(--round-print) * 0.45);
+    background-color: var(--paper);
+  }
+  .print-sheet[data-enter] {
+    clip-path: none;
+    transition: opacity var(--dur-sew) var(--curve-out), translate var(--dur-sew) var(--curve-out),
+      rotate var(--dur-sew) var(--curve-out);
+  }
+  .print-sheet[data-enter="pending"] { opacity: 0; translate: 0 1.25rem; rotate: calc(var(--tilt, 0deg) * 2.5); }
+  .print-cap { margin-top: 0.875rem; }
 }

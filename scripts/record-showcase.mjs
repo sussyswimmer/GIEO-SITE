@@ -12,7 +12,7 @@ for (const [name, w, h, phone, route] of [['desktop', 1440, 900, false, '/'], ['
   fs.mkdirSync(dir, { recursive: true });
   const ctx = await b.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: phone ? 2 : 1, locale: 'vi-VN', hasTouch: phone, isMobile: phone });
   const p = await ctx.newPage();
-  await p.goto('http://localhost:3101' + route, { waitUntil: 'networkidle' });
+  await p.goto('http://localhost:3101' + route + (process.env.QUERY ?? ''), { waitUntil: 'networkidle' });
   await p.waitForFunction(() => 'motionReady' in document.documentElement.dataset, null, { timeout: 30000 }).catch(() => {});
   await p.waitForTimeout(2000);
   const cdp = await ctx.newCDPSession(p);

@@ -38,6 +38,7 @@
   --plum-ink-a08: color-mix(in srgb, var(--plum-ink) 8%, transparent);
   --cream-a86: color-mix(in srgb, var(--cream) 86%, transparent);        /* nav glass, hero copy scrim */
   --cream-a35: color-mix(in srgb, var(--cream) 35%, transparent);        /* stitches on plum */
+  --print-mat: color-mix(in srgb, var(--cream) 55%, #fff);               /* a photo print's mat: cream, a shade lighter than the page */
 
   /* ── 3. Colour roles (what components should reach for) ───────────────────── */
   --bg-page: var(--cream);
@@ -59,13 +60,16 @@
 
   /* Fluid sizes: linear from 375px to 1440px viewport, capped after. 01-brand.md §4 */
   /* Redesign v2 (docs/07 §2): hero, h2, quote and lead went up; mega is new. */
-  /* "GIEO" fits the content width (the word is 2.24 em wide), unless the screen is too short to also hold
-     the nav, the eyebrow, the sub line with its buttons and the band: 149 at 390, 560 at 1440×900. The
-     word's advance is 2.312 em. */
-  --fs-hero: max(4rem, min(calc(min(100vw - 2 * var(--gutter), var(--wrap-max)) / 2.34), calc((100svh - 21rem) / 0.95)));
-  --fs-mega: clamp(3.5rem, 0.331rem + 13.5211vw, 12.5rem);   /* 56 → 200: partner name, kinetic band, dictionary word, footer line */
-  --fs-h2: clamp(3.5rem, 1.8275rem + 7.1362vw, 8.25rem);     /* 56 → 132 */
-  --fs-quote: clamp(2rem, 1.1197rem + 3.7559vw, 4.5rem);     /* 32 → 72 */
+  /* GIEO's feedback (November 2026): the four display sizes (hero, mega, h2, quote) are about 10 % smaller
+     than the redesign set them; nothing else changed size. */
+  /* "GIEO" spans about nine tenths of the content width (the word is 2.24 em wide; 2.34 filled it before the
+     trim), unless the screen is too short to also hold the nav, the eyebrow, the sub line with its buttons
+     and the band (that bound is trimmed by the same tenth): 134 at 390, 504 at 1440×900. The word's advance
+     is 2.312 em. */
+  --fs-hero: max(4rem, min(calc(min(100vw - 2 * var(--gutter), var(--wrap-max)) / 2.6), calc((100svh - 21rem) / 1.055)));
+  --fs-mega: clamp(3.15rem, 0.2979rem + 12.169vw, 11.25rem);  /* 50 → 180: partner name, kinetic band, dictionary word, footer line */
+  --fs-h2: clamp(3.15rem, 1.6447rem + 6.4225vw, 7.425rem);    /* 50 → 119 */
+  --fs-quote: clamp(1.8rem, 1.0077rem + 3.3803vw, 4.05rem);   /* 29 → 65 */
   --fs-h3: clamp(1.5rem, 1.2359rem + 1.1268vw, 2.25rem);     /* 24 → 36 */
   --fs-h4: clamp(1.25rem, 1.162rem + 0.3756vw, 1.5rem);      /* 20 → 24 */
   --fs-lead: clamp(1.125rem, 0.949rem + 0.7512vw, 1.625rem); /* 18 → 26 */
@@ -138,6 +142,7 @@
   /* ── 7. Shape ──────────────────────────────────────────────────────────────── */
   --round-field: 0.75rem;  /* inputs, textarea, todo marker */
   --round-frame: 1rem;     /* photo frames, product images, video */
+  --round-print: 0.75rem;  /* a printed photograph (PhotoPrint): a little softer than a frame */
   --round-card: 1.75rem;   /* dictionary card, pillar card, involve card hover fill, menu sheet */
   --round-pill: 999px;     /* nav, buttons, language toggle */
   --hairline: 1px;
@@ -166,6 +171,12 @@
   --elev-nav: 0 0.5rem 1.5rem -0.75rem var(--plum-ink-a16);
   --elev-lift: 0 0.75rem 2rem -0.75rem var(--lotus-pink-a35);  /* hover: soft pink glow */
   --elev-halo: 0 0 0 0.375rem var(--lotus-pink-a18);           /* decorative ring beside the focus outline */
+  /* A printed photograph lying on the page (PhotoPrint): a tight contact shadow and a soft pink one under it,
+     like the still-lifes' shadows. On plum: deeper, with a little of the loom's pink around it. */
+  --elev-print: 0 0.0625rem 0.1875rem var(--plum-ink-a08), 0 0.75rem 1.5rem -0.5rem var(--plum-ink-a16),
+    0 1.75rem 3rem -1.5rem var(--lotus-pink-a35);
+  --elev-print-plum: 0 0.125rem 0.375rem color-mix(in srgb, var(--ink) 30%, transparent),
+    0 1.25rem 2.5rem -0.75rem color-mix(in srgb, var(--ink) 55%, transparent), 0 0 3rem -0.75rem var(--lotus-pink-a18);
 
   /* ── 9. Motion (03-motion-and-3d.md §0 and §5) ────────────────────────────── */
   --curve-out: cubic-bezier(0.16, 1, 0.3, 1);      /* the house curve: reveals, hovers, nav */

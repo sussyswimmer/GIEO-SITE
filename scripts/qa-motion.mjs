@@ -699,7 +699,7 @@ async function checkSeed(browser) {
 }
 
 // ---- weave: budget, per-beat store + screenshots, text safety, frame, tiles, GPU idle, programs, UV chart, continuity ----
-const WEAVE_BEATS = ['thread', 'warps', 'weave', 'drape', 'tote', 'mug', 'coaster'];
+const WEAVE_BEATS = ['thread', 'warps', 'weave', 'drape', 'bag', 'lipstick'];
 const WEAVE_SIZES = [[1440, 900], [375, 812], [768, 1024], [1024, 768]];
 
 // Circle grid with an asymmetric F in every cell: circles show stretch, the F shows flips and mirroring. Never shipped.
@@ -828,24 +828,24 @@ async function checkWeave(browser) {
           const delta = (await frames()) - f0;
           entry.idle.push({ beat, delta });
           if (delta !== 0) fails.push(`idle ${beat}: ${delta} frames/s`);
-          if (w >= 1024 && ['tote', 'mug', 'coaster'].includes(beat)) {
+          if (w >= 1024 && ['bag', 'lipstick'].includes(beat)) {
             const active = await page.evaluate(() => [...document.querySelectorAll('#craft ul[role="list"] > li')].map((li) => li.dataset.active === 'true'));
-            const want = ['tote', 'mug', 'coaster'].indexOf(beat);
-            const exact = active.length === 3 && active.every((a, j) => a === (j === want));
+            const want = ['bag', 'lipstick'].indexOf(beat);
+            const exact = active.length === 2 && active.every((a, j) => a === (j === want));
             entry.tiles.push({ beat, active, ok: exact });
             if (!exact) fails.push(`tiles at ${beat}: ${active}`);
           }
         }
-        if (beat === 'coaster' && q === 1) {
+        if (beat === 'lipstick' && q === 1) {
           const c = await page.evaluate(() => { const r = document.querySelector('[data-scene-stage="weave"]').getBoundingClientRect(); return { y: r.top + r.height / 2, vh: innerHeight }; });
           entry.frame = { centreY: round(c.y), minY: round(0.08 * c.vh), vh: c.vh };
-          if (!(c.y >= 0.08 * c.vh && c.y <= c.vh)) fails.push(`coaster stage centre y=${round(c.y)}`);
+          if (!(c.y >= 0.08 * c.vh && c.y <= c.vh)) fails.push(`lipstick stage centre y=${round(c.y)}`);
         }
       }
     }
     if (w === 1440) {
       // Crossing the breakpoint reverts the wide beats; a lit tile must not survive it.
-      await weaveScrollTo(page, 'mug', 0.5);
+      await weaveScrollTo(page, 'lipstick', 0.5);
       await page.waitForTimeout(1500);
       await page.setViewportSize({ width: 900, height: h });
       await page.waitForTimeout(800);
@@ -854,7 +854,7 @@ async function checkWeave(browser) {
       await page.setViewportSize({ width: w, height: h });
       await page.waitForTimeout(800);
       // Leaving with a product on screen: the canvas outlives the page, so its next frame must draw nothing.
-      await weaveScrollTo(page, 'tote', 1);
+      await weaveScrollTo(page, 'bag', 1);
       await page.waitForTimeout(1500);
       await page.evaluate(() => { window.__qaSoftNav = true; });
       await page.locator('#craft a[href="/collections"]').click();
@@ -879,7 +879,7 @@ async function checkWeave(browser) {
     await waitReady(page);
     await weaveNear(page);
     await page.waitForSelector('html[data-weave="ready"]', { state: 'attached', timeout: 30000 });
-    for (const beat of ['tote', 'mug', 'coaster']) {
+    for (const beat of ['bag', 'lipstick']) {
       await weaveScrollTo(page, beat, 1);
       await page.waitForTimeout(1500);
       const file = path.join(outDir, `weave-chart-${beat}@${w}.png`);
@@ -917,7 +917,7 @@ async function checkWeave(browser) {
 }
 
 // ---- fallback: Lite scrub video and Still posters (Phase 6, docs/03 §6) ----
-const FALLBACK_SPANS = { seed: ['seed', 'seed'], weave: ['weave-thread', 'weave-coaster'], lotus: ['lotus-rise', 'lotus-finale'] };
+const FALLBACK_SPANS = { seed: ['seed', 'seed'], weave: ['weave-thread', 'weave-lipstick'], lotus: ['lotus-rise', 'lotus-finale'] };
 const MP4_LIMIT = 3 * 1024 * 1024;
 
 // Media and model requests, bytes summed per URL (a video arrives in several range requests).

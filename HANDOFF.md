@@ -47,7 +47,7 @@ Vietnamese must be typed with its real diacritics (ă, ơ, ư, ỗ…), never st
 
 ## 4. Adding or swapping photos
 
-1. Put the original files in `assets/photos/<collection>/`. Collections: `products` (file names start with `tote`, `mug` or `coaster`), `brocade`, `journal`, `artisans`, `team`.
+1. Put the original files in `assets/photos/<collection>/`. Collections: `products`, `brocade`, `journal`, `artisans`, `team`. A page picks a photo by its id (the file name, slugified), through `photo(id, t)` in `src/lib/photos.ts`. Faces or plates that must not show are blurred first with `npm run redact`.
 2. Add one row per photo with any person in it to `assets/consent.csv`: `filename,consent,notes`, consent is `yes` or `no`. A photo without `yes` is never copied into the site.
 3. Run `npm run images`. It makes AVIF and WebP files in four widths under `public/img/`, strips all EXIF and GPS data, and updates `src/lib/photos-manifest.json`. Do not edit the manifest by hand.
 4. Add the alt text in both languages as `photos.<id>.alt` in `vi.json` and `en.json` (`<id>` is printed by the script). A photo without alt text in both files is not shown.
@@ -57,12 +57,12 @@ Privacy rules (not optional): only photos with consent. Never put a girl's name 
 
 ## 5. Adding a collection
 
-Today the site has one collection, H'mong brocade, and the Collections page renders it explicitly. A second one needs a developer:
+Today the site has one collection, Nối Nếp (the Nối Bag and the Nếp Keychain), and the Collections page renders it explicitly. A second one needs a developer:
 
-1. Copy keys: add `collections.<slug>.name`, `.body` and `.credit` in both JSON files.
-2. Photos: put the pattern scan in `assets/photos/brocade/` and product photos in `assets/photos/products/`, then extend `collectionPhotos` in `src/lib/photos.ts` with a `<slug>` entry (today it only has `hmong`).
-3. Page: in `src/app/[locale]/collections/page.tsx`, add a second `<CollectionBlock id="<slug>" …>` after the H'mong one, with its own `tone`.
-4. If the collection has its own products (not tote, mug and coaster), the product list in that page and the product names in `home.craft.products` need the same treatment.
+1. Copy keys: add `collections.<slug>.name`, `.tagline`, `.body` and `.credit` in both JSON files.
+2. Photos: add them as in section 4 and give each an alt text.
+3. Page: in `src/app/[locale]/collections/page.tsx`, add a second `<CollectionBlock id="<slug>" …>` after the Nối Nếp one, with its own `tone`.
+4. New products also need their keys: `PRODUCTS` in that page, `PRODUCT_KEYS` in `src/lib/showroom.ts` (the 3D showroom), and names under `home.craft.products` in both JSON files. Their 3D models come from the Blender scripts in `blender/`.
 
 Follow the brand rule in `docs/01-brand.md`: never state what a pattern means unless GIEO has given the meaning.
 
@@ -74,7 +74,8 @@ There is no logo file yet. The site shows the word "GIEO" set in the brand serif
 
 Not deployed yet. Nothing goes live without Maxwell's go-ahead.
 
-- Vercel, import the GitHub repo; framework and build settings are detected.
+- A static preview is published to GitHub Pages from the `gh-pages` branch (`scripts/build-pages.mjs`): https://sussyswimmer.github.io/GIEO-SITE/ and `/feedback/`. Updating it is a push to that branch.
+- For the real launch: Vercel, import the GitHub repo; framework and build settings are detected.
 - Set `NEXT_PUBLIC_SITE_URL` to the final address once there is a domain. Until then canonical links, the sitemap and social cards use the Vercel preview URL.
 - After the first preview deploy, run Lighthouse against it (section 8). Every number below was measured locally.
 
@@ -99,7 +100,7 @@ Every question in `docs/00-open-questions.md`, and every other `TODO(tag)` in th
 | 2 | `logo-svg` | Logo as SVG | Text placeholder "GIEO" (section 6) |
 | 3 | `shop` | How people buy today (Shopee, DMs, form, in person) | "Order via Instagram / email" links |
 | 4 | `donate` | Whether and how to donate | No donate button; `getInvolved.donate.body` empty |
-| 5 | `products` | Product photos and one flat brocade scan | Blender renders of the products; plain-weave texture |
+| 5 | `products` | Product photos and one flat brocade scan | Partly answered: GIEO's product photos are in (23 Nov); 3D products built in Blender |
 | 6 | `photos` | Which recap and trip photos have consent | Hands, landscapes and products only |
 | 7 | `team` | Team list for About | Department list only; `about.teamHeading` empty |
 | 8 | `stat` | Any public impact numbers | No numbers anywhere |
@@ -118,4 +119,5 @@ Decisions for Maxwell, carried from `PROGRESS.md`:
 - **Home length.** About 15 screens at 1440×900 against docs/07's 12-screen cap.
 - **Not tested here:** Safari (macOS and iOS), Firefox, Samsung Internet (common in Vietnam), a real phone, a real trackpad. This build machine has Chromium only. These need a person and real devices before launch.
 - **Lighthouse on the real host.** Sub-page LCP on phones sits at the 2.5 s limit locally (passes and misses between runs); the deciding run is against the Vercel preview.
-- **Motion runtime boot.** Fixed 2026-11-24: start-up is time-sliced (no runtime long task at 4x CPU; `node scripts/qa-boot.mjs`). Still to feel on a real mid-range Android.
+- **Motion runtime boot.** Fixed 2026-11-24: start-up is time-sliced; at 4x CPU no runtime step is over 50 ms (`node scripts/qa-boot.mjs`). Still to feel on a real mid-range Android.
+- **The vine's 3D start-up.** The hero vine (Full tier) boots 100 ms after load and still costs long tasks at 4x CPU: evaluating three.js (about 140 ms) and building the scene (about 100 ms). Not yet split.

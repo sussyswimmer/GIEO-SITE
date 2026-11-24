@@ -2,13 +2,15 @@
 
 All long-form copy below is **verbatim from GIEO's Org Info doc or GIEO's own Facebook posts** (the 20/10 post and the season recap post). Lines marked `DRAFT` are short connective lines written for the site; they must be shown to GIEO for approval and are the only copy you may edit freely. Store everything in `src/content/{en,vi}.json`, never hard-code strings in components.
 
+Since November 2026 there is one more source: GIEO's printed Nối Nếp leaflet. Its copy has its own block below ("/collections: the Nối Nếp collection"), which says line by line what is verbatim and what is `DRAFT`. That block and `09-feedback.md` replace every earlier product list: the products are the bag and the lipstick holder.
+
 ---
 
 ## Site map
 
 ```
 /                 Home: one continuous scroll (sections H0 to H8 below)
-/collections      Product collections (one block per collection; starts with the H'mong brocade collection)
+/collections      Product collections (one block per collection; starts with the Nối Nếp collection)
 /about            Story, three pillars in depth, departments, team (TODO(team)), partner
 /get-involved     Shop, mentor, partner, volunteer, donate (TODO(donate))
 /contact          Email, Instagram, Facebook, simple form (mailto fallback)
@@ -45,7 +47,7 @@ Beat 2 (pull quote, from their 20/10 post):
 - EN: "Every single thread, every careful stitch, and every piece of woven fabric tells the quiet, enduring story of a Vietnamese woman."
 - VI: "Từng sợi chỉ đan, từng mũi khâu dệt, từng mảnh vải thêu đều là một câu chuyện bền bỉ về người phụ nữ Việt Nam."
 
-Beat 3 (products appear: tote, mug, coaster):
+Beat 3 (the cloth becomes the Nối Bag, then the film glides across to the Nếp Keychain. Both product names stand beside the stage in one list, name large and kind small, each lit while its product rests: Nối Bag / Túi Nối and Nếp Keychain / Móc Nếp. The strings are in the Nối Nếp block below. The film shows no other product):
 - EN: "Rather than simply selling handicrafts, GIEO develops contemporary products inspired by traditional H'mong brocade, making ethnic craftsmanship more accessible and relevant to today's young consumers. Every purchase helps sustain traditional weaving while directly supporting the women artisans who preserve this cultural heritage."
 - VI: "Thay vì chỉ đơn thuần bán các sản phẩm thủ công, GIEO phát triển những sản phẩm đương đại nhưng vẫn sử dụng họa tiết và kỹ thuật dệt thổ cẩm truyền thống của người H'Mông, giúp các giá trị thủ công truyền thống trở nên gần gũi và phù hợp hơn với người tiêu dùng trẻ ngày nay. Mỗi sản phẩm được bán ra không chỉ góp phần duy trì nghề dệt truyền thống mà còn trực tiếp hỗ trợ những nữ nghệ nhân đang gìn giữ di sản văn hóa này."
 - CTA: "Xem bộ sưu tập / See the collection" → `/collections`
@@ -97,6 +99,58 @@ Three cards (DRAFT labels):
 - "Hợp tác cùng GIEO / Partner with us" → `/get-involved#partner`
 
 Footer: logo (lotus line draws on when footer enters view), email, Instagram, Facebook, "Supported by the IB Global Youth Action Fund", "Products made with Chie Dù Pù Dù Pà", © GIEO 2026.
+
+---
+
+## /collections: the Nối Nếp collection (from GIEO's printed leaflet)
+
+**Sources.** GIEO's first feedback, November 2026: "right now we have the bag, and the lipstick holders as our main products". GIEO's printed leaflet for the collection, in a Vietnamese and an English version, photographed on their stall table at Lotte Mall Tây Hồ on 22-23/8/2026. The leaflet's header reads GIEO x Chie Dupudupa. Brief: `09-feedback.md` F2.
+
+**Status.** Every key in this block is listed under `draftKeys` in `src/content/_meta.json`, the verbatim ones included, until GIEO confirms the names and the English lines for the web (`00-open-questions.md` #14). "As printed" below means the words were read off the leaflet; `DRAFT` means they were not, or not fully.
+
+The collection, made with Chie Dù Pù Dù Pà:
+
+| Key | VI | EN | Where the words come from |
+|---|---|---|---|
+| `collections.noinep.name` | Nối Nếp | Nối Nếp | As printed (the leaflet's title, in capitals) |
+| `collections.noinep.tagline` | "Nối nghề. Nối người. Nối tương lai." | "Connecting craft. Connecting people. Connecting futures." | VI: verbatim. EN: `DRAFT`, the first word is hidden in the photo |
+| `collections.noinep.body` | "Những sản phẩm được tạo nên từ vải canvas và vải dệt thủ công." | "Products crafted from canvas and handwoven fabrics." | VI: the first clause of the leaflet's sentence, verbatim, ended with a full stop where the leaflet has a comma. EN: `DRAFT`, translated from the VI clause |
+| `collections.noinep.credit` | "Sản phẩm được thực hiện cùng Chie Dù Pù Dù Pà" | "Products made with Chie Dù Pù Dù Pà" | `DRAFT`, unchanged from the credit key of the earlier collection block |
+
+The two products (ids `bag` and `lipstick`):
+
+| Key | VI | EN | Where the words come from |
+|---|---|---|---|
+| `home.craft.products.bag.name` | Túi Nối | Nối Bag | As printed |
+| `home.craft.products.bag.kind` | Túi xách vải thủ công | Brocade handbag | As printed |
+| `home.craft.products.lipstick.name` | Móc Nếp | Nếp Keychain | As printed |
+| `home.craft.products.lipstick.kind` | Móc đựng son dưỡng | Lipstick holder | As printed |
+
+The home page's weave section and the Collections page both read the names from these keys. The weave section's label and credit and the Collections showroom's intro read `collections.noinep.*`.
+
+Left out on purpose:
+
+- **The rest of the leaflet's sentence.** It goes on to say that the patterns are inspired by the culture and traditional weaving of the Thái people in Chiềng Châu, Mai Châu. GIEO's own site copy says H'mong (VI: H'Mông) throughout. Until GIEO settles it (`00-open-questions.md` #13) the collection copy names no ethnic group, and GIEO's sentences in the sections above are left exactly as they wrote them. The old draft label "H'mong brocade" over the products is replaced by "Nối Nếp".
+- **The zip wallet and the fold wallet**, which the leaflet also lists. GIEO named only the bag and the lipstick holder as main products (#15).
+- **Every price** on the leaflet (#16).
+- **The leaflet's four short value lines** (fabrics, livelihoods, opportunities for girls, local cultures). They are not used on the site.
+
+Removed keys: `home.craft.products.tote`, `.mug`, `.coaster` and the whole `collections.hmong` block.
+
+Page layout (the showroom design, unchanged): the parallax hero; the plum gallery, whose row runs the intro (name, tagline, body, credit, the cloth still), the Nối Bag and the Nếp Keychain turning in 3D, each with its name and its kind small under it, then how to order; then "As made" on plum, GIEO's own photos of the two products as prints, each labelled with its name and kind, and one credit; then the band of names.
+
+## Photographs (`09-feedback.md` F3)
+
+Eleven real frames, chosen from the 663 GIEO shared. Alt text is copy: `photos.<id>.alt` in both languages, one key per photo in `src/lib/photos-manifest.json`, all `DRAFT`. It says what is visible and nothing else: no place names, no ethnic group, no "our artisans", because we do not know who is in each frame. Product photos carry their name and kind and one partner credit. There are no other captions. Each is shown as a print (`PhotoPrint`).
+
+| Where | Photo id |
+|---|---|
+| Home, Journal, beside the heading | `01-loom-weaver`, `02-stilt-house`, `03-heddles`, `04-sewing-hands`, `05-cloth-on-loom`, `06-valley` |
+| Home, Hands, under the partner paragraph | `loom-cloth` |
+| Collections, "As made" | `bag-pink` (the file is cut to the pink bag and the two behind it), `lipstick-on-bag` (cut to three holders), each in its own proportions, and from 1024 px `nep-cloth` between them; no wallet, leaflet or printed sheet in either file |
+| About, partner block | `02-stilt-house` |
+
+`sewing-cloth` is in the repo with consent and alt text but is not placed today. Get involved and Contact take no photo: a trip picture beside "what we're building" would read as a result.
 
 ---
 

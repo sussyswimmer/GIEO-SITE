@@ -24,7 +24,9 @@ export function MotionBoot() {
         setReady(true);
       }
     };
-    const cancelTimer = afterLoad(go, BOOT_DELAY_MS);
+    // A page with the hero's vine boots at once: its first screen is waiting on the 3D (VineStage shows a
+    // loading bar meanwhile), and the headline, the LCP element, has painted long before `load`.
+    const cancelTimer = afterLoad(go, document.querySelector('#hero [data-vine]') ? 100 : BOOT_DELAY_MS);
     let cancelIntent = () => {};
     const onIntent = () => {
       cancelIntent = afterLoad(go);

@@ -543,6 +543,161 @@ Open, added by this pass:
 - On resize the hero's lift and vista crop are not rebuilt until the next frame update.
 - `art/seam/roots.webp` and `art/hero/ridge-near.webp` are in `public/` but not used by any page.
 
+## 2026-11-17: Collections gallery track (live 3D)
+
+Maxwell found the old Collections page "lazily done" and asked for a long scroll animation with 3D. A first pass (about 11 screens of chapters: a cloth fly-over, then each product splitting apart) was "even worse": sloppy and too spread out. He then picked a gallery track and asked that each product "rotate and seem suspended in the air and then glide out when the next product comes in". Branch `feat/collections-showroom`, not committed.
+
+- `/collections` runs `PageHeader` → `Showroom` (plum) → `PageBand`. `CollectionBlock` is no longer used by the page.
+- `Showroom.tsx`: one row (intro, tote, mug, coaster, order buttons). `ShowroomDriver.tsx` turns on `html[data-track]` when motion is welcome, pins the run (300svh phone, 260svh desktop: about 3.6 screens) and slides the row left with the scroll, eased; each slot gets `--f` (how centred), which brightens its name. Without JS or with reduced motion: a plain list.
+- `ShowroomScene.tsx` (Full tier, on the existing fixed canvas; `SceneCanvas` mounts it only where `[data-scene-stage="showroom"]` exists) hangs each product from `public/models/weave.glb` in its box: a slow spin plus the turn its travel gives it, a bob and sway over a soft shadow, a petal glow behind; it glides out smaller and further back. The coaster rocks instead of spinning (edge-on it read as a pill). Without the canvas, each box shows the product's Blender portrait, sliding the same way.
+- Cloth parts use a procedural plain weave (`makeBrocade` in `weave-materials.ts`: cream warp, petal weft, one mint stitch; no motif). `WeaveScene`'s material factories moved to that module unchanged.
+- Timing and pose math: `src/lib/showroom.ts`, tested by `scripts/showroom.test.mjs` (in `test:motion`). No new copy keys.
+
+Deviation: the pin holds about 2.6 to 3 screens, past docs/03's 150vh, at Maxwell's request. Scroll is never blocked.
+
+Checks: typecheck, lint, `content:check`, `test:motion` 43/43. Walked the production build at 1440×900 and 390×844 with `?tier=full`: 3D ready, 0 console errors; contact sheets in `~/.playwright-mcp/gieo/show5/`.
+
+Not done or not seen: VI pass, the Lite/Still/no-JS views in a browser, Safari, a real phone, a perf trace (the float renders every frame while the products are on screen). Product bodies still read flatter than the Blender portraits. `npm ci` fails on this branch's base (lockfile missing `@swc/helpers@0.5.24`); used `npm install` and restored the lockfile.
+
+Parked from the same review (home): hero should show only GIEO + seed + vista on load; the hero pin feels like a freeze; the soil-to-plum seam is disliked. Maxwell's idea for the hero: a vine wraps the word GIEO, grows into a tree as you scroll, the tree drops one seed, and the seed falls into the current dirt-and-sprout film.
+
+## 2026-11-17: Vine hero (Act 1)
+
+Maxwell's idea: the home page opens on GIEO; scrolling grows a vine on a journey round the letters, which sprouts into a tree; the tree drops one seed, which becomes the seed of the existing film. Design: docs/superpowers/specs/2026-11-17-vine-hero-design.md; plan: docs/superpowers/plans/2026-11-17-vine-hero.md. Same branch, not committed.
+
+- First screen is the word alone: the eyebrow is `sr-only` (still in the h1), the "gieo · to sow" band is gone, the sub line and the two buttons are a new fourth beat at the end of the hero (`HERO_BEATS`).
+- Act 1 (Full tier): `VineStage` mounts its own small R3F canvas inside `[data-hero-ground]`, over the film and under the word (the shared canvas sits under all page content, so it cannot cover the film: a deviation from "one canvas"). `VineScene` paints the film's own `backdrop()` (now exported from film-stage.ts) so the film's seed is not seen twice, then grows, in word units measured per frame (each letter's box via a Range): a vine that weaves over G, under I, over E, once round O and up into the E–O gap; a trunk that sprouts from its end; branches, leaves (facing the camera) and blossoms; the seed from seed.glb, which swells on the crown, falls and grows onto the film seed's measured mark (`SEED_AT`), where the canvas fades and the film takes over. Timing in `src/lib/vine.ts` (`ACT1_SVH` 180), tested by `scripts/vine.test.mjs`.
+- motion-runtime: with the vine on (`html[data-vine="on"]`), the hero run grows by 180svh and every old hero position is remapped into the rest of the run (`remap`), so Act 2 plays as before from the moment the seed lands.
+- Bug found on the way: a transparent backdrop is drawn after every opaque mesh whatever its render order; it is opaque until it fades.
+
+Checks: `test:motion` (52), typecheck, lint, `content:check`. Walked the production build with `?tier=full` at 1440×900 and 390×844: 0 console errors (one three.js deprecation warning from R3F's clock); sheets in `~/.playwright-mcp/gieo/hero4/`.
+
+Not done or not seen: Lite/Still hero after the copy move, VI, Safari, a real phone, a perf trace (Act 1 renders every frame while on screen). The capitals' place in the line box (`CAP_TOP`, `CAP_BOTTOM`) is measured, not computed from the font. The seam and the beats that still change in place are unchanged.
+
+### Vine hero, realism pass (2026-11-17, same day)
+
+Maxwell: "really high quality looking vines into a realistic tree", and the seed "doesn't look similar at all and it disappears". `VineScene.tsx` rewritten:
+- Leaves are shaped blades (midrib, side veins, fold, droop) in three deeper greens; stems carry procedural bark (striations, grain, knots; woody at the base, green at the tip); the vine has tendrils; blossoms are five cupped petals round a centre; a RoomEnvironment map lights it. Still live, procedural 3D: not photoreal (that needs a Blender or generated film).
+- The seed is now its own geometry modelled on the film's frame 0 (dark ribbed teardrop, round below, point up) and no longer the GLB halves. It hangs tree-sized, grows to the film seed's size as it falls and lands on `SEED_AT`.
+- The handoff fades the canvas element (CSS opacity), not the materials. Per-material fading had two faults: a fading backdrop was drawn over still-opaque meshes (the seed vanished), and branches showed through fading leaves. `Stages.seed` is no longer read by the scene.
+
+Checked on the production build (`?tier=full`), frame by frame at a = 0.12 … 1.04 for 1440×900 and 390×844: `~/.playwright-mcp/gieo/hero8/` (`CHECK.jpg` is the seed sequence). 0 console errors; `test:motion` 52/52, typecheck, lint clean. Known: a faint outline of the 3D seed round the film's mid-dissolve; the crown is a low wide band on desktop (the nav leaves 0.5 of the word's height above the capitals).
+
+### Hero and seam fixes after Maxwell's review (2026-11-17, evening)
+
+- **First scroll looked frozen.** The motion boot waited 2.5 s after load before anything 3D began, and the vine started as a tip off the left edge. Now: pages with the vine boot 100 ms after load (`MotionBoot`), `VineStage` starts the scene's import at load, the vine is 14 % grown at a = 0 and sprouts in by itself over 1.5 s, and a slim loading bar under the word shows real progress (page loaded, tier known, code loaded, scene drawn).
+- **Film seed popped out at load.** The cover (the film's `backdrop()`) is now a 2D canvas painted by `VineStage` as soon as the film reports its frame size, not by the 3D scene, so the film's seed is never seen before the tree drops it. Bug on the way: `document.querySelector('[data-vine]')` matched `<html data-vine="on">`; lookups are scoped to `#hero`.
+- **"Tree is not connected."** The trunk now starts back along the vine's own last stretch, as thin as the vine (`uBase`), and swells as it climbs: one stem.
+- **"Goes back to the original logo."** At the handoff only the cover fades. The plant stays, laid out in the word's box, so it shrinks away and fades with the word (`HERO_WORD_VINE` 0 to 0.16) while the film follows the seed to the soil.
+- **"Scroll stays locked" at the gieo / to sow beat.** The film no longer rests on a frame while a beat is read: `HERO_FILM` and `HERO_FILM_VINE` run from the first scroll to the sink.
+- **The seam (asked for twice).** The weave film starts at frame 50, its warps laid, never on the hairy green yarn (frames 0 to 50); the roots under the hero, the thread into the film and the conic "point" mask on the weave canvas are gone. The soil sinks into plum and the stage rises softly out of it.
+- **Cursor.** `Cursor.tsx` in the locale layout: a plum dot with a cream rim that opens into a pink ring over anything clickable, and a tiny petal about every 90 px of travel (8 alive at most). Mouse only; text fields keep the caret; reduced motion gets no petals. Deviation: hides the native cursor while the dot is on screen.
+
+Checked on the production build (`?tier=full`), 1440×900 and 390×844: first load at 0.3 to 5 s without scrolling, the hero at 14 positions through Act 1 and Act 2, the seam at 6, the cursor plain and over a link: `~/.playwright-mcp/gieo/all3/` (and `all2/cursor-*.jpg`). 0 console errors; `test:motion`, typecheck, lint, `content:check` clean. Not checked: Lite/Still/reduced-motion hero, VI, Safari, a real phone; the beats still change in place.
+
+### The seam, third version: roots become threads (2026-11-17, night)
+
+Maxwell rejected the seam twice (the hairy yarn; then an empty plum band and a slab of blown-up warps) and picked "roots become threads" from three options.
+- `RootsStage` (page.tsx, after `<Weave />`; Full tier) mounts a fixed, see-through R3F canvas and sets `<html data-roots="on">`. `RootsScene`: the sprout's roots grow down out of the soil (pinned to the seed film's `root` point, which rides the page), fan out and straighten into the warp threads of a cloth fitted to the weave film's finished cloth in the sticky stage (its frame 89, `CLOTH_AT`); the other warps run down between them; the weft weaves across from the top; then the canvas fades as the film's cloth fades in on the same spot (`--film-in` on `.weave-stage`). Timing and marks in `src/lib/roots.ts`, tested by `scripts/roots.test.mjs`.
+- With the seam on, `mountWeave` starts the film at frame 89 and holds its scrub until the run is over (`FILM_START`); without it (Lite, Still) the film starts at frame 50 as before.
+- Reuses the vine's `tube()` (exported from VineScene). Bug found by the check: VineScene stopped drawing when the word was gone but its easing had not caught up, leaving the cover over the film after a fast scroll; it now keeps drawing until it has.
+
+### Collections: closer, petals, materials
+
+Maxwell: too minimal; zoom into the product, petals instead of the loose yarn, a more realistic bag. Products are about a third larger; the drifting loops are cupped flower petals in the two pinks and cream; the tote and coaster bodies carry a woven canvas grain and the mug a glaze (`makeBody(lift, 'canvas' | 'ceramic')`); a RoomEnvironment map lights the scene, with every lift lowered so nothing clips. The models are the same low-polygon ones: a truly photographic bag needs GIEO's product photos or a new model.
+
+Checked on the production build (`?tier=full`), 1440×900 and 390×844: the seam at 14 scroll positions (`~/.playwright-mcp/gieo/seam2/`), Collections walk (`show9/`). 0 console errors; `test:motion` 55/55, typecheck, lint, `content:check` clean. Not checked: Lite/Still, VI, Safari, a real phone, performance (three WebGL canvases can be live on the home page: shared, vine, roots).
+
+### Seam follow-up: lag, natural roots, roots out of the soil (2026-11-17, late)
+
+- **Lag at the film's cloth.** VineScene and RootsScene were asking for a frame on every scroll event even when they had nothing to draw, so two full-screen canvases were re-composited over the scrubbing weave film. Each now sleeps once its end state is applied (no `invalidate()` outside its run), hides its canvas (`visibility: hidden`) while empty, and runs at dpr 1.5 at most. Measured in a real Chrome window, 240 frames of steady scroll through the weave: 8.3 ms average, 9.4 ms worst, none over 33 ms.
+- **Roots too orderly.** 13 main roots with uneven targets, some swapped so they cross; each has its own exit point, turn, meander, depth, thickness and the height at which it becomes a straight thread; one thicker taproot; 22 thin rootlets that wander off and end in the earth.
+- **Roots did not connect to the plant.** They start at the foot of the stem and are buried by the soil itself: the tube shader's `uBury` discards by a ground-fixed noise between the soil's surface and the foot of the seed film's frame (`uSoil`), fully at the surface, in patches lower down, and darkens the root while it is in the earth.
+
+Checked: `~/.playwright-mcp/gieo/seam4/` (14 positions, both sizes), 0 console errors, `test:motion` 55/55, typecheck, lint. Known: the buried edge is a hard cut-out, not a soft one; roots still read pale against the dark soil.
+
+### GitHub Pages (2026-11-18)
+
+Maxwell asked for the site to be hosted on GitHub for his team, and chose to make the repo public for it. `node scripts/build-pages.mjs` writes a static export to `out/` for `https://sussyswimmer.github.io/GIEO-SITE/`: `GIEO_STATIC=1` turns on `output: 'export'`, the base path and `localePrefix: 'always'`; the script sets `src/middleware.ts` and the on-demand `opengraph-image` aside for the build (and puts them back), prefixes the app's `/art/`, `/film/`, … paths with the base path in the output, and writes `.nojekyll` and a root `index.html` that goes to `/vi/`. `inlineCss` is off in this build (editing inlined CSS corrupts the page data: blank pages). The server build (`npm run build`) is unchanged. Published by pushing `out/` to the `gh-pages` branch; rerun the script and push again to update. Differences from the server build: every URL carries its locale, no social preview image, no automatic language choice.
+
+### Full-screen loader and scroll cue (2026-11-18)
+
+Maxwell asked for the loading bar to take the whole screen and fade into the hero, and for a sign that the page scrolls. Both are exceptions he asked for to CLAUDE.md's "no full-screen preloader" and docs/03's "no scroll-down pill".
+- `HeroLoader` (home page only, in page.tsx): a fixed cream screen with the word and the bar, from the first paint; the same real steps as before; fades when the vine is drawn, or as soon as the tier says none is coming. Safety: hidden by a `<noscript>` rule, not shown with reduced motion, a 10 s timer and a 12 s CSS animation both take it away, and the scroll lock (`html[data-loading]`) is set and lifted by the component itself. The small bar in `VineStage` is gone.
+- `ScrollCue` (in the hero's first screen): a nodding down-arrow, no words; waits for the loader, leaves on the first scroll.
+
+Checked on the production build at 1440×900, 390×844 and with reduced motion: `~/.playwright-mcp/gieo/loader1/`. Note: the loader now covers the headline at first paint, so LCP will have moved; not measured.
+
+### Vine fixes, page vine, weave glide, Collections / About / Contact (2026-11-19)
+
+Maxwell's notes of the day, in order.
+- **Two seeds at the handoff.** The cover used to fade while the 3D seed was still falling, so the film's seed showed under it. Now the seed lands and rests first (`stages()`: fall done by 0.94, fade 0.95 to 1), comes to rest leaning like the film's seed and behind the plant (where the film's seed is), and dissolves into it on the same spot. Once the film leaves frame 0 the handoff is forced over (`useMotionStore.seed`), so a fast scroll never shows both.
+- **Vine floating on wide screens.** It is rooted: it comes up from under the foot of the screen (`by` in `buildTree`), then travels the word as before (`lead`, `vu`).
+- **More flowers.** Blossoms along the vine, each opening just after the tip passes; more on the twigs.
+- **The page line is the vine.** `Thread.tsx` and `mountThread`: a green stem with a lighter side, leaves, tendrils and blossoms that open as the growing tip passes (and close on the way back), a pair of young leaves riding the tip. SVG only, no new canvas. Reduced motion: drawn whole.
+- **Weave "super laggy".** Measured in a real Chrome window: the page held 120 fps; the film itself makes each product change in about 8 frames. So the stage now carries the change (`--glide-x`, `--glide-o`): the product glides out and fades, the film skips its wipe while hidden, the next glides in. Also new: `mountFrames` decodes frames directly with WebCodecs from `public/film/<scene>/<set>.h264` (+ `.h264.json` index, written by `node scripts/index-film.mjs`); browsers without it keep the mp4 seek. A motion-interpolated film was tried and rejected (ghosting).
+- **Hands "bland".** Name on two lines that slide against each other (`data-slide`), a bloom and a turning ring of running stitch behind the products (`data-spin`), petals and leaves floating past (`Flecks`, `data-float`).
+- **Collections first screen.** `ParallaxHero.tsx`: 21st.dev "Parallax Scrolling" by Osmo, adapted (no second Lenis; the title is the real h1). Three layers generated with Higgsfield (GPT Image 2.6, 8.25 credits) in `public/art/collections/`. The showroom's cream run-in is gone: the hero ends in plum.
+- **About, redone.** `AboutHero.tsx`: the full name on plum, one line per capital, initials in petal pink spelling GIEO down the edge; pillars as three large rows; departments as six tiles; the three ways in before the partner. No new copy.
+- **Contact.** Both pictures removed; links slide up from under their own line (`.slide-up`), in turn.
+
+Checked on the production build (`?tier=full`, port 3102), 1440×900, 2000×1140 and 390×844: hero handoff at 8 positions, weave run, Hands, Collections, About, Contact. `test:motion` 55/55, typecheck, lint (0 errors), `content:check` clean. Not checked: Safari and Firefox (WebCodecs path, `overflow: clip` per axis), a real phone, Lite/Still tiers, LCP on Collections and About. Not deployed: GitHub Pages still has the old build. The `.h264` files add about 22 MB to the repo.
+
+## 2026-11-23: GIEO's first feedback, in the showroom design
+
+GIEO asked for smaller elements and type, said they make the bag and the lipstick holder (no ceramic mug, no coasters) and sent three photo albums. A first answer rebuilt the site in another style (`3ceba9d`, kept in history); Maxwell called it "absolutely horrible" and chose this design (`133eb8f`), asking to "incorporate the pictures and the lipstick in the same style of everything else". Brief, rewritten for this pass: `docs/09-feedback.md`. Not committed.
+
+- **F1, display headings about 10 % smaller** (`tokens.css`): hero content width / 2.6 (was 2.34; short-screen bound / 1.055), mega 50 to 180, h2 50 to 119, quote 29 to 65. Nothing else resized.
+- **F2, the Nối Bag and the Nếp Keychain in 3D**, modelled after GIEO's photos; no mug or coaster anywhere.
+  - Weave film (`blender/film/weave.py`): 150 frames, the cloth drops into the bag, then the stage glides to the keychain. Beats thread 0-30, warps 30-50, weave 50-89, drape 89-109, bag 109-129, lipstick 129-149; keys 0, 50, 89, 129, 149 (`manifest.json`, `encode-film.mjs`, `fallback-timeline.ts`, `motion-store.ts`, `mountWeave`). `art.py` and `stills.py` render the two portraits (`public/art/products/{bag,lipstick}.webp`) and the new products still. Only test frames 129 and 149 are rendered at final quality.
+  - Home weave section (`Weave.tsx`): two names, each with its kind small under it, each lit while its product rests; the band lists both.
+  - Collections showroom (`blender/scripts/weave.py` → `weave.glb` 187 KB, 25k triangles; `ShowroomScene.tsx`, `weave-materials.ts`, `Showroom.tsx`, `showroom.ts`): intro (with the tagline), Nối Bag, Nếp Keychain, order. The bag's strap sways, the keychain's clasp swings; brocade parts carry a calm two-tone diamond lattice. Run 219svh phone, 171svh desktop (`runLength(2)`, now set in `globals.css` and tested). Lite, Still, reduced motion and no-JS show the portraits.
+  - Copy: `home.craft.products.{bag,lipstick}.{name,kind}`, `collections.noinep.{name,tagline,body,credit}` (all DRAFT); `products.tote|mug|coaster` and `collections.hmong.*` removed.
+- **F3, GIEO's photos as prints** (`PhotoPrint.tsx`, `photo(id, t)` in `photos.ts`): Journal, the six journal frames as a loose cluster beside the heading (two loose rows of three under 1024); Hands, `loom-cloth`; Collections, `AsMade.tsx` on plum after the gallery (`bag-pink`, `lipstick-on-bag`, and `nep-cloth`; the two product files are cut to the products, no CSS crop); About partner block, `02-stilt-house`. Hands now clips its own horizontal overflow (was 32 px at 390).
+- **Integration**: `WeaveScene.tsx` reads the new beats (typecheck had failed); Collections no longer falls back to the old film keys `s-0129/0149` for the portraits; dead `ceramic` material option removed; `qa-motion.mjs` restated for two products; stale comments fixed; `blender/scenes/weave.blend` rebuilt from the script (the GLB it exports is byte-identical to the shipped one); `blender/README.md`, `CLAUDE.md`, `DESIGN.md`, `PLAN.md` (a pointer), `assets/README.md`, docs 00 (#13 to #18), 01, 02, 03, 04, 06 and 09 updated.
+
+Checks: typecheck clean; lint 0 errors (2 old warnings in `encode-film.mjs`); `content:check` OK (124 keys, 94 draft); `test:motion` 56/56; `test:images` 1/1; `test:models` 25/25; `npm run build` clean. No "mug", "coaster", "ceramic", "cốc sứ", "lót ly", `collections.hmong` or `products.tote` left in `src/`, `scripts/`, `blender/`, the weave manifest, the GLB strings or the built HTML (except `models.test.mjs`, which asserts their absence, and a base64 blur string that happens to spell "mUg"). Walked the production build on 3101 with `?tier=full`, every route in EN and VI at 1440×900 and 390×844: 0 console errors, 0 failed requests, no horizontal overflow; a scroll-through walk of every route in both languages at 320, 375, 768, 1024 and 1280 wide found no overflow and no errors either. `qa-fuller-pages` passes. `qa-fuller-b pace` passes everywhere but 1280×720, where the keychain rests 36svh (floor 45); the showroom design's coaster rested the same 36svh there, among 17 failures that run had. Compared against the showroom design (`scratchpad/base/`, and a build of `133eb8f` for About): what changed is F1, F2, F3 and the names. Collections under Lite, Still and reduced motion show the bag and keychain portraits. Screenshots (scratchpad `integ/`): `w1440/`, `wvi1440/`, `w390/`, `tiers/`, side-by-side sheets `cmp/en-*.jpg`, `cmp/about1440-*.jpg`, `cmp/about390-*.jpg`, `cmp/coll390-00.jpg`, `cmp/vi-*.jpg`, `coll-now.jpg` against `coll-base.jpg`.
+
+Open:
+- ~~The weave film's mp4 still holds the old products.~~ Done 23 November: see "Weave film, final" below.
+- `public/posters/weave-*` and `public/video/weave.mp4` are no longer loaded by any page and still hold the old film.
+- The new products still frames the bag larger than the old three-product group did: on About its handle reaches up to the partner name, and on Hands it sits behind "Pà" (as the tote did).
+- As the gallery scrolls away, its credit and the "As made" credit can share a screen for a moment.
+- The `bag-pink` photo still shows a black plastic bag behind the handle.
+- Pacing: with hold and change unchanged the weave run is about 135svh on desktop and 154svh on a phone, first rest to last; counted from the change into the bag it is 160 and 167 (floors 140 and 100). On a short wide screen (1280×720) the last rest is 36svh, under the 45 floor, as it was before. Maxwell's call.
+- For GIEO: H'mong or Thái (#13), the product names (#14), wallets (#15), prices (#16), consent for any photo with a face (#17).
+- Not checked: Safari, Firefox, a real phone, a performance trace.
+
+### Product photos cut in the file (23 November 2026)
+
+- `bag-pink` and `lipstick-on-bag` are now cut from the album originals to the product, so no wallet, leaflet or printed sheet is in any published file; PhotoPrint has no crop prop (`DESIGN.md`, `docs/09-feedback.md` F2). New alt texts in EN and VI say only what is visible.
+- `bag-rows` and `lipstick-rows` are removed from the repo (placed on no page). Eleven photos remain (`consent.csv`, `SOURCES.md`, the manifest).
+- `02-stilt-house`: the shop sign (name, email, street address) and the number plates are blurred at source (`scripts/redact-photos.mjs`, with tests), run by `npm run images`.
+- `npm run images` also publishes a photo's own width when it is under 2400, so `lipstick-on-bag` (913 px) is served at 913, not 640.
+- Checks: typecheck clean; lint 0 errors; `content:check` OK (122 keys); `test:images` 4/4; `test:motion` 56/56.
+- Still in git history and on the old gh-pages `/feedback/` preview until it is republished: the earlier wide crops and the unblurred sign.
+
+### Weave film, final (23 November 2026)
+
+- `public/film/weave/s.mp4`, `s.h264`, `s.h264.json` and the five keys are the new 150-frame film. Frames 0-88 (thread, warps, weave) come from the previous film, unpacked from its side-by-side mp4 with the encoder's feather divided back out (so it is not applied twice); frames 89-149 (drape, the Noi Bag, the Nep Keychain) are a fresh final-quality render of `blender/film/weave.py` (Blender 5.2.4, about 2-4 min a frame on 4 CPUs).
+- Encode: `node scripts/encode-film.mjs --scenes weave --raw <frames> --sheets <dir> --tmp <dir>` (pass all three, or the Windows defaults make a stray `D:` folder), CRF 26, 4 772 591 bytes (ceiling 5 000 000), edge matte 0/255; then `node scripts/index-film.mjs` (150 frames, avc1.641028).
+- Checked decoded on `--plum-ink`: the join at 88/89 shows no step in colour, texture or shadow (the old frames are a touch softer, from their second encode); keys s-0089 cloth, s-0129 the bag, s-0149 the keychain; the pan 129-140 lands on the keychain at 140, where the wipe ends. `test:motion` 56/56.
+- Not reproducible from the repo alone: frames 0-88 depend on the previous mp4. A full re-render (`blender -b --factory-startup -P blender/film/weave.py -- --quality final`) replaces them.
+
+### QA after the feedback pass, and the preview (23 November 2026)
+
+- `qa-redesign.mjs` against this tree: 20 pass, 13 fail; against f22ec97 (the showroom design, live at the root) built in the same container: 18 pass, 15 fail. Same failures plus two 375 px overflows this pass fixed. Nothing regressed.
+- The script brought up to date (no page change): the weave check no longer asks for frame 45, which the film has not shown since the vine pass (it opens on the laid warps, 50, or the cloth, 89, under the roots seam), and checks the cloth where the stage sticks instead; the hero and strip name four beats; on software GL (SwiftShader here) the trace is reported, not judged, with the tier. Now 26 pass, 6 fail on the static export, in Lite (this container has 4 CPUs).
+- The 6 left are in the showroom design since the vine pass (59d41b9), not this one, and are Maxwell's call:
+  - hero /en and /vi at 375x667: beat 4 (the sub line and the two buttons, stacked under 26rem) ends 11 px (EN, at rest) below the film's textSafe box. Candidate: the buttons side by side under 45rem tall (`Sow.tsx`).
+  - strip at 1440 and 390, EN and VI: the initiative line is whole for 0.09 of the run, so one 10 % shot. Candidate: `HERO_BEATS` [[0.28,0.42],[0.5,0.6],[0.68,0.85],[0.89,1]] in `motion-runtime.ts` (tested by patching the served chunk; changes the choreography Maxwell chose).
+  - Also standing: the hero pin is 190svh at lg (370svh with the vine), over CLAUDE.md's 150vh.
+- Preview published: gh-pages `8f4df89`, https://sussyswimmer.github.io/GIEO-SITE/feedback/ (built at 9cae0ef with `GIEO_BASE_PATH=/GIEO-SITE/feedback`). All 8 routes at 1440 and 390 load with no failed request or page error; the film streams from `feedback/film/weave/`. The old preview's wallet photos and readable sign are gone from the live tip (still in git history). The root is still f22ec97 until Maxwell approves.
+
+---
+
+The three entries below were written on `claude/practical-mendel-xqjg8i`, which grew from da65345 (the fuller pass) and did not yet have the vine hero, the showroom or GIEO's feedback. They are kept for the record. **Their measurements describe that older site, not this one**; the merge entry after them says what carried over and what was re-measured.
+
 ## 2026-11-17 · Fuller pass follow-up: the owed checks, and fixes from a code review ✅ checked on this PC; Safari and a real phone still to see it
 
 The check run of 2026-11-16 was cut short. This entry closes it: the checks that were owed ran, a read-only review of the fuller-pass code turned up eight real defects (each one confirmed by a second reviewer before it was touched), and those are fixed. Where this entry and the one above disagree, this one is current.
@@ -596,7 +751,7 @@ Open, added by this entry:
 - **One frame is sometimes dropped about 416 px into the hero** at 1440×900 (33 to 50 ms). 5e81e99 does it too; it was not seen on 2026-11-16 (worst 16.9 ms then). Not traced. The scroll trace should be run again on a quiet PC.
 - Nits from the sub-page screenshot review, not changed: on About at 1440 the tote's handles touch the foot of the partner's name partway through the picture's drift; the Collections header's green thread crosses the title; "Ba trụ cột" and "Các phòng ban" each leave one short word alone on a line; the two lead paragraphs on About start 16 px (VI) to 77 px (EN) apart.
 
-## 2026-11-24 · Phase 7: QA and launch prep ⚠️ scripted checks met in Chromium on a Linux container; real browsers, real devices and the deploy are Maxwell's
+## 2026-11-24 · Phase 7: QA and launch prep (measured on the pre-vine site) ⚠️ scripted checks met in Chromium on a Linux container; real browsers, real devices and the deploy are Maxwell's
 
 Run in a cloud container (Linux, Chromium only, no GPU), not on Maxwell's PC. Everything below is against one production build of this tree on `next start -p 3101`, with a throwaway HTTP/2 + brotli proxy in front of it as the Vercel stand-in (as in the Phase 1 gate; not in the repo).
 
@@ -634,7 +789,7 @@ Notes:
 - npm 10 (this container) reads `package-lock.json` as out of sync (`@swc/helpers@0.5.24`); npm 11 reads it as valid. Installed with `npx npm@11 ci`; lockfile untouched. Noted in `HANDOFF.md`.
 - The Phase 7 Check (every open question answered or listed in `HANDOFF.md`) is met: all twelve, plus `video`, `volunteer`, `copy-vi` and the draft copy, are in HANDOFF §9.
 
-## 2026-11-24 · Motion runtime start-up, time-sliced ✅ on this container (Chromium, software WebGL); a real phone still to feel it
+## 2026-11-24 · Motion runtime start-up, time-sliced (measured on the pre-vine site) ✅ on this container (Chromium, software WebGL); a real phone still to feel it
 
 The Phase 7 entry found one long task when the motion runtime starts: 380 to 940 ms on the phone home page at 4x CPU. Traced (`Emulation.setCPUThrottlingRate` 4 and a Chrome timeline trace):
 - `mountPage()` built everything in one synchronous pass: 445 ms on the phone home page. Splitting headings into lines (SplitText) was 101 ms, the parallax, drift, band and zoom triggers 45 ms, the scenes 13 to 19 ms each. The rest went on Lenis, `data-motion="on"` (a full restyle and re-layout, about 110 ms) and evaluating the libraries' chunk.
@@ -653,4 +808,20 @@ Checks (production build, `next start -p 3101`):
 - `qa-fuller-nav.mjs`: EN 32 of 32, VI 32 of 32. `qa-a11y.mjs`: 20 of 20.
 - `test:motion` 37 of 37, typecheck clean, lint 0 errors.
 - Recordings sent to Maxwell: `qa/showcase/home-{desktop,phone}.mp4` and contact sheets (not in git; `qa/` is ignored). Software rendering, so motion there is less smooth than on a device.
-- Lighthouse mobile with real throttling (`--throttling devtools`), rerun on this build: still running at this commit; the result is appended below when it lands.
+- Lighthouse mobile with real throttling, rerun on this build: stopped unfinished when the merge below made it moot.
+
+## 2026-11-24 · Merge: today's fixes onto the current site (`claude/great-lamport-edit13`, 23 Nov) ✅ builds and boots; Lighthouse not yet re-run on it
+
+This session started from da65345 and never fetched the newer branches, so Phase 7 and the boot fix were first built and measured on the pre-vine site. Maxwell caught it. `origin/claude/great-lamport-edit13` (vine hero, showroom, GIEO's feedback, Nối Bag and Nếp Keychain, Pages export) is now merged into `claude/practical-mendel-xqjg8i`.
+
+Carried over: the time-sliced boot (`mountPage()` queue, libraries warmed one per task, `data-motion-ready`); `fetchPriority` and the 640/1200 widths for the sub-page header stills (the four illustrations are byte-identical on both branches, so the variants stand); `<main tabIndex={-1}>` (kept beside the branch's `<Cursor />`); `qa-lighthouse`, `qa-a11y`, `qa-boot`, `record-showcase`; `CHROME_PATH` in the older QA scripts. `qa-fuller-resize.mjs` stays deleted, as on the branch. `HANDOFF.md` now describes the Nối Nếp collection, products by id, `npm run redact` and the Pages preview.
+
+Checked on the merged build (`next start -p 3101`, Chromium, software WebGL):
+- Typecheck clean, lint 0 errors, `content:check` OK (122 keys, 92 draft, 4 todo), `test:motion` 56 of 56.
+- **Boot steps at 4x CPU, home `/en`** (each step timed, then the timing removed): 40 steps; every step 50 ms or less. Heaviest: the page vine (`mountThread`) 49 to 50 ms, the weave 19 to 29 ms, the hero (`mountSow`) 24 to 28 ms; the rest under 8 ms.
+- **Long tasks after load at 4x CPU** (`qa-boot.mjs`): `/about` 77 ms, `/en/collections` 57 ms; the home page still has tasks of 94 to 178 ms. Traced: they are the vine's live 3D, which boots 100 ms after load on this branch: evaluating three.js (140 ms), building the R3F scene (about 100 ms, in microtasks), GPU commits after it (50 to 87 ms, inflated by software GL) and image decodes. Not the runtime. Open.
+- Recordings of the merged site at `?tier=full` (vine on), desktop and phone: `qa/showcase/` (not in git), sent to Maxwell.
+
+Not re-run on the merged site yet: Lighthouse (any column), `qa-a11y`, `qa-fuller-*`. The Phase 7 numbers above belong to the old site.
+
+Noted, not changed: three.js appears in three async chunks over 160 KB each (`WebGLRenderer` in each); worth checking that a page never loads two.

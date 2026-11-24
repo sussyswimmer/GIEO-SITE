@@ -7,8 +7,6 @@ type Picture = {
   fg?: string;
   /** An 800 px version, served to narrow screens. */
   small?: string;
-  /** The small file's real width in px; 800 if not given. */
-  smallW?: number;
   w: number;
   h: number;
   products: boolean;
@@ -16,7 +14,7 @@ type Picture = {
 
 type StillLifeProps = {
   still: Picture;
-  /** `collections.hmong.credit`: shown under a still that has products in it. */
+  /** `collections.noinep.credit`: shown under a still that has products in it. */
   credit: string;
   sizes: string;
   /** Position in a group, for the staggered unveil. */
@@ -40,7 +38,7 @@ export function StillLife({ still, credit, sizes, index = 0, className, creditCl
     // eslint-disable-next-line @next/next/no-img-element -- already sized WebP; the optimiser would only re-encode it
     <img
       src={src}
-      srcSet={small ? `${small} ${still.smallW ?? 800}w, ${src} ${still.w}w` : undefined}
+      srcSet={small ? `${small} 800w, ${src} ${still.w}w` : undefined}
       sizes={small ? sizes : undefined}
       alt=""
       loading="lazy"

@@ -2,7 +2,8 @@
 in the alpha. One PNG each at <out>/stills/<name>/f0000.png; scripts/encode-film.mjs turns them into WebP.
   spools    three spools of thread, the mint one trailing its end
   cloth     plain-weave cloth with a corner folded over, a threaded needle resting on it
-  products  tote, mug and coaster together (the page sets the partner credit beside it, as text)
+  products  the Nối Bag and the Nếp Keychain together, the keychain standing against the bag (the page sets the
+            partner credit beside it, as text)
   lotus-seeds  a few loose lotus seeds and two fallen petals (the petals of the lotus film)
   sprouts   a dish of earth with upright seedlings, one just breaking the soil
 All cloth is plain weave of real yarn: no motif, no brocade pattern (07-redesign §1).
@@ -170,21 +171,22 @@ def cloth(a):
     shoot(a, "cloth", cam, target=(0.0, -0.02, 0.0), height=0.56, pitch=52, yaw=0, fstop=11)
 
 
-# ---- the three products -----------------------------------------------------------------------
+# ---- the two products --------------------------------------------------------------------------
 def products(a):
     cam = stage(a, (0.3, -0.2, 0.3), 1.5)
-    yarn, fine = rig.yarn_mat("Yarn", plies=3, r=weave.R), rig.yarn_mat("YarnFine", plies=3, r=RF)
-    weave.tote()
-    panel = rig.Cloth("Panel", weave.NW, weave.NF, weave.P, weave.R, yarn, weave.WARP_COL, weave.WEFT_COL, rings=(160, 160),
-                      accents={weave.MINT: T["stem-mint"]})
-    place, s = weave.panel_place(1.0)
-    sw = np.tile(np.linspace(-weave.FRINGE, weave.FRINGE, 160), (weave.NW, 1))
-    sf = np.tile(np.linspace(-weave.SIZE / 2 - 0.004, weave.SIZE / 2 + 0.004, 160), (weave.NF, 1))
-    end = lambda q, lim: ss(0, 0.6 * weave.R, lim - np.abs(q))
-    panel.update(sw, sf, place, rw=end(sw, weave.FRINGE), rf=end(sf, weave.SIZE / 2 + 0.004), scale=s)
-    weave.mug(fine, at=(0.50, -0.20))
-    weave.coaster(fine, at=(0.14, -0.50))
-    shoot(a, "products", cam, target=(0.20, -0.2, 0.34), height=1.12, pitch=13, yaw=10, fstop=11)
+    fine = rig.yarn_mat("YarnFine", plies=3, r=RF)
+    weave.noi_bag(fine)
+    # the keychain stands on its lower edge in front of the bag's right side, turned a little to the camera, and leans
+    # back until the top of its back rests on the bag's belly
+    lean, turn, x = 0.30, -0.18, 0.17
+    hl, b = weave.KEY_L / 2 - weave.KEY_T / 2, math.pi / 2 - lean
+    top = np.array([-hl * math.cos(b) * math.sin(turn), hl * math.cos(b) * math.cos(turn)])  # the top of its back, from its centre
+    zt = hl * math.sin(b) - weave.KEY_T / 2 * math.cos(b) + weave.KEY_T / 2 + hl * math.sin(b)
+    w = weave.wall(np.linspace(-0.3, 0.3, 4001), zt)
+    w = w[w[:, 1] < 0]
+    front = w[np.argmin(np.abs(w[:, 0] - (x + top[0])))][1]  # the bag's front there
+    weave.lipstick_holder(fine, at=(x, front - 0.006 - top[1]), turn=turn, lean=lean)
+    shoot(a, "products", cam, target=(0.12, -0.25, 0.30), height=1.12, pitch=13, yaw=10, fstop=11)
 
 
 # ---- lotus seeds and fallen petals -------------------------------------------------------------

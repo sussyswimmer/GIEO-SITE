@@ -7,6 +7,7 @@ import { Footer } from '@/components/layout/Footer';
 import { LateFonts } from '@/components/layout/LateFonts';
 import { LoadHairline } from '@/components/layout/LoadHairline';
 import { NavPill } from '@/components/layout/NavPill';
+import { Cursor } from '@/components/layout/Cursor';
 import { MotionBoot } from '@/components/motion/MotionBoot';
 import { SkipLink } from '@/components/layout/SkipLink';
 import { routing } from '@/i18n/routing';
@@ -53,6 +54,7 @@ export default async function LocaleLayout({ children, params }: Props) {
           <NavPill nav={nav as Record<string, string>} siteName={(meta as Record<string, string>).siteName} />
           <LoadHairline />
           <MotionBoot />
+          <Cursor />
           {/* relative, with no z-index: the home page's thread is positioned against it (DESIGN.md §1).
               tabIndex -1 so the skip link moves focus here, not only the scroll; never in the Tab order. */}
           <main id="main" tabIndex={-1} className="relative outline-none">

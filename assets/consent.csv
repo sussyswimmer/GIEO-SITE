@@ -1,0 +1,15 @@
+filename,consent(yes/no),notes
+# One row per file under assets/photos/. "yes" here means: GIEO sent the photo for the website
+# (November 2026) AND the frame shows no identifiable person. Photos with faces are not in the
+# repo at all; they need GIEO's per-photo consent first (docs/00-open-questions.md #6).
+products/bag-pink.jpg,yes,Pink Nối Bag between a red and a navy one on the stall table; cut to the bags (no wallet in the file). No person.
+products/lipstick-on-bag.jpg,yes,Three navy Nếp Keychain holders on the stall table; cut to the holders (no wallet or leaflet in the file). No person.
+brocade/nep-cloth.jpg,yes,Blue and white patterned cloth on a loom. No person.
+journal/01-loom-weaver.jpg,yes,Adult weaver at a frame loom seen from behind. Face not visible.
+journal/02-stilt-house.jpg,yes,Stilt house and hills; the shop sign's text and five number plates are blurred in the file (scripts/redact-photos.mjs). No person.
+journal/03-heddles.jpg,yes,Heddle strings over blue warp threads. No person.
+journal/04-sewing-hands.jpg,yes,Adult hands at a sewing machine. Hands only.
+journal/05-cloth-on-loom.jpg,yes,Striped cloth with a patterned band at the loom's reed. No person.
+journal/06-valley.jpg,yes,Field and limestone hills under clouds. No recognisable person.
+artisans/loom-cloth.jpg,yes,Striped cloth with patterned bands on a loom. No person.
+artisans/sewing-cloth.jpg,yes,Adult hands guiding checked cloth under a sewing machine needle. Hands only.

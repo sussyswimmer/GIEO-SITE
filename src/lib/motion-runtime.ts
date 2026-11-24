@@ -14,10 +14,12 @@ import {
   SCRUB,
   THREAD_TIP,
 } from './motion';
-import { beatsAt, timeOf, TRACKS, WEAVE_PACE, weaveRun } from './fallback-timeline';
+import { beatsAt, timeOf, TRACKS, WEAVE_PACE, WEAVE_PRODUCTS, weaveRun } from './fallback-timeline';
 import { coverPoint, type FilmManifest, type FilmSet } from './film';
 import { useMotionStore, type WeaveBeat } from './motion-store';
 import { mountClips } from './scrub-clip';
+import { FILM_START } from './roots';
+import { ACT1_SVH, remap } from './vine';
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 ScrollTrigger.config({ ignoreMobileResize: true });
@@ -146,6 +148,34 @@ function parallaxSteps(): Step[] {
       { xPercent: to, ease: 'none', scrollTrigger: { trigger: band, start: 'top bottom', end: 'bottom top', scrub: SCRUB } },
     );
   });
+  // A line of type that slides as its block crosses the screen: data-slide is the travel each way, in % of
+  // its own width (negative: the other way). Two lines with opposite signs pass each other.
+  all('[data-slide]').forEach((el) => {
+    const v = Number(el.dataset.slide);
+    gsap.fromTo(
+      el,
+      { xPercent: v },
+      { xPercent: -v, ease: 'none', scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: SCRUB } },
+    );
+  });
+  // A loose petal or leaf: it floats up past its place by data-float px each way, turning a little as it goes.
+  all('[data-float]').forEach((el, i) => {
+    const v = Number(el.dataset.float);
+    gsap.fromTo(
+      el,
+      { y: v, rotation: i % 2 ? -40 : 30 },
+      { y: -v, rotation: i % 2 ? 50 : -45, ease: 'none', scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: SCRUB } },
+    );
+  });
+  // A ring that turns with the scroll: data-spin is the turn each way, in degrees.
+  all<SVGElement>('[data-spin]').forEach((el) => {
+    const v = Number(el.dataset.spin);
+    gsap.fromTo(
+      el,
+      { rotation: -v, svgOrigin: '50 50' },
+      { rotation: v, svgOrigin: '50 50', ease: 'none', scrollTrigger: { trigger: el.closest('svg'), start: 'top bottom', end: 'bottom top', scrub: SCRUB } },
+    );
+  });
   // A full-bleed picture settles as it crosses the screen (docs/08 H3: 1.08 → 1). Its wrapper clips it.
   each('[data-zoom]', (el) => {
     gsap.fromTo(
@@ -234,9 +264,14 @@ function mountTilt(signal: AbortSignal) {
 // The Sow pin, in shares of its run. The film rests while something is being read and moves while one
 // thing gives way to the next: the seed hangs in the air under the headline, falls and sprouts as the
 // dictionary entry arrives, and grows into the thread on the way to the initiative line.
-const HERO_FILM: [until: number, frame: number][] = [[0.1, 0], [0.3, 95], [0.47, 95], [0.76, 149], [1, 149]];
+// The film never rests (Maxwell, 2026-11-17: a held frame reads as a locked scroll): it moves from the
+// first scroll to the sink. HERO_FILM_VINE: after Act 1 the seed is already falling, so no opening hold.
+const HERO_FILM: [until: number, frame: number][] = [[0.06, 0], [0.32, 95], [0.92, 149], [1, 149]];
+const HERO_FILM_VINE: [until: number, frame: number][] = [[0.3, 95], [0.92, 149], [1, 149]];
+const HERO_WORD_VINE = [0, 0.16]; // the word and its plant shrink away as the seed drops
 const HERO_WORD = [0.12, 0.24]; // the headline is whole until the first, gone by the second
-const HERO_BEATS: [shown: number, until: number][] = [[0.29, 0.45], [0.55, 0.67], [0.77, 1]];
+// The last beat is the sub line and the two ways in (Sow.tsx): the first screen shows only the word.
+const HERO_BEATS: [shown: number, until: number][] = [[0.29, 0.45], [0.55, 0.67], [0.77, 0.86], [0.9, 1]];
 const HERO_FADE = 0.04;
 // The seam (docs/08 H1). In the last stretch of the pin the ground lifts by this share of the screen, as if
 // the camera went under it, and what it uncovers is already plum.
@@ -252,6 +287,17 @@ const yarnX = () => {
 
 /** S0. One scrub across the whole Sow pin; the headline shrinks to a ghost before the first beat takes its corner. */
 function mountSow(reduced: boolean): () => void {
+  const hero = document.querySelector<HTMLElement>('#hero')!;
+  const html = document.documentElement;
+  // Act 1 (the vine, VineScene): Full tier only. It lengthens the run (globals.css) and goes first; every
+  // position below then lands in the rest of the run, so the film still starts the moment the seed lands.
+  const vine = !reduced && useMotionStore.getState().tier === 'full' && !!hero.querySelector('[data-vine]');
+  if (vine) html.dataset.vine = 'on';
+  const run0 = hero.offsetHeight - window.innerHeight;
+  const share = vine && run0 > 0 ? Math.min(0.8, ((ACT1_SVH / 100) * window.innerHeight) / run0) : 0;
+  const at = (x: number) => remap(x, share);
+  const span = (d: number) => d * (1 - share);
+
   const proxy = { p: 0 };
   const film = gsap.timeline({
     defaults: { ease: 'none' },
@@ -263,8 +309,9 @@ function mountSow(reduced: boolean): () => void {
     return () => {};
   }
   const last = TRACKS.seed.frames - 1;
-  HERO_FILM.forEach(([until, frame], i) => film.to(proxy, { p: frame / last, duration: until - (HERO_FILM[i - 1]?.[0] ?? 0) }));
-  const hero = document.querySelector<HTMLElement>('#hero')!;
+  if (share) film.to(proxy, { p: 0, duration: share }); // Act 1: the film waits on frame 0 under the vine's canvas
+  const steps = vine ? HERO_FILM_VINE : HERO_FILM;
+  steps.forEach(([until, frame], i) => film.to(proxy, { p: frame / last, duration: span(until - (steps[i - 1]?.[0] ?? 0)) }));
   const stage = hero.querySelector<HTMLElement>('[data-film]')!;
   const word = hero.querySelector<HTMLElement>('[data-hero-word]')!;
 
@@ -325,30 +372,30 @@ function mountSow(reduced: boolean): () => void {
   const mm = gsap.matchMedia();
   mm.add('(min-height: 37.5rem)', () => {
     // The CSS entrance has long finished; while it fills it would hold the transform GSAP is about to drive.
-    gsap.set('[data-hero-word], [data-hero-fade]', { animation: 'none' });
+    gsap.set(word, { animation: 'none' });
     // The word shrinks away under the nav and is gone before the first beat arrives in the same corner.
     const tl = gsap.timeline({
       defaults: { ease: 'none' },
       scrollTrigger: { trigger: hero, start: 'top top', end: 'bottom bottom', scrub: true, invalidateOnRefresh: true },
     });
-    const [whole, gone] = HERO_WORD;
-    // autoAlpha: the two buttons must leave the tab order with the first screen
-    tl.to('[data-hero-fade]', { autoAlpha: 0, duration: HERO_FADE }, whole).to(
+    const [whole, gone] = vine ? HERO_WORD_VINE : HERO_WORD;
+    tl.to(
       word,
-      { scale: 0.42, opacity: 0, y: () => Math.min(0, HERO_GHOST_TOP - word.offsetTop), transformOrigin: '0 0', duration: gone - whole },
-      whole,
+      { scale: 0.42, opacity: 0, y: () => Math.min(0, HERO_GHOST_TOP - word.offsetTop), transformOrigin: '0 0', duration: span(gone - whole) },
+      at(whole),
     );
+    // autoAlpha: a beat's buttons leave the tab order while it is hidden
     all('[data-hero-beat]').forEach((beat, i) => {
-      const [shown, until] = HERO_BEATS[i];
-      tl.fromTo(beat, { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: HERO_FADE }, shown - HERO_FADE);
-      if (until < 1) tl.to(beat, { opacity: 0, y: -12, duration: HERO_FADE }, until);
+      const [shown, until] = HERO_BEATS[i] ?? HERO_BEATS[HERO_BEATS.length - 1];
+      tl.fromTo(beat, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: span(HERO_FADE) }, at(shown - HERO_FADE));
+      if (until < 1) tl.to(beat, { autoAlpha: 0, y: -12, duration: span(HERO_FADE) }, at(until));
     });
     // Going under (docs/08 H1): the soil darkens into plum, then the ground lifts while the roots grow down
     // to the foot of the screen. The lift eases in over just the stretch that ends it at the page's own
     // speed (a quadratic ends at 2 × distance / time), so the pin lets go without a change of pace.
     const run = hero.offsetHeight - window.innerHeight;
     const lift = Math.min(0.2, (2 * HERO_LIFT * stage.clientHeight) / Math.max(1, run));
-    tl.fromTo('[data-hero-sink]', { opacity: 0 }, { opacity: 1, duration: HERO_SINK[1] - HERO_SINK[0] }, HERO_SINK[0])
+    tl.fromTo('[data-hero-sink]', { opacity: 0 }, { opacity: 1, duration: span(HERO_SINK[1] - HERO_SINK[0]) }, at(HERO_SINK[0]))
       .fromTo('[data-hero-ground]', { yPercent: 0 }, { yPercent: -100 * HERO_LIFT, ease: 'power2.in', duration: lift }, 1 - lift)
       .fromTo('[data-hero-roots]', { '--root': 1 }, { '--root': 0, duration: lift }, 1 - lift);
     tl.to({}, { duration: 0.001 }, 0.999); // so the timeline spans the whole run
@@ -360,36 +407,76 @@ function mountSow(reduced: boolean): () => void {
     hero.style.removeProperty('--safe-x');
     hero.style.removeProperty('--safe-y');
     svg?.replaceChildren();
+    if (vine) delete html.dataset.vine;
   };
 }
 
 /**
- * S1. The film runs thread → cloth against the copy's scroll, then tote → mug → coaster against the product
- * run (docs/08 H2). Scroll maps to the film piecewise, the film itself is not re-timed: each product is made
- * over `change` svh and then rests on its last frame for `hold` svh (WEAVE_PACE) while its name is lit and
- * the stage sways a little, so a rest is never dead. Where nothing pins (reduced motion, a short screen)
- * the three share the stage box's climb to the top of the screen instead.
+ * S1. The film runs thread → cloth against the copy's scroll, then through the products (WEAVE_PRODUCTS: the
+ * Nối Bag, then the Nếp Keychain) against the product run (docs/08 H2). Scroll maps to the film piecewise,
+ * the film itself is not re-timed: each product is made over `change` svh and then rests on its last frame
+ * for `hold` svh (WEAVE_PACE) while its name is lit and the stage sways a little, so a rest is never dead.
+ * Where nothing pins (reduced motion, a short screen) the products share the list's passage through the
+ * screen instead.
  */
 function mountWeave(reduced: boolean): () => void {
   const { beats, weights } = TRACKS.weave;
   const made = weights.slice(0, 4).reduce((a, b) => a + b, 0); // thread, warps, weave, drape
+  const n = WEAVE_PRODUCTS.length;
   const total = weights.reduce((a, b) => a + b, 0);
   const craft = document.querySelector<HTMLElement>('#craft')!;
   const run = craft.querySelector<HTMLElement>('[data-weave-run]') ?? craft;
-  const box = craft.querySelector<HTMLElement>('[data-seam]') ?? craft; // the stage's box
   const names = run.querySelector<HTMLElement>('[data-weave-names]');
   const tiles = all('#craft ul[role="list"] > li');
   const credit = craft.querySelector<HTMLElement>('[data-credit]');
   const wide = matchMedia('(min-width: 64rem)');
   const pace = () => (wide.matches ? WEAVE_PACE.wide : WEAVE_PACE.phone);
-  const v = { cloth: 0, p0: 0, p1: 0, p2: 0 };
+  // The film opens on a close-up of one hairy green yarn (frames 0 to 50: 'thread', 'warps'). Maxwell found
+  // that seam "horrible", twice: the film now starts where the warps are laid, and the cloth weaves from there.
+  // With the live seam (RootsScene, Full tier: <html data-roots="on">) the roots and the weaving are drawn
+  // live, and the film waits on its finished cloth (frame 89) until that run is over (FILM_START).
+  const roots = document.documentElement.dataset.roots === 'on';
+  const start = (weights[0] + weights[1] + (roots ? weights[2] : 0)) / made;
+  // the cloth's scrub, and one scrub per product: p0 makes the first (the cloth becomes the bag), p1 the next
+  const v: Record<string, number> = { cloth: start, ...Object.fromEntries(WEAVE_PRODUCTS.map((_, i) => [`p${i}`, 0])) };
+  // One product gives way to the next by gliding (Maxwell, 2026-11-19: "super laggy"). A change scrubbed
+  // frame by frame over a quarter of a screen reads as jumps. So the stage itself carries the change, at the
+  // screen's own rate: the product at rest glides out and fades, the film skips the frames that move from one
+  // product to the next while nothing shows (`WIPE`, a share of the product's 20-frame beat), and the next
+  // glides in. The first product is not glided: the cloth becomes it in place.
+  const glideStage = reduced ? null : craft.querySelector<HTMLElement>('[data-film]');
+  // lipstick: the camera's travel from the bag to the keychain ends on frame 140 (CAM in blender/film/weave.py),
+  // 11 of the beat's 20 frames; the keychain settles under it from there to 149
+  const WIPE: Partial<Record<WeaveBeat, number>> = { lipstick: 11 / 20 };
+  let glided = '';
   const push = () => {
-    const now = [...beatsAt('weave', (made * v.cloth) / total).slice(0, 4), v.p0, v.p1, v.p2];
+    const ps = WEAVE_PRODUCTS.map((_, i) => v[`p${i}`]);
+    const pose = (p: number, i: number) => {
+      if (!glideStage || i === 0) return p;
+      const wipe = WIPE[WEAVE_PRODUCTS[i]] ?? 0;
+      return p < 0.5 ? 0 : wipe + (p - 0.5) * 2 * (1 - wipe);
+    };
+    const now = [...beatsAt('weave', (made * v.cloth) / total).slice(0, 4), ...ps.map(pose)];
     useMotionStore.setState({ weave: Object.fromEntries(beats.map((b, i) => [b, now[i]])) as Record<WeaveBeat, number> });
+    if (glideStage) {
+      // The change in flight, if any (the latest one): out to the left over its first half, in from the right
+      // over its second.
+      let p = 0;
+      for (let i = n - 1; i > 0 && !p; i--) if (ps[i] > 0 && ps[i] < 1) p = ps[i];
+      const k = p < 0.5 ? p * 2 : (1 - p) * 2; // 0 at rest, 1 where the film changes product
+      const x = (p < 0.5 ? -1 : 1) * 16 * k * k;
+      const next = `${x.toFixed(2)}%,${(1 - k * k * (3 - 2 * k)).toFixed(3)}`;
+      if (next !== glided) {
+        glided = next;
+        glideStage.style.setProperty('--glide-x', `${x.toFixed(2)}%`);
+        glideStage.style.setProperty('--glide-o', next.split(',')[1]);
+      }
+    }
     credit?.toggleAttribute('data-on', now[3] > 0); // from the drape: the cloth is becoming a product
     tiles.forEach((li, i) => {
-      // A name is lit from the moment its product is more in than out, until the next one is.
-      const on = now[4 + i] >= 0.5 && (now[5 + i] ?? 0) < 0.5;
+      // A name is lit from the moment its product is more in than out, until the next one is. The names
+      // follow the scroll (ps), not the film's frames.
+      const on = (ps[i] ?? 0) >= 0.5 && (ps[i + 1] ?? 0) < 0.5;
       if ((li.dataset.active === 'true') === on) return; // written only on change
       if (on) li.dataset.active = 'true';
       else delete li.dataset.active;
@@ -402,37 +489,34 @@ function mountWeave(reduced: boolean): () => void {
   size();
   ScrollTrigger.addEventListener('refreshInit', size);
   const y = (el: Element, edge: 'top' | 'bottom') => el.getBoundingClientRect()[edge] + window.scrollY;
-  // The scroll position `svh` after the names stick; with nothing pinned, share k of the stage box's climb
-  // from 60 % of the screen to its top.
+  // The scroll position `svh` after the names stick; with nothing pinned, share k of the list's passage.
   const point = (svh: number, k: number) => {
     const unit = (parseFloat(getComputedStyle(run, '::after').height) || 0) / weaveRun(pace()); // px per svh, 0 unpinned
     if (unit && names) return y(run, 'top') - (parseFloat(getComputedStyle(names).top) || 0) + svh * unit;
-    const from = y(box, 'top') - 0.6 * window.innerHeight; // the stage is whole on screen from here to its top at 0
-    return from + k * 0.6 * window.innerHeight;
+    const from = y(run, 'top') - 0.95 * window.innerHeight;
+    return from + k * Math.max(1, y(craft, 'bottom') - window.innerHeight - from);
   };
   // Product i is made between mark(i, 0) and mark(i, 1), and rests from there to mark(i + 1, 0).
   const mark = (i: number, done: 0 | 1) => () => {
     const { hold, change } = pace();
-    return point(i * (hold + change) - (done ? 0 : change), (i + done) / 3);
+    return point(i * (hold + change) - (done ? 0 : change), (i + done) / n);
   };
   const scrub = (vars: gsap.TweenVars, scrollTrigger: ScrollTrigger.Vars) =>
     gsap.to(v, { ...vars, ease: 'none', scrollTrigger: { scrub: SCRUB, ...scrollTrigger }, onUpdate: push });
-  scrub({ cloth: 1 }, { id: 'weave', trigger: craft, start: 'top 80%', end: mark(0, 0) });
-  [0, 1, 2].forEach((i) => scrub({ [`p${i}`]: 1 }, { trigger: run, start: mark(i, 0), end: mark(i, 1) }));
+  push(); // the stage shows the laid warps before any scroll reaches it, never frame 0
+  scrub({ cloth: 1 }, { id: 'weave', trigger: craft, start: roots ? FILM_START : 'top 80%', end: mark(0, 0) });
+  WEAVE_PRODUCTS.forEach((_, i) => scrub({ [`p${i}`]: 1 }, { trigger: run, start: mark(i, 0), end: mark(i, 1) }));
 
   const stage = craft.querySelector<HTMLElement>('[data-film]');
   if (!reduced && stage) {
-    // While a product rests the stage still answers the scroll: a slow sway, 6 px and under a degree each way.
-    // Custom properties, not rotation/y: GSAP would fold the stage's CSS `translate` into an inline transform.
-    gsap
-      .timeline({
-        defaults: { ease: 'sine.inOut' },
-        scrollTrigger: { trigger: run, start: mark(0, 1), end: () => point(weaveRun(pace()), 1), scrub: SCRUB },
-      })
-      // down first: the tote rests first, and from 1280 its handles stand 6 px under the top of the screen
-      .to(stage, { '--sway-r': '0.9deg', '--sway-y': '6px' })
-      .to(stage, { '--sway-r': '-0.9deg', '--sway-y': '-6px' })
-      .to(stage, { '--sway-r': '0.9deg', '--sway-y': '6px' });
+    // While a product rests the stage still answers the scroll: a slow sway, 6 px and under a degree each way,
+    // one swing per product, down first. Custom properties, not rotation/y: GSAP would fold the stage's CSS
+    // `translate` into an inline transform.
+    const sway = gsap.timeline({
+      defaults: { ease: 'sine.inOut' },
+      scrollTrigger: { trigger: run, start: mark(0, 1), end: () => point(weaveRun(pace()), 1), scrub: SCRUB },
+    });
+    WEAVE_PRODUCTS.forEach((_, i) => sway.to(stage, i % 2 ? { '--sway-r': '-0.9deg', '--sway-y': '-6px' } : { '--sway-r': '0.9deg', '--sway-y': '6px' }));
   }
   // The quote arrives word by word. Split on spaces in the markup; it is still one sentence to a screen reader.
   const quote = document.querySelector('#craft blockquote');
@@ -445,6 +529,8 @@ function mountWeave(reduced: boolean): () => void {
   return () => {
     ScrollTrigger.removeEventListener('refreshInit', size);
     run.style.removeProperty('--weave-run');
+    glideStage?.style.removeProperty('--glide-x');
+    glideStage?.style.removeProperty('--glide-o');
     // a reverted tween never fires onUpdate
     tiles.forEach((li) => delete li.dataset.active);
     credit?.removeAttribute('data-on');
@@ -521,6 +607,9 @@ function mountBloom(reduced: boolean): () => void {
 function mountThread(reduced: boolean): () => void {
   const svg = document.querySelector<SVGSVGElement>('svg[data-thread]');
   const path = svg?.querySelector<SVGPathElement>('[data-thread-run]');
+  const light = svg?.querySelector<SVGPathElement>('[data-thread-light]');
+  const budsBox = svg?.querySelector<SVGGElement>('[data-thread-buds]');
+  const tipBox = svg?.querySelector<SVGGElement>('[data-thread-tip]');
   const pathIn = svg?.querySelector<SVGPathElement>('[data-thread-in]');
   const main = svg?.parentElement;
   const hero = document.querySelector<HTMLElement>('#hero');
@@ -530,22 +619,76 @@ function mountThread(reduced: boolean): () => void {
   const seam = craft?.querySelector<HTMLElement>('[data-seam]');
   const yarn = seam?.querySelector<HTMLElement>('[data-film]');
   const SEAM_DROP = 0.08; // from 1024: how far under the section's top the yarn's point sits, in screens
-  // the point: the canvas in its box, the point in the canvas, and whether the box scrolls free (it cannot stick)
-  let point: { off: number; local: number; free: boolean } | null = null;
+  let point: { off: number; local: number } | null = null; // the point: the canvas in its box, and the point in the canvas
   let pointAt = NaN;
   const COPY = ':is(h2, h3, p, li, blockquote, figcaption, dd, a):not([aria-hidden="true"] *)';
   const CLEAR = 16; // px kept between the thread and the nearest line of copy
   // Length along the path at each height, worked out here rather than asked of the SVG: sampling
   // getPointAtLength down the whole page cost a 100 ms task per build. The path only ever runs down.
-  let marks: { y: number; l: number }[] = [];
+  let marks: { x: number; y: number; l: number }[] = [];
   let total = 0;
+  // The thread is a vine (Maxwell, 2026-11-19): leaves, tendrils and blossoms stand along it, each at a
+  // length down the path, and each opens when the growing tip has passed it (`open` of them are open now).
+  let buds: { l: number; el: Element }[] = [];
+  let open = 0;
+  // Where the path is at length l, and which way it is heading there (degrees; 90 is straight down).
+  const at = (l: number) => {
+    let i = marks.findIndex((m) => m.l >= l);
+    if (i < 1) i = i < 0 ? marks.length - 1 : 1;
+    const a = marks[i - 1];
+    const b = marks[i];
+    if (!a || !b) return { x: 0, y: 0, deg: 90 };
+    const t = Math.min(1, Math.max(0, (l - a.l) / (b.l - a.l || 1)));
+    return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t, deg: (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI };
+  };
+  const grow = (gutter: number, wide: boolean) => {
+    if (!budsBox) return;
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) - 1) / 2147483646;
+    const n = (v: number) => v.toFixed(1);
+    const S = Math.max(wide ? 13 : 8, Math.min(28, gutter * (wide ? 0.56 : 0.4))); // a leaf's length: it must stay inside the gutter
+    const leaf = (len: number, tone: number) =>
+      `<path class="pvine-leaf" data-tone="${tone}" d="M0 0C${n(len * 0.28)} ${n(-len * 0.4)} ${n(len * 0.78)} ${n(-len * 0.3)} ${n(len)} 0C${n(len * 0.78)} ${n(len * 0.3)} ${n(len * 0.28)} ${n(len * 0.4)} 0 0Z"/>` +
+      `<path class="pvine-rib" d="M${n(len * 0.08)} 0L${n(len * 0.9)} 0"/>`;
+    const flower = (r: number, deep: boolean) => {
+      const c = r * 1.5; // on a short stalk off the stem
+      let out = `<path class="pvine-stalk" d="M0 0L${n(c)} 0"/><g transform="translate(${n(c)} 0) rotate(${n(rnd() * 72)})"${deep ? ' data-deep=""' : ''}>`;
+      for (let k = 0; k < 5; k++) out += `<ellipse class="pvine-petal" cx="${n(r * 0.58)}" rx="${n(r * 0.56)}" ry="${n(r * 0.4)}" transform="rotate(${k * 72})"/>`;
+      return `${out}<circle class="pvine-throat" r="${n(r * 0.3)}"/><circle class="pvine-eye" r="${n(r * 0.14)}"/></g>`;
+    };
+    const curl = (len: number) => {
+      const k = len / 16;
+      const c = (...v: number[]) => v.map((q) => n(q * k)).join(' ');
+      return `<path class="pvine-curl" d="M0 0C${c(5, -3, 13, -5, 16, 1)}C${c(18, 6, 12, 10, 9.5, 6)}C${c(8, 3, 11.5, 2, 12, 4.5)}"/>`;
+    };
+    let html = '';
+    const made: number[] = [];
+    let side = 1;
+    let k = 0;
+    for (let l = 24 + rnd() * 30; l < total - 30; l += (wide ? 58 : 46) + rnd() * 54, k++) {
+      const p = at(l);
+      side = -side;
+      const kind = k % 5 === 2 ? 'flower' : k % 7 === 5 ? 'curl' : 'leaf';
+      // Leaves and tendrils reach out and a little forward (down the page, the way it grows); a flower stands straight out.
+      const turn = kind === 'flower' ? 90 : 38 + rnd() * 34;
+      const body =
+        kind === 'flower' ? flower(S * (0.42 + rnd() * 0.12), k % 2 === 0) : kind === 'curl' ? curl(S * 0.8) : leaf(S * (0.72 + rnd() * 0.4), k % 3);
+      html += `<g transform="translate(${n(p.x)} ${n(p.y)}) rotate(${n(p.deg - side * turn)})"><g class="pvine-bud">${body}</g></g>`;
+      made.push(l + 10); // open once the tip is a little past
+    }
+    budsBox.innerHTML = html;
+    buds = [...budsBox.querySelectorAll('.pvine-bud')].map((el, i) => ({ el, l: made[i] }));
+    open = 0;
+    if (tipBox) tipBox.innerHTML = `<g transform="rotate(-28)">${leaf(S * 0.5, 1)}</g><g transform="rotate(28)">${leaf(S * 0.5, 0)}</g>`;
+  };
 
   const build = () => {
     const gutter = parseFloat(getComputedStyle(svg).scrollMarginLeft);
     const page = main.getBoundingClientRect();
     const wrap = main.querySelector('.px-gutter')!.getBoundingClientRect();
-    const x = { left: wrap.left - page.left + gutter / 2, right: wrap.right - page.left - gutter / 2 };
     const wide = matchMedia('(min-width: 64rem)').matches;
+    // On a phone the gutter is narrow and the copy starts right after it: the vine keeps to its outer third.
+    const x = { left: wrap.left - page.left + gutter * (wide ? 0.5 : 0.3), right: wrap.right - page.left - gutter / 2 };
     // The highest or lowest line of copy in a section, in page coordinates.
     const edge = (section: HTMLElement, side: 'top' | 'bottom') => {
       const ys = [...section.querySelectorAll(COPY)]
@@ -564,8 +707,7 @@ function mountThread(reduced: boolean): () => void {
     if (craft && seam && yarn) {
       const canvas = yarn.getBoundingClientRect();
       const off = canvas.top - seam.getBoundingClientRect().top;
-      const free = getComputedStyle(seam).position !== 'sticky'; // reduced motion, or a screen under 600 px tall
-      point = { off, local: Math.max(0, (wide ? window.innerHeight * SEAM_DROP : 0) - off) + 12, free };
+      point = { off, local: Math.max(0, (wide ? window.innerHeight * SEAM_DROP : 0) - off) + 12 };
       const top = craft.getBoundingClientRect().top - page.top;
       const x = canvas.left - page.left + YARN_X * canvas.width;
       pathIn.setAttribute('d', `M${x} ${hero.getBoundingClientRect().bottom - page.top}V${top + off + point.local + 28}`);
@@ -579,6 +721,9 @@ function mountThread(reduced: boolean): () => void {
     const sections = threaded.slice(threaded.findIndex((s) => s === craft) + 1);
     if (!sections.length) {
       path.removeAttribute('d');
+      light?.removeAttribute('d');
+      budsBox?.replaceChildren();
+      buds = [];
       marks = [];
       return draw();
     }
@@ -622,7 +767,7 @@ function mountThread(reduced: boolean): () => void {
     });
     let d = `M${pts[0][0]} ${pts[0][1]}`;
     total = 0;
-    marks = [{ y: pts[0][1], l: 0 }];
+    marks = [{ x: pts[0][0], y: pts[0][1], l: 0 }];
     for (let k = 1; k < pts.length; k++) {
       const [x0, y0] = pts[k - 1];
       const [x1, y1] = pts[k];
@@ -637,13 +782,16 @@ function mountThread(reduced: boolean): () => void {
         const bx = u * u * u * x0 + 3 * u * u * t * c0 + 3 * u * t * t * c1 + t * t * t * x1;
         total += Math.hypot(bx - lx, h / 12);
         lx = bx;
-        marks.push({ y: y0 + h * t, l: total });
+        marks.push({ x: bx, y: y0 + h * t, l: total });
       }
     }
-    path.setAttribute('d', d);
-    svg.querySelector('linearGradient')!.setAttribute('y2', String(page.height));
     // The chords come up a hair short of the true length: the long gap keeps that last sliver from showing as a dot.
-    path.style.strokeDasharray = `${total} ${total * 2}`;
+    [path, light].forEach((el) => {
+      el?.setAttribute('d', d);
+      if (el) el.style.strokeDasharray = `${total} ${total * 2}`;
+    });
+    svg.style.setProperty('--pvine-w', `${wide ? 5 : 3.5}px`);
+    grow(gutter, wide);
     draw();
   };
   const draw = () => {
@@ -651,27 +799,37 @@ function mountThread(reduced: boolean): () => void {
       // The yarn's point belongs to the page, the canvas sticks: tell the mask where the point is in the
       // canvas now (and the box, whose phone backdrop starts there). Past the top it stops being written.
       const y = craft.getBoundingClientRect().top + point.off + point.local;
-      const open = -0.4 * yarn.offsetHeight; // the mask's rise is done 40 % under the point: from here the canvas is whole
-      let at = y - yarn.getBoundingClientRect().top;
-      // A box that cannot stick carries the canvas up the page with it, so the point would never leave and its
-      // mask would lie across the products. There it slides out as the box climbs from the foot of the screen
-      // to 60 % of it, which is where the products begin (mountWeave).
-      if (point.free)
-        at += (open - at) * gsap.utils.clamp(0, 1, (window.innerHeight - seam.getBoundingClientRect().top) / (0.4 * window.innerHeight));
-      const local = Math.round(Math.max(open, at));
+      const local = Math.round(Math.max(-0.4 * yarn.offsetHeight, y - yarn.getBoundingClientRect().top));
       if (local !== pointAt) {
         pointAt = local;
         yarn.style.setProperty('--seam', `${local}px`);
         seam.style.setProperty('--seam-box', `${Math.max(0, local + point.off)}px`);
       }
     }
-    if (reduced) return void (path.style.strokeDashoffset = '0'); // drawn in full: nothing animates
-    const tip = window.innerHeight * THREAD_TIP - main.getBoundingClientRect().top;
-    const i = marks.findIndex((m) => m.y >= tip);
-    const a = marks[i - 1];
-    const b = marks[i];
-    const drawn = i < 0 ? total : !a ? 0 : a.l + ((tip - a.y) / (b.y - a.y || 1)) * (b.l - a.l);
-    path.style.strokeDashoffset = String(total - drawn);
+    let drawn = total; // reduced motion: drawn in full, every bud open, nothing animates
+    if (!reduced) {
+      const tip = window.innerHeight * THREAD_TIP - main.getBoundingClientRect().top;
+      const i = marks.findIndex((m) => m.y >= tip);
+      const a = marks[i - 1];
+      const b = marks[i];
+      drawn = i < 0 ? total : !a ? 0 : a.l + ((tip - a.y) / (b.y - a.y || 1)) * (b.l - a.l);
+    }
+    const off = String(total - drawn);
+    path.style.strokeDashoffset = off;
+    if (light) light.style.strokeDashoffset = off;
+    // A round cap on nothing is a dot: no stem until there is some.
+    path.style.visibility = drawn > 1 ? '' : 'hidden';
+    if (light) light.style.visibility = path.style.visibility;
+    // Written only on change: one bud at a time as the tip passes it, or closes on the way back up.
+    while (open < buds.length && buds[open].l <= drawn) buds[open++].el.setAttribute('data-on', '');
+    while (open > 0 && buds[open - 1].l > drawn) buds[--open].el.removeAttribute('data-on');
+    if (tipBox) {
+      // The growing tip: a pair of young leaves riding the end of the stem.
+      const live = !reduced && drawn > 1 && drawn < total - 1;
+      const p = live ? at(drawn) : null;
+      tipBox.style.visibility = p ? '' : 'hidden';
+      if (p) tipBox.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)}) rotate(${p.deg.toFixed(1)})`);
+    }
   };
 
   // onRefresh covers resize and late fonts; the film event arrives when the seed manifest gives the real exit point.
@@ -682,6 +840,9 @@ function mountThread(reduced: boolean): () => void {
     trigger.kill();
     window.removeEventListener('gieo:film', build);
     path.removeAttribute('d');
+    light?.removeAttribute('d');
+    budsBox?.replaceChildren();
+    tipBox?.replaceChildren();
     pathIn.removeAttribute('d');
     yarn?.style.removeProperty('--seam');
     seam?.style.removeProperty('--seam-box');

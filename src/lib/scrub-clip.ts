@@ -46,7 +46,7 @@ export function mountClips(reduced: boolean): () => void {
       const img = new Image();
       img.src = `${base}${suffix}.webp`;
       // the poster must not land on top of a frame the video has already drawn
-      img.decode().then(() => !dead && (suffix ? end : !end && shown < 0) && draw(img, img.naturalWidth, img.naturalHeight), () => {});
+      img.decode().then(() => !dead && (end || shown < 0) && draw(img, img.naturalWidth, img.naturalHeight), () => {});
     };
     const seek = () => {
       if (!video || seeking || target === shown || video.readyState < 2) return;

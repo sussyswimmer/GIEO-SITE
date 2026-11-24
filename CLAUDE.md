@@ -1,6 +1,8 @@
 # GIEO Website: Claude Code Brief
 
-You are building the official website for **GIEO (Girls' Initiative for Education and Opportunities)**, a student-led social initiative from Hanoi that turns traditional H'mong brocade into modern products (tote bags, ceramic mugs, coasters) with partner Chie Dù Pù Dù Pà, and reinvests in H'mong women artisans and their daughters through three pillars: Economic Empowerment, Education, and a Mentorship Network. "Gieo" means "to sow".
+You are building the official website for **GIEO (Girls' Initiative for Education and Opportunities)**, a student-led social initiative from Hanoi that turns traditional brocade weaving into modern products with partner Chie Dù Pù Dù Pà, and reinvests in H'mong women artisans and their daughters through three pillars: Economic Empowerment, Education, and a Mentorship Network. "Gieo" means "to sow".
+
+The products today are the **Nối Nếp** collection, made with Chie Dù Pù Dù Pà: the **Nối Bag** (a brocade handbag) and the **Nếp Keychain** (a lipstick holder). GIEO makes nothing else today: the mug and coaster this site once showed are gone (`docs/09-feedback.md` F2). GIEO's own copy says H'mong throughout; their product leaflet says the patterns come from the weaving of the Thái people in Chiềng Châu, Mai Châu. That is an open question (`docs/00-open-questions.md` #13): leave GIEO's sentences exactly as they wrote them, and name no ethnic group in anything new about the products.
 
 The site must feel premium and alive: **three signature 3D scroll animations**, soft and editorial in look, and a scroll that is **fluid from top to bottom with nothing blocking the reader**.
 
@@ -13,6 +15,7 @@ The site must feel premium and alive: **three signature 3D scroll animations**, 
 5. `docs/05-build-plan.md`: stack and phases with checks
 6. `docs/06-skills.md`: which skills to load per phase
 7. `docs/00-open-questions.md`: things GIEO still has to answer (use placeholders, never block)
+8. `docs/07-redesign.md`, `docs/08-fuller.md`, `docs/09-feedback.md`: the later briefs, in that order. Each one overrides the files above, and the briefs before it, wherever they disagree. `09` is GIEO's first feedback (November 2026), applied to the showroom design Maxwell chose: display headings about 10 % smaller, the real products in the same 3D style, GIEO's photographs as prints.
 
 ## Non-negotiables
 
@@ -22,7 +25,7 @@ The site must feel premium and alive: **three signature 3D scroll animations**, 
 4. **Three fallback tiers** (Full / Lite video scrub / Still) via one `useMotionTier` hook. `prefers-reduced-motion` always respected.
 5. **Bilingual VI + EN** from day one; all strings in `src/content/*.json`. Vietnamese diacritics must render perfectly.
 6. **Never invent facts.** No statistics, testimonials, team members, prices or pattern meanings that GIEO hasn't given. Use `TODO(tag)` placeholders that render nothing in production.
-7. **Minors' privacy.** Only photos marked `consent: true`. Never pair a child's face with her name or village. Strip EXIF.
+7. **Minors' privacy.** A real GIEO photo may be used only when no person in it can be recognised; hands and a back view are fine. No face of a child or a teenager, ever, without GIEO's consent for that photo, and the team are minors too. Every photo needs a `yes` row in `assets/consent.csv` (a missing row counts as no) and an entry in `assets/photos/SOURCES.md`; only photos marked `consent: true` render. Alt text says what is visible and nothing else: no place, no ethnic group, no "our artisans". Never pair a child's face with her name or village. Strip EXIF. (`docs/09-feedback.md` F3.)
 8. **Logo is never redrawn or retyped.** Use GIEO's file.
 9. **Every 3D scene is built by a re-runnable Blender Python script** in `blender/scripts/`. No orphan hand-made assets.
 10. Ask Maxwell before anything with side effects outside this repo: deploying to production, buying a domain, installing global tools, emailing GIEO.
@@ -42,4 +45,6 @@ The site must feel premium and alive: **three signature 3D scroll animations**, 
 - Email: gieovietnam2026@gmail.com · Instagram: @gieo.vietnam · Facebook: facebook.com/gieo.vietnam
 - Supported by: IB Global Youth Action Fund (text mention only unless GIEO approves the logo)
 - Product partner: Chie Dù Pù Dù Pà (founded 2011)
+- Products: the Nối Nếp collection. Nối Bag / Túi Nối (brocade handbag, id `bag`) and Nếp Keychain / Móc Nếp (lipstick holder, id `lipstick`). The names come from GIEO's printed leaflet and are DRAFT until GIEO confirms them for the web. Both are modelled in 3D after GIEO's photos (`blender/film/weave.py` for the films and portraits, `blender/scripts/weave.py` for the Collections showroom). No prices, no wallets, no mug, no coaster.
+- Photos: eleven real frames in `assets/photos/`, listed in `assets/consent.csv` and `assets/photos/SOURCES.md`; `npm run images` writes them to `public/img/`. They are looked up by id (`src/lib/photos.ts`, `src/lib/photos-manifest.json`), not by file-name prefix, and shown as prints (`PhotoPrint`).
 - Signature line from GIEO: "This is GIEO, so far."
