@@ -881,3 +881,7 @@ Changed:
 Checks: `qa-fuller-b pace` at 1280×720, 1366×768, 1536×864, 1440×900, 1920×1080, 1024×768, 390×844: all passed (bag rest 56 to 77svh, keychain rest 30 to 75svh, cloth → bag 49 to 54svh, both products whole on screen wherever they rest or their name is lit, the canvas draws the right frame mid-rest). `test:motion` 56 of 56, typecheck, lint clean.
 
 Not done: the per-frame decode and upload are unchanged. If it still stutters on Maxwell's machine after this, the next step is decoding a few frames ahead of the scroll.
+
+## 2026-11-24 · `/feedback/` preview republished
+
+From 4621da9 (new About landing, the weave re-paced) to `gh-pages` db75b2f, root preview unchanged. Checked locally under the real path before pushing (no 4xx, marquee on both About pages), and live after the deploy (about 50 s): two scripts answered 503 in the first seconds and 200 on the next request (GitHub's CDN filling).
